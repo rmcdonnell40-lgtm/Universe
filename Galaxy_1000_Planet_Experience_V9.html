@@ -14,13 +14,20 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
 /* V9 addition only: keep the original V7 galaxy and planet preview */
 .terrain-enter{display:block;width:100%;padding:13px 15px;margin:-6px 0 18px;background:linear-gradient(120deg,#246b99,#20528d);color:#effbff;border:1px solid #80d9ff;border-radius:12px;font:700 12px system-ui;cursor:pointer;box-shadow:0 3px 18px #1658a43a}
 .terrain-enter:hover{background:linear-gradient(120deg,#3483ad,#2865a4)}
-.terrain-enter[hidden],.terrain-overlay[hidden]{display:none!important}
+.terrain-enter[hidden],.terrain-float[hidden],.terrain-overlay[hidden]{display:none!important}
 .terrain-enter:focus-visible,.terrain-return:focus-visible{outline:3px solid white;outline-offset:3px}
 .terrain-overlay{position:fixed;inset:0;z-index:1000;background:#040a15}
 .terrain-overlay iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:#040a15}
 .terrain-toolbar{position:absolute;z-index:6;right:15px;top:15px;display:flex;gap:8px}
 .terrain-return{color:#f0faff;background:#071b35ed;border:1px solid #8bcaff;border-radius:999px;padding:12px 17px;font:750 12px system-ui;box-shadow:0 8px 30px #0009;cursor:pointer}
-@media(max-width:600px){.terrain-toolbar{right:10px;top:10px}.terrain-return{font-size:11px;padding:9px 12px}}
+
+.terrain-float{position:absolute;z-index:5;left:18px;bottom:70px;width:max-content;max-width:calc(100% - 36px);padding:13px 20px;border:1px solid #8bdaff;border-radius:999px;background:linear-gradient(120deg,#2273b5,#2857a8);color:#fff;font:800 13px system-ui;cursor:pointer;box-shadow:0 6px 25px #04132fa8,0 0 0 2px #7bc9ff35;pointer-events:auto}
+.terrain-float:hover{background:linear-gradient(120deg,#3794d6,#347bd4)}
+.terrain-float:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.terrain-enter{margin:4px 0 13px;padding:15px 15px;font-size:13px}
+@media(max-width:900px){.terrain-float{bottom:65px;left:12px;font-size:11px;padding:10px 13px;max-width:calc(100% - 24px)}}
+@media(max-width:600px){.terrain-toolbar{right:10px;top:10px}.terrain-return{font-size:11px;padding:9px 12px}.hint{display:none}.terrain-float{bottom:58px}}
+
 </style>
 </head>
 <body>
@@ -29,7 +36,7 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
     <canvas id="space" class="space"></canvas>
     <div class="hud">
       <div class="brand">
-        <div class="k">UNIVERSE / MASTERCLASS · GALAXY EXPLORER</div>
+        <div class="k">UNIVERSE / MASTERCLASS · GALAXY + TERRAIN V9</div>
         <h1 id="title">The 1000 Planet Galaxy</h1>
         <p id="subtitle">Explore 100 star systems and 1000 procedurally generated planets. Select a system to begin.</p>
       </div>
@@ -41,16 +48,17 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
       </div>
     </div>
     <div class="mode-pill" id="modePill">Galaxy view</div>
+    <button type="button" id="viewTerrainFloat" class="terrain-float" hidden>⛰ VIEW TERRAIN · Explore Surface</button>
     <div class="hint" id="hint">Tap a star system to inspect it. In system view, tap a planet to inspect and name its owner. Scroll or pinch to zoom.</div>
   </section>
   <aside class="panel">
     <div class="panel-scroll">
       <div class="eyebrow" id="panelEyebrow">GALAXY OVERVIEW</div>
       <h2 id="panelTitle">1000 Worlds</h2>
+      <button type="button" id="viewTerrainBtn" class="terrain-enter" hidden>⛰ VIEW TERRAIN · Explore Planet Surface</button>
       <p id="panelIntro">Explore 1000 unique planets across 100 star systems. Each system contains a central object, orbiting planets, and optional moons.</p>
       <div class="stats" id="stats"></div>
       <div class="preview-wrap"><canvas id="preview" class="preview" width="220" height="220"></canvas></div>
-      <button type="button" id="viewTerrainBtn" class="terrain-enter" hidden>⛰ View Terrain · Enter Planet Surface</button>
       <div class="section">
         <h3>Selection details</h3>
         <p id="details">Nothing selected yet. In galaxy view, select a system. In system view, select a planet.</p>
@@ -331,7 +339,7 @@ function drawSystem(){
 }
 
 
-const terrainOverlay=$('terrainOverlay'),terrainFrame=$('terrainFrame'),terrainBtn=$('viewTerrainBtn'),returnTerrain=$('returnFromTerrain');
+const terrainOverlay=$('terrainOverlay'),terrainFrame=$('terrainFrame'),terrainBtn=$('viewTerrainBtn'),terrainFloat=$('viewTerrainFloat'),returnTerrain=$('returnFromTerrain');
 function surfaceFamily(p){
  if(p.type==='gasGiant')return 'gas';
  if(p.type==='lava')return 'lava';
@@ -361,9 +369,10 @@ function closeTerrain(){
  if(terrainOverlay.hidden)return;
  terrainOverlay.hidden=true;
  terrainFrame.src='about:blank';
- terrainBtn.focus();
+ terrainFloat.focus();
 }
 terrainBtn.addEventListener('click',openTerrain);
+terrainFloat.addEventListener('click',openTerrain);
 returnTerrain.addEventListener('click',closeTerrain);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!terrainOverlay.hidden)closeTerrain();});
 window.addEventListener('message',e=>{if(e.origin===location.origin&&e.source===terrainFrame.contentWindow&&e.data&&e.data.kind==='surface-v9:close')closeTerrain();});
@@ -395,7 +404,9 @@ function renderPanel(){
   }
   $('stats').innerHTML=stats.map(s=>'<div class="stat"><span>'+s[0]+'</span><strong>'+s[1]+'</strong></div>').join('');
   drawPreview();
-  $('viewTerrainBtn').hidden=!(mode==='system'&&selectedPlanet);
+  const showTerrain=mode==='system'&&Boolean(selectedPlanet);
+  terrainBtn.hidden=!showTerrain;
+  terrainFloat.hidden=!showTerrain;
 }
 
 function drawPreview(){

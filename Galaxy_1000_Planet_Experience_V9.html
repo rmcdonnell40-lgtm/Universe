@@ -28,6 +28,38 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
 @media(max-width:900px){.terrain-float{bottom:65px;left:12px;font-size:11px;padding:10px 13px;max-width:calc(100% - 24px)}}
 @media(max-width:600px){.terrain-toolbar{right:10px;top:10px}.terrain-return{font-size:11px;padding:9px 12px}.hint{display:none}.terrain-float{bottom:58px}}
 
+
+/* V9 ownership field — gentle, continuously breathing electric-blue border */
+.claim-box input{
+  border-color:rgba(83,171,255,.72);
+  animation:ownerBluePulse 2.7s ease-in-out infinite;
+  transition:background-color .2s ease;
+}
+@keyframes ownerBluePulse{
+  0%,100%{
+    border-color:rgba(72,153,248,.50);
+    box-shadow:0 0 0 1px rgba(58,137,255,.12),0 0 7px rgba(40,113,229,.20),inset 0 0 7px rgba(34,116,229,.04);
+  }
+  50%{
+    border-color:#72d8ff;
+    box-shadow:0 0 0 1px rgba(100,204,255,.66),0 0 13px rgba(57,159,255,.78),0 0 24px rgba(35,113,255,.35),inset 0 0 9px rgba(64,161,255,.09);
+  }
+}
+.claim-box input:focus{
+  outline:none;
+  border-color:#a2edff;
+  box-shadow:0 0 0 2px rgba(132,219,255,.45),0 0 18px rgba(55,156,255,.62);
+  animation:none;
+}
+.claim-box input::placeholder{color:#91a9ce}
+@media(prefers-reduced-motion:reduce){
+  .claim-box input{
+    animation:none;
+    border-color:#74cfff;
+    box-shadow:0 0 0 1px rgba(92,190,255,.38),0 0 12px rgba(48,145,255,.38);
+  }
+}
+
 </style>
 </head>
 <body>

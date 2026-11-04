@@ -29,43 +29,26 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
 @media(max-width:600px){.terrain-toolbar{right:10px;top:10px}.terrain-return{font-size:11px;padding:9px 12px}.hint{display:none}.terrain-float{bottom:58px}}
 
 
-/* GLOW FIX: visible even when the animation is at its dimmest frame */
+/* Steady illuminated ownership field — no pulse or movement */
 .claim-box{overflow:visible;isolation:isolate}
 .claim-box input{
   position:relative;
   z-index:1;
-  border:2px solid #4ebcff;
+  border:2px solid #70d3ff;
   background:#061d38;
   color:#fff;
-  box-shadow:0 0 0 1px rgba(95,193,255,.65),0 0 14px rgba(40,163,255,.78),0 0 30px rgba(28,112,255,.45),inset 0 0 10px rgba(40,145,255,.15);
-  animation:ownerHaloV9Fix 2.15s ease-in-out infinite;
-  will-change:box-shadow,border-color;
-}
-@keyframes ownerHaloV9Fix{
-  0%,100%{
-    border-color:#4bbaff;
-    box-shadow:0 0 0 1px rgba(95,193,255,.70),0 0 13px rgba(40,163,255,.76),0 0 28px rgba(28,112,255,.42),inset 0 0 10px rgba(40,145,255,.12);
-  }
-  50%{
-    border-color:#dbfaff;
-    box-shadow:0 0 0 2px rgba(135,230,255,.96),0 0 23px rgba(78,207,255,.98),0 0 44px rgba(24,135,255,.80),0 0 66px rgba(22,91,255,.35),inset 0 0 15px rgba(64,183,255,.22);
-  }
+  box-shadow:0 0 0 1px rgba(115,207,255,.70),0 0 14px rgba(57,163,255,.66),0 0 29px rgba(35,118,255,.35),inset 0 0 10px rgba(60,161,255,.13);
+  animation:none!important;
+  transition:border-color .15s ease,box-shadow .15s ease;
 }
 .claim-box input:focus,.claim-box input:focus-visible{
-  outline:2px solid #8deaff;
+  outline:2px solid #a6e9ff;
   outline-offset:2px;
-  border-color:#c7f7ff;
-  box-shadow:0 0 0 2px rgba(135,230,255,.95),0 0 22px rgba(75,195,255,.9),0 0 40px rgba(25,130,255,.65);
-  animation:none;
+  border-color:#b9f0ff;
+  box-shadow:0 0 0 2px rgba(155,223,255,.78),0 0 19px rgba(70,180,255,.75),0 0 30px rgba(30,128,255,.45);
+  animation:none!important;
 }
-.claim-box input::placeholder{color:#bbd8f4}
-@media(prefers-reduced-motion:reduce){
-  .claim-box input{
-    animation:none;
-    border-color:#8fe7ff;
-    box-shadow:0 0 0 2px rgba(135,230,255,.92),0 0 20px rgba(78,207,255,.85),0 0 36px rgba(24,135,255,.60);
-  }
-}
+.claim-box input::placeholder{color:#bddaf6}
 </style>
 </head>
 <body>

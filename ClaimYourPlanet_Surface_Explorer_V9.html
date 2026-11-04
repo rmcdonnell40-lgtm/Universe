@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070f1f">
+<title>Claim Your Planet | V9 — Planet Surface Explorer</title>
+<style>
+:root{color-scheme:dark;--bg:#060d1b;--panel:#0a1428;--text:#edf4ff;--muted:#a0b2d2;--border:rgba(158,190,245,.18);--accent:#79ccff;--mint:#89f3d2}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#050918;color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #8fdaff;outline-offset:2px}button:disabled{cursor:default;opacity:.4}
+.app{height:100dvh;min-height:520px;display:grid;grid-template-columns:minmax(0,1fr) 356px;overflow:hidden}
+.viewport{min-width:0;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 74%,#2a3049 0%,#111c36 43%,#050b1e 82%)}
+.viewport::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(3,9,23,.18),transparent 40%,rgba(2,7,19,.32));}
+.viewport::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;box-shadow:inset 0 0 115px 24px rgba(0,4,16,.3)}
+#scene{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}#scene:active{cursor:grabbing}
+.stars{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 18% 19%,#cfe2ffb8 99%,transparent),radial-gradient(2px 2px at 75% 12%,#e8ffff92 99%,transparent),radial-gradient(1px 1px at 51% 28%,#d5c4ff99 99%,transparent),radial-gradient(1px 1px at 87% 41%,#f8efff99 99%,transparent),radial-gradient(1px 1px at 30% 38%,#e4eaffaa 99%,transparent),radial-gradient(1px 1px at 62% 17%,#e5e9ffb9 99%,transparent),radial-gradient(1px 1px at 9% 48%,#fff7e399 99%,transparent),radial-gradient(1px 1px at 96% 21%,#fff7e399 99%,transparent);opacity:.45}
+.sky-orb{position:absolute;pointer-events:none;left:67%;top:12%;width:clamp(35px,5vw,75px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 29% 28%,#fff3c2,#dc9e72 27%,#714c7b 66%,#2b3661);box-shadow:0 0 45px #eeb17d35,0 0 120px #b5657436,inset -13px -8px 20px #090d27;opacity:.85;z-index:0}
+.top{position:absolute;z-index:4;top:clamp(17px,3vw,37px);left:clamp(17px,3vw,39px);right:18px;pointer-events:none}
+.kicker{color:#95d6ff;font-weight:800;letter-spacing:.25em;font-size:10px;text-shadow:0 2px 20px #000}
+h1{font-size:clamp(30px,4vw,60px);font-weight:680;letter-spacing:-.07em;line-height:1;margin:11px 0 10px;text-shadow:0 5px 26px #001}
+.top p{font-size:12px;line-height:1.6;color:#b3c6e2;max-width:390px;margin:0;text-shadow:0 2px 10px #001}
+.chip{display:inline-flex;align-items:center;gap:7px;background:#07162dd9;border:1px solid var(--border);padding:8px 11px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#bbdcfb;margin-top:14px}.chip i{display:block;background:#6bffc9;width:6px;height:6px;border-radius:50%;box-shadow:0 0 12px #6effbd}
+.top-right{position:absolute;z-index:4;right:19px;top:19px;color:#d7e8ff;border-radius:9px;padding:9px 10px;background:#07162ad9;border:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.08em;pointer-events:none}
+.bottom{position:absolute;z-index:4;bottom:20px;left:clamp(17px,3vw,38px);right:20px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;pointer-events:none}
+.current{padding:13px 17px;border:1px solid var(--border);background:#05142bdb;backdrop-filter:blur(14px);border-radius:15px;max-width:420px}
+.current .mini{color:#8dc3f7;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800}
+.current strong{display:block;font-size:clamp(19px,2.2vw,28px);margin:6px 0 4px;letter-spacing:-.045em}
+.current small{color:#a5bbd8;font-size:11px;line-height:1.45}
+.cam-actions{display:flex;gap:7px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end}
+.btn{border:1px solid #6799ca55;background:#102342da;color:#e6f3ff;border-radius:10px;padding:10px 12px;min-height:40px;font-size:11px;font-weight:750;white-space:nowrap;transition:background .15s,border-color .15s}.btn:hover{background:#1e3f68;border-color:#7ecaff}.btn.main{background:linear-gradient(135deg,#287ab6,#214583);border-color:#58b8fa}.btn.on{border-color:#66dbf3;color:#b5f9ff}
+#markers{position:absolute;inset:0;z-index:3;pointer-events:none}
+.marker{position:absolute;transform:translate(-50%,-94%);pointer-events:auto;border-radius:12px;border:1px solid #b2deff77;background:#06142be8;box-shadow:0 8px 25px #0009;color:#ddf0ff;padding:7px 9px;display:flex;align-items:center;gap:6px;font-size:10px;max-width:130px;white-space:nowrap;transition:border-color .2s,background .2s}.marker .symbol{font-size:15px}.marker.selected{background:#17619adf;border-color:#a4e9ff;box-shadow:0 0 0 2px #6ccfff44,0 0 35px #55bcff6c}.marker.beacon{background:#143d43;border-color:#78f3ca}.marker[hidden]{display:none}
+.marker::after{content:"";position:absolute;top:100%;height:19px;border-left:1px solid #9bc6ffa8;left:50%}
+.panel{border-left:1px solid var(--border);background:linear-gradient(145deg,#101f37,#0a1325 44%,#070e1c 100%);min-height:0;display:flex;flex-direction:column}
+.panel-scroll{overflow:auto;padding:25px 19px 32px;min-height:0;scrollbar-color:#355174 transparent;scrollbar-width:thin}
+.eyebrow{font-size:10px;color:#8dbff4;font-weight:800;letter-spacing:.22em}
+h2{font-size:26px;letter-spacing:-.05em;font-weight:680;margin:9px 0 7px}.sub{margin:0;color:#9bafcb;font-size:12px;line-height:1.7}
+.group{border-top:1px solid var(--border);margin-top:20px;padding-top:18px}.group h3{margin:0 0 12px;font-weight:790;font-size:10px;letter-spacing:.15em;color:#a8c9f4;text-transform:uppercase}
+.types{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.world{padding:8px 4px 9px;border:1px solid #45628870;border-radius:11px;background:#0a1b32;color:#b2c5df;font-size:9px;display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;transition:.15s}.world:hover{background:#1e3652}.world[aria-pressed=true]{color:#f1fcff;border-color:#7bd4ff;background:#16375a;box-shadow:inset 0 0 0 1px #5fc4ed42}.planet-icon{width:33px;height:33px;border-radius:50%;box-shadow:inset -9px -5px 8px #020b18d5,0 0 10px #badbff2c;background:radial-gradient(circle at 33% 26%,#86f5e9,#1593b7 47%,#135070 82%)}
+.world[data-type=lava] .planet-icon{background:radial-gradient(circle at 33% 26%,#ffae64,#c13d12 50%,#2b1620 90%)}
+.world[data-type=ice] .planet-icon{background:radial-gradient(circle at 33% 26%,#f3ffff,#8cd5f3 49%,#2f749a 90%)}
+.world[data-type=desert] .planet-icon{background:radial-gradient(circle at 33% 26%,#fee2a0,#d69b56 49%,#895239 90%)}
+.world[data-type=verdant] .planet-icon{background:radial-gradient(circle at 33% 26%,#b7f0d0,#2e946d 43%,#183e63 88%)}
+.idbar{display:flex;align-items:center;gap:8px;margin-top:11px}.idbar label{font-size:10px;color:#8da8ce;white-space:nowrap}.idbar input{width:80px;min-width:0;background:#06152b;border:1px solid #5679a655;border-radius:9px;padding:10px;color:white;font-weight:780;text-align:center}.idbar button{flex:1}
+.btn-row{display:flex;gap:8px;margin-top:9px}.btn-row .btn{flex:1;min-width:0;padding:10px 6px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{border:1px solid #587b9b37;padding:10px;border-radius:10px;background:#0a1a30}.stat span{color:#89a5c5;font-size:10px;display:block;margin-bottom:7px}.stat strong{font-size:15px;font-weight:750}
+.scan{padding:15px;border:1px solid #4c83ae73;border-radius:13px;background:linear-gradient(140deg,#102a43,#0a1c32 70%)}.scan-head{display:flex;align-items:center;gap:10px}.scan-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#143c63;font-size:24px;border:1px solid #7abfff44}.scan-title{font-size:15px;font-weight:760}.scan-type{color:#8ab7de;font-size:10px;letter-spacing:.05em;margin-top:4px}.scan p{font-size:12px;color:#b6cae1;line-height:1.65;margin:11px 0}.resource{border-radius:10px;background:#07172b;border:1px solid #5987ae2e;padding:10px;font-size:11px;color:#b5d1ec}.resource strong{display:block;color:#e8f4ff;margin:5px 0 2px;font-size:13px}.beacon{width:100%;margin-top:10px;background:linear-gradient(115deg,#175d71,#173f5a);border-color:#51bbce}
+.inline-note{font-size:10px;color:#94a9c7;line-height:1.65;margin-top:9px}
+.notice{margin-top:20px;padding:13px 14px;font-size:11px;color:#a0b5d0;line-height:1.65;border:1px solid #5377a44c;border-radius:12px;background:#0b20364c}.notice strong{color:#e5f1ff}
+.err{position:absolute;z-index:20;inset:auto 10% 35%;padding:20px;background:#311a27;border:1px solid #df7696;color:#ffe0ea;border-radius:14px;display:none;font-size:13px;line-height:1.5}
+@media(max-width:1000px){.app{grid-template-columns:1fr;grid-template-rows:minmax(330px,59dvh) minmax(0,1fr);height:100dvh;min-height:0}.panel{border-left:0;border-top:1px solid var(--border)}.panel-scroll{padding:17px 18px 24px}.top{top:18px;left:18px}.top-right{top:13px;right:13px}.top h1{font-size:34px}.top p{font-size:11px;max-width:290px}.bottom{bottom:13px;left:13px;right:12px}.current{padding:10px 12px}.current strong{font-size:19px}.cam-actions{flex-direction:column}.cam-actions .btn{min-height:29px;padding:7px 10px}.marker{font-size:9px;padding:5px 7px}.types{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:580px){.app{grid-template-rows:minmax(340px,54dvh) minmax(0,1fr)}.top h1{font-size:30px}.top p{max-width:230px;font-size:10px}.chip{margin-top:10px;padding:6px 8px;font-size:9px}.top-right{font-size:9px;padding:7px}.current{max-width:68%;padding:8px 10px}.current .mini{font-size:8px}.current strong{font-size:17px;margin:4px 0}.current small{font-size:9px}.bottom{align-items:flex-end}.marker:not(.selected):not(.beacon) .label{display:none}.marker:not(.selected):not(.beacon){padding:5px}.marker::after{height:12px}.world{font-size:9px}.planet-icon{width:30px;height:30px}.panel-scroll{padding:18px 15px}.btn-row .btn{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* V9 embedded explorer: show the selected galaxy planet without allowing it to change */
+body.linked .types,body.linked .idbar,body.linked .btn-row{display:none!important}
+body.linked .top-right{display:none}
+body.linked .top .chip{background:#0c3b50b8;border-color:#5acde06b}
+body.linked .panel .eyebrow{color:#a3dafa}
+@media(max-width:580px){body.linked .top h1{font-size:26px}body.linked .top p{max-width:260px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <section class="viewport" id="viewport" aria-label="Interactive three-dimensional planet terrain">
+    <div class="stars"></div><div class="sky-orb"></div>
+    <canvas id="scene" aria-label="3D procedural alien landscape. Drag to rotate, pinch to zoom."></canvas>
+    <div class="top"><div class="kicker">CLAIM YOUR PLANET · SURFACE EXPLORER</div><h1>Another world.<br>Under your feet.</h1><p>Descend from orbit into a unique terrain. Explore the landscape, inspect resources, and choose where to establish a foothold.</p><div class="chip"><i></i> LIVE 3D TERRAIN · VISUAL PROTOTYPE</div></div>
+    <div class="top-right">SURFACE LAB · PREVIEW BUILD</div>
+    <div id="markers" aria-label="Resource locations"></div>
+    <div class="bottom"><div class="current"><div class="mini" id="currentFamily">OCEAN WORLD · SURFACE SECTOR 01</div><strong id="currentName">AURELIA-0247</strong><small>Drag to orbit · Pinch or wheel to zoom · Tap resource markers</small></div><div class="cam-actions"><button id="autoBtn" class="btn" type="button" aria-pressed="false">◌ Auto orbit</button><button id="resetBtn" class="btn" type="button">⟲ Reset view</button><button id="saveBtn" class="btn main" type="button">↓ Save image</button></div></div>
+    <div id="err" class="err" role="alert">This browser couldn't initialise WebGL. Please try Chrome with hardware acceleration enabled.</div>
+  </section>
+  <aside class="panel"><div class="panel-scroll">
+    <div class="eyebrow">EXPEDITION CONTROL / 001</div><h2>Surface expedition</h2><p class="sub" id="surfaceSubtitle">Procedurally generated terrain. Explore the environment, inspect resource deposits and survey the region.</p>
+    <section class="group"><h3>Choose a world environment</h3><div class="types" id="types">
+      <button class="world" data-type="ocean" aria-pressed="true"><span class="planet-icon"></span>Ocean</button>
+      <button class="world" data-type="lava" aria-pressed="false"><span class="planet-icon"></span>Lava</button>
+      <button class="world" data-type="ice" aria-pressed="false"><span class="planet-icon"></span>Frozen</button>
+      <button class="world" data-type="desert" aria-pressed="false"><span class="planet-icon"></span>Desert</button>
+      <button class="world" data-type="verdant" aria-pressed="false"><span class="planet-icon"></span>Verdant</button>
+    </div><div class="idbar"><label for="planetId">PLANET #</label><input id="planetId" type="number" min="1" max="1000" value="247" inputmode="numeric"><button class="btn" id="goBtn">Explore</button></div><div class="btn-row"><button class="btn" id="prevBtn">← Previous</button><button class="btn main" id="randomBtn">✦ New world</button><button class="btn" id="nextBtn">Next →</button></div></section>
+    <section class="group"><h3>Surface environment</h3><div class="stat-grid" id="stats"></div></section>
+    <section class="group"><h3>Region scan · choose a marker</h3><div class="scan"><div class="scan-head"><div class="scan-icon" id="scanIcon">💧</div><div><div class="scan-title" id="scanName">Coastal Basin</div><div class="scan-type" id="scanType">SURVEY ZONE 01</div></div></div><p id="scanDescription">Water-rich deposits along the coast. Possible future location for a resource outpost.</p><div class="resource">PRIMARY RESOURCE<strong id="scanResource">Water · Abundant</strong><span id="scanHazard">Hazard: Moderate coastal flooding</span></div><button id="beaconBtn" class="btn beacon" type="button">⌖ Place survey beacon</button><div class="inline-note" id="beaconNote">Survey beacons are only saved in this browser as a prototype. They do not claim a real planet.</div></div></section>
+    <div class="notice"><strong>Surface simulation:</strong> This is illustrative procedural terrain, not surveyed planetary geography. Resource deposits, climate effects and beacons are prototype gameplay, not verified astronomical data. Beacons are saved only in this browser.</div>
+  </div></aside>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const linked=params.get('linked')==='1';
+const safeText=(value,max)=>String(value||'').slice(0,max);
+const validFamilies=['ocean','lava','ice','desert','verdant','gas','toxic','rocky'];
+const linkedInfo=linked?{
+ id:Math.max(1,Math.min(1000,Math.trunc(Number(params.get('id')))||247)),
+ family:validFamilies.includes(params.get('family'))?params.get('family'):'rocky',
+ name:safeText(params.get('name')||'',70),
+ system:safeText(params.get('system')||'',70),
+ nativeType:safeText(params.get('type')||'',30),
+ temperature:Number(params.get('temperature')),
+ water:Number(params.get('water')),
+ atmosphere:safeText(params.get('atmosphere')||'',35),
+ planetSeed:Number(params.get('seed'))>>>0
+}:null;
+if(linked){document.body.classList.add('linked');document.querySelector('.top h1').textContent='Planet surface';document.querySelector('.top p').textContent='Survey the terrain of your selected world. Drag to rotate, zoom in and inspect resource regions.';document.querySelector('.top .chip').lastChild.textContent=' PROCEDURAL LANDSCAPE · EARLY GAMEPLAY';$('surfaceSubtitle').textContent='Exploring '+(linkedInfo.name||('Planet #'+linkedInfo.id))+' in '+(linkedInfo.system||'its star system')+'. Surface terrain is a prototype based on its planet classification.';}
+
+const canvas=$('scene'),viewport=$('viewport'),gl=canvas.getContext('webgl',{alpha:true,antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});
+if(!gl){$('err').style.display='block';return;}
+const vert=`attribute vec3 aPos,aNormal,aColor;uniform mat4 uVP;varying vec3 vPos,vNormal,vColor;void main(){vPos=aPos;vNormal=aNormal;vColor=aColor;gl_Position=uVP*vec4(aPos,1.0);}`;
+const frag=`precision highp float;varying vec3 vPos,vNormal,vColor;uniform float uTime,uMode,uNight;uniform vec3 uEye,uFog;void main(){
+ vec3 n=normalize(vNormal);vec3 light=normalize(vec3(-.6,.85,.5));float diffuse=max(dot(n,light),0.);
+ vec3 c=vColor;float shade=.58+.52*diffuse;
+ if(uMode<.5){float detail=sin(vPos.x*1.6+vPos.z*2.4)*sin(vPos.z*2.1-vPos.x*.7)*.042;c*=shade*(.94+detail);}
+ else if(uMode<1.5){float w=sin(vPos.x*.48+uTime*1.7)*sin(vPos.z*.5-uTime*.9)+sin(vPos.x*.21+vPos.z*.28+uTime*1.1);
+ vec3 wn=normalize(vec3(sin(vPos.x*.48+uTime*1.7)*.11,1.,cos(vPos.z*.5-uTime*.9)*.12));
+ float sp=pow(max(dot(reflect(-light,wn),normalize(uEye-vPos)),0.),24.);
+ c=mix(c,vec3(.25,.73,.95),(.5+.5*sin(w*1.8+uTime*.4))*.10)+vec3(.45,.71,1.)*sp*.8;
+ float foam=smoothstep(.68,.95,sin((vPos.x+vPos.z)*.32+sin(vPos.x*.5+uTime*.8)*1.4+uTime*.8));c+=vec3(.05,.14,.18)*foam;
+ c*=.72+.3*diffuse;
+ }
+ else if(uMode<2.5||(uMode>4.5&&uMode<5.5)){float v=sin(vPos.x*.55+uTime*1.4+sin(vPos.z*.18))*sin(vPos.z*.47-uTime*.92);
+ float veins=pow(max(.0,.5+.5*sin(vPos.x*.76+vPos.z*.39+sin(vPos.z*.2+uTime)*3.+uTime)),10.);
+ c=vec3(1.12,.19+.15*v,.012)+vec3(.9,.36,.025)*max(v,0.)*.5+vec3(1.1,.6,.12)*veins*.4;
+ }
+ else if(uMode>5.5){float bands=sin(vPos.z*.11+vPos.x*.045+sin(vPos.x*.035+uTime*.11)*3.+uTime*.12);float swirl=sin(vPos.x*.14-vPos.z*.08+uTime*.08)*sin(vPos.z*.075+uTime*.08);c=mix(vec3(.32,.19,.24),vec3(.78,.58,.44),bands*.5+.5)+vec3(.16,.12,.17)*swirl;c*=.62+.38*diffuse;}
+ else if(uMode<3.5){float pat=sin(vPos.x*.7+vPos.z*.4)*sin(vPos.z*.41-uTime*.08);c=vec3(.40,.73,.85)+vec3(.12,.2,.19)*pat;c*=shade;}
+ else {c*=shade;}
+ float distance=length(vPos.xz);float fog=smoothstep(70.,122.,distance);fog=max(fog,smoothstep(90.,185.,length(vPos-uEye))*.35);
+ c=mix(c,uFog,fog*.96);c*=mix(1.,.32,uNight);
+ c=1.-exp(-max(c,vec3(0.))*.97);
+ gl_FragColor=vec4(pow(c,vec3(.89)),1.);}`;
+function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s;}
+let program;
+try{program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vert));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,frag));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(program));}catch(err){$('err').textContent='3D graphics error: '+err.message;$('err').style.display='block';console.error(err);return;}
+gl.useProgram(program);
+const loc={pos:gl.getAttribLocation(program,'aPos'),normal:gl.getAttribLocation(program,'aNormal'),color:gl.getAttribLocation(program,'aColor'),vp:gl.getUniformLocation(program,'uVP'),time:gl.getUniformLocation(program,'uTime'),mode:gl.getUniformLocation(program,'uMode'),night:gl.getUniformLocation(program,'uNight'),eye:gl.getUniformLocation(program,'uEye'),fog:gl.getUniformLocation(program,'uFog')};
+for(const a of [loc.pos,loc.normal,loc.color])gl.enableVertexAttribArray(a);
+gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.disable(gl.CULL_FACE);
+const worldNamesA=['Aure','Zeph','Thal','Pyra','Cael','Nex','Sere','Iona','Vel','Nara','Or','Sol','Lumi','Tyra','Eris','Cryo','Nive','Kora','Sola','Astra','Ves','Drax'],worldNamesB=['lia','ora','is','une','ion','aris','eon','ara','eth','alis','os','oria','ara'];
+const families={
+ gas:{name:'Upper atmosphere',caption:'Cloud banks and storm bands (no solid surface)',fog:[.27,.20,.21],water:-999,temp:-80,sky:'#533c4a',features:[['🌀','Storm Belt','Atmospheric energy','High','Violent wind shear'],['☁️','Cloud Layer','Atmospheric gases','Abundant','Extreme turbulence'],['⚡','Electric Zone','Electrical potential','Rich','Lightning'],['🔬','Trace Gas Zone','Trace compounds','Moderate','High pressure'],['🛰️','Stable Shear Zone','Atmospheric samples','Moderate','Rapid circulation']]},
+ toxic:{name:'Toxic wasteland',caption:'Corrosive terrain and chemical basins',fog:[.12,.19,.075],water:-100,temp:75,sky:'#243016',features:[['☣️','Corrosive Basin','Industrial chemicals','High','Toxic atmosphere'],['⛏️','Sulfur Ridge','Sulfur minerals','Rich','Corrosive haze'],['🧪','Acid Flats','Chemical compounds','Moderate','Acidic deposits'],['🪨','Heavy Metal Field','Heavy elements','High','Contamination'],['🌫️','Fume Corridor','Rare gases','Moderate','Dense vapours']]},
+ rocky:{name:'Rocky world',caption:'Barren craters and silicate plateaus',fog:[.18,.19,.23],water:-100,temp:15,sky:'#22273b',features:[['🪨','Crater Ridge','Silicate minerals','High','Impact debris'],['⛏️','Metal Basin','Metal ores','Moderate','Unstable ground'],['💎','Basalt Deposit','Industrial minerals','High','Rough terrain'],['🔭','Impact Plain','Scientific samples','Moderate','Micrometeoroids'],['☄️','Ancient Crater','Trace elements','Low','Steep walls']]},
+
+ ocean:{name:'Ocean world',caption:'Shallow seas and mountainous archipelagos',fog:[.064,.12,.24],water:0,temp:14,sky:'#162c4a',features:[['💧','Coastal Basin','Freshwater / seawater','Abundant','Storm surges and salinity'],['🪨','Tidal Cliffs','Silicate minerals','Moderate','Cliff instability'],['🐚','Shallow Shelf','Carbonates','Rich','Strong coastal currents'],['⚡','Storm Coast','Wind energy','High','Severe weather'],['🌿','Emerald Islands','Biomass','Moderate','Fragile ecosystem']]},
+ lava:{name:'Volcanic world',caption:'Basalt ridges, active vents and molten flows',fog:[.26,.085,.055],water:-12,temp:184,sky:'#432019',features:[['🔥','Molten Rift','Geothermal energy','Extreme','Intense heat and toxic gases'],['💎','Basalt Ridge','Heavy metals','Rich','Seismic activity'],['⛰️','Ash Plateau','Sulfur','High','Ash storms'],['⚙️','Obsidian Field','Industrial minerals','High','Thermal fracture'],['🛰️','Caldera Rim','Rare elements','Moderate','Volcanic collapse']]},
+ ice:{name:'Frozen world',caption:'Glacial valleys and fractured ice shelves',fog:[.13,.22,.35],water:-4,temp:-128,sky:'#1b344f',features:[['🧊','Glacial Basin','Water ice','Abundant','Crevasses'],['💠','Crystal Shelf','Ice crystals','Rich','Unstable ice'],['🪨','Frozen Ridge','Silicates','Moderate','Avalanche zones'],['❄️','Blue Crevasse','Subsurface ice','High','Extreme cold'],['🔭','Polar Plateau','Rare volatiles','Moderate','Low visibility']]},
+ desert:{name:'Desert world',caption:'Windswept dunes, canyons and rocky mesas',fog:[.26,.17,.12],water:-100,temp:64,sky:'#423227',features:[['☀️','Sunward Dunes','Solar energy','Abundant','Excessive daytime heat'],['🪨','Canyon Mine','Metal ores','Rich','Rockfall'],['💎','Salt Basin','Salts and minerals','High','Dust storms'],['⛏️','Red Mesa','Silicate minerals','Moderate','Erosion'],['🌪️','Wind Corridor','Wind energy','High','Sand abrasion']]},
+ verdant:{name:'Verdant world',caption:'Temperate seas, forests and green highlands',fog:[.08,.16,.21],water:-1,temp:19,sky:'#102e3b',features:[['🌲','Ancient Forest','Biomass','High','Wildfire risk'],['💧','River Basin','Fresh water','High','Seasonal flooding'],['⛰️','Green Highlands','Mineral deposits','Moderate','Steep slopes'],['🌿','Mossland','Organic compounds','Abundant','Habitat sensitivity'],['⚡','Windward Ridge','Wind energy','High','High-altitude weather']]}
+};
+let family='ocean',planetId=247,seed=0,terrain=null,water=null,objects=null,river=null,spots=[],selected=0,night=false,auto=false,autoAngle=0;
+const camera={yaw:.5,pitch:.63,dist:155,target:[0,0,0]},pointers=new Map();let dragMoved=0,lastPinch=0,previousMid=null;
+function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
+function mix(a,b,t){return a*(1-t)+b*t;}
+function lerp3(a,b,t){return a.map((v,i)=>mix(v,b[i],t));}
+function hex(s){return [parseInt(s.slice(1,3),16)/255,parseInt(s.slice(3,5),16)/255,parseInt(s.slice(5,7),16)/255];}
+function hashSeed(id,type){let h=(id*2654435761)>>>0;for(let i=0;i<type.length;i++)h=Math.imul(h^type.charCodeAt(i),16777619)>>>0;return h;}
+function rng(s){let n=s>>>0;return()=>{n=(n+0x6D2B79F5)>>>0;let x=n;x=Math.imul(x^(x>>>15),x|1);x^=x+Math.imul(x^(x>>>7),x|61);return ((x^(x>>>14))>>>0)/4294967296;};}
+function hash2(ix,iz,off){let h=Math.imul(ix,374761393)+Math.imul(iz,668265263)+Math.imul(seed^off,2246822519);h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967295*2-1;}
+function noise(x,z,salt=0){const i=Math.floor(x),j=Math.floor(z);let fx=x-i,fz=z-j;fx=fx*fx*(3-2*fx);fz=fz*fz*(3-2*fz);return mix(mix(hash2(i,j,salt),hash2(i+1,j,salt),fx),mix(hash2(i,j+1,salt),hash2(i+1,j+1,salt),fx),fz);}
+function fbm(x,z,s=0){let val=0,amp=.58,freq=1,tot=0;for(let i=0;i<5;i++){val+=noise(x*freq,z*freq,s+i*13)*amp;tot+=amp;amp*=.52;freq*=2.08;}return val/tot;}
+function height(x,z){const n=fbm(x*.03+7,z*.03-2,0),fine=fbm(x*.095,z*.095,100),ridge=1-Math.abs(fbm(x*.026-13,z*.033+9,203));
+ if(family==='gas')return 5+Math.sin(z*.055+fbm(x*.025,z*.025,80)*5)*5+Math.sin(x*.06-z*.035)*3+fine*3;
+ if(family==='toxic')return 3+n*15+ridge*6+fine*3;
+ if(family==='rocky')return 2+n*21+ridge*12+fine*2.7;
+ if(family==='ocean')return -4+n*29+Math.max(0,ridge-.7)*20+fine*3;
+ if(family==='lava'){const dx=x+13,dz=z-6,r=Math.hypot(dx,dz);const volcano=Math.max(0,42-r*.62);const crater=r<7?(-24*(1-r/7)):0;return -9+n*20+ridge*14+volcano+crater+fine*3;}
+ if(family==='ice')return -1+n*29+Math.pow(ridge,3)*21+fine*4;
+ if(family==='desert')return 4+n*11+Math.sin(x*.18+noise(z*.035,x*.04,7)*7)*3.5+Math.cos(z*.13+noise(x*.04,z*.04,11)*5)*3+fine*1.4;
+ return 4+n*30+Math.max(0,ridge-.68)*30+fine*3.4;
+}
+function colorAt(x,z,h,normal){const n=fbm(x*.12+3,z*.12-1,23)*.5+.5,rock=fbm(x*.15-5,z*.15+4,79)*.5+.5,slope=1-normal[1];let base;
+ if(family==='ocean'){if(h<1)base=lerp3([.49,.43,.30],[.71,.64,.39],n);else if(h<9)base=lerp3([.11,.37,.21],[.20,.55,.29],n);else if(h<18)base=lerp3([.26,.32,.31],[.50,.56,.43],rock);else base=lerp3([.58,.58,.60],[.86,.86,.80],rock);}
+ else if(family==='gas'){const b=Math.sin(z*.09+fbm(x*.035,z*.045,36)*6)*.5+.5;base=lerp3([.37,.25,.25],[.73,.59,.44],b);if(n>.6)base=lerp3(base,[.88,.76,.68],.35);}
+ else if(family==='toxic'){base=lerp3([.17,.20,.11],[.43,.51,.16],n);if(slope>.2)base=lerp3(base,[.29,.34,.14],.4);}
+ else if(family==='rocky'){base=lerp3([.22,.22,.25],[.53,.49,.47],rock);if(slope>.28)base=lerp3(base,[.35,.33,.36],.25);}
+ else if(family==='lava'){base=h>26?lerp3([.32,.19,.17],[.48,.30,.22],n):lerp3([.14,.13,.17],[.27,.20,.17],n);if(h<1)base=lerp3(base,[.37,.13,.07],.25);}
+ else if(family==='ice'){base=h<2?lerp3([.32,.57,.74],[.48,.74,.85],n):lerp3([.70,.83,.87],[.93,.96,.97],n);if(slope>.28)base=lerp3(base,[.25,.49,.61],.38);}
+ else if(family==='desert'){base=lerp3([.48,.24,.14],[.84,.59,.32],n);if(h>14||slope>.20)base=lerp3(base,[.62,.38,.24],.35);}
+ else{base=h<0?lerp3([.67,.64,.42],[.81,.71,.47],n):h<12?lerp3([.08,.28,.18],[.20,.48,.27],n):lerp3([.24,.35,.28],[.49,.50,.37],rock);if(h>23)base=lerp3(base,[.75,.72,.64],.6);}
+ return base.map(v=>clamp(v*(.84+.2*rock),0,1));}
+function makeMesh(vertices,indices){const array=new Float32Array(vertices),ebo=new Uint16Array(indices);const vb=gl.createBuffer(),ib=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,array,gl.STATIC_DRAW);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,ebo,gl.STATIC_DRAW);return {vb,ib,count:ebo.length};}
+function dispose(mesh){if(mesh){gl.deleteBuffer(mesh.vb);gl.deleteBuffer(mesh.ib);}}
+function pushV(arr,x,y,z,nx,ny,nz,r,g,b){arr.push(x,y,z,nx,ny,nz,r,g,b);}
+function geometry(){const N=84,S=106,verts=[],idx=[];for(let j=0;j<=N;j++){let z=(j/N*2-1)*S;for(let i=0;i<=N;i++){let x=(i/N*2-1)*S,h=height(x,z),dx=(height(x+1,z)-height(x-1,z))/2,dz=(height(x,z+1)-height(x,z-1))/2;let len=Math.hypot(-dx,1,-dz),normal=[-dx/len,1/len,-dz/len],c=colorAt(x,z,h,normal);pushV(verts,x,h,z,...normal,...c);}}for(let j=0;j<N;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+1,c=a+N+1,d=c+1;idx.push(a,c,b,b,c,d)}return makeMesh(verts,idx);}
+function plane(level,kind){const N=2,S=107,verts=[],idx=[];for(let j=0;j<=N;j++)for(let i=0;i<=N;i++){const x=(i/N*2-1)*S,z=(j/N*2-1)*S,c=kind==='lava'?[.89,.26,.04]:kind==='ice'?[.44,.75,.9]:[.04,.32,.53];pushV(verts,x,level,z,0,1,0,...c);}for(let j=0;j<N;j++)for(let i=0;i<N;i++){let a=j*(N+1)+i,b=a+1,c=a+N+1,d=c+1;idx.push(a,c,b,b,c,d);}return makeMesh(verts,idx);}
+function extras(){const verts=[],idx=[],r=rng(seed+101),target=family==='gas'?0:family==='verdant'?270:family==='ice'?100:family==='desert'?150:family==='lava'?95:65;
+ function tri(a,b,c,col){const norm=normalTri(a,b,c);const start=verts.length/9;for(const p of [a,b,c])pushV(verts,...p,...norm,...col);idx.push(start,start+1,start+2);}
+ function normalTri(a,b,c){const ab=[b[0]-a[0],b[1]-a[1],b[2]-a[2]],ac=[c[0]-a[0],c[1]-a[1],c[2]-a[2]];let n=[ab[1]*ac[2]-ab[2]*ac[1],ab[2]*ac[0]-ab[0]*ac[2],ab[0]*ac[1]-ab[1]*ac[0]];const l=Math.hypot(...n)||1;return n.map(v=>v/l);}
+ for(let k=0,placed=0;k<target*5&&placed<target;k++){
+  let x=(r()-.5)*184,z=(r()-.5)*184,h=height(x,z);if((family==='ocean'&&h<1.5)||(family==='verdant'&&h<2)||(family==='ice'&&h<-3)||(family==='lava'&&h<-2))continue;
+  const size=.9+r()*2.3,rot=r()*6.283;let col,facets=family==='verdant'?4:3;
+  if(family==='verdant')col=lerp3([.04,.24,.16],[.13,.40,.20],r());else if(family==='ice')col=lerp3([.43,.70,.84],[.77,.92,.95],r());else if(family==='desert')col=lerp3([.40,.27,.21],[.68,.47,.30],r());else if(family==='lava')col=lerp3([.16,.13,.16],[.35,.24,.19],r());else col=lerp3([.27,.40,.29],[.46,.53,.42],r());
+  for(let j=0;j<facets;j++){let a=rot+j*2*Math.PI/facets,b=rot+(j+1)*2*Math.PI/facets;let p1=[x+Math.cos(a)*size,h,z+Math.sin(a)*size],p2=[x+Math.cos(b)*size,h,z+Math.sin(b)*size],top=[x,h+size*(family==='verdant'?3:family==='ice'?3.2:1.8),z];tri(p1,p2,top,col);}
+  placed++;
+ }
+ return makeMesh(verts,idx);
+}
+function lavaRiver(){if(family!=='lava')return null;const verts=[],idx=[];const offsets=[0,3,-3];let count=0;for(let riverIndex=0;riverIndex<3;riverIndex++){const phase=riverIndex*2.0-.4;const r=rng(seed+120+riverIndex);let prev=null;for(let j=0;j<=55;j++){const t=j/55,radius=7+t*84,angle=phase+Math.sin(t*8+riverIndex*3)*.17+Math.sin(t*20+riverIndex)*.07,x=-13+Math.cos(angle)*radius,z=6+Math.sin(angle)*radius;const width=1.8+t*1.3,px=-Math.sin(angle)*width,pz=Math.cos(angle)*width,h=height(x,z)+.24;pushV(verts,x+px,h,z+pz,0,1,0,.94,.26,.01);pushV(verts,x-px,h,z-pz,0,1,0,1,.4,.01);if(j>0){let a=(riverIndex*56+j-1)*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}count++;}}
+ return makeMesh(verts,idx);
+}
+function nameFor(id){const r=rng(hashSeed(id,'name'));return worldNamesA[Math.floor(r()*worldNamesA.length)]+worldNamesB[Math.floor(r()*worldNamesB.length)]+'-'+String(id).padStart(4,'0');}
+const anchors=[[-40,-33],[42,-22],[-31,38],[43,37],[0,-4]];
+function createSpots(){const def=families[family].features;spots=anchors.map(([x,z],i)=>({id:i,x,z,y:Math.max(height(x,z),family==='desert'?-99:families[family].water)+4,data:def[i]}));const box=$('markers');box.innerHTML='';for(const spot of spots){const b=document.createElement('button');b.className='marker';b.type='button';b.innerHTML='<span class="symbol">'+spot.data[0]+'</span><span class="label">'+spot.data[1]+'</span>';b.dataset.index=spot.id;b.onclick=()=>selectSpot(spot.id);box.appendChild(b);}selected=0;selectSpot(0);}
+function beaconKey(){return 'cyp-surface-beacon-v9-'+family+'-'+planetId+'-'+seed;}
+function hasBeacon(){try{return localStorage.getItem(beaconKey())===String(selected)}catch(e){return false}}
+function selectSpot(index){selected=index;const spot=spots[index],f=spot.data;$('scanIcon').textContent=f[0];$('scanName').textContent=f[1];$('scanType').textContent='SURVEY ZONE '+String(index+1).padStart(2,'0');$('scanDescription').textContent='Survey results indicate '+f[2].toLowerCase()+' near this terrain feature. Suitable infrastructure would depend on temperature, pressure and local hazards.';$('scanResource').textContent=f[2]+' · '+f[3];$('scanHazard').textContent='Hazard: '+f[4];$('beaconBtn').textContent=hasBeacon()?'✕ Remove survey beacon':'⌖ Place survey beacon';$('beaconNote').textContent='Local demonstration only. A placed beacon is saved on this device, not shared with other players.';updateMarkerClasses();}
+function updateMarkerClasses(){let saved=null;try{const v=localStorage.getItem(beaconKey());if(v!==null)saved=Number(v);}catch(e){}[...$('markers').children].forEach((b,i)=>{b.classList.toggle('selected',i===selected);b.classList.toggle('beacon',saved===i);});}
+function changeWorld(id,type){planetId=clamp(Math.round(Number(id)||1),1,1000);family=type;seed=hashSeed(linkedInfo?linkedInfo.planetSeed:planetId,family);for(const m of [terrain,water,objects,river])dispose(m);terrain=geometry();const lvl=families[family].water;water=['desert','gas','toxic','rocky'].includes(family)?null:plane(lvl,family==='lava'?'lava':family==='ice'?'ice':'water');objects=extras();river=lavaRiver();
+ camera.yaw=.5;camera.pitch=.63;camera.dist=155;camera.target=[0,0,0];auto=false;$('autoBtn').setAttribute('aria-pressed','false');$('autoBtn').classList.remove('on');$('planetId').value=planetId;for(const b of $('types').children)b.setAttribute('aria-pressed',String(b.dataset.type===family));$('currentFamily').textContent=families[family].name.toUpperCase()+' · SURFACE SECTOR 01';$('currentName').textContent=linkedInfo?(linkedInfo.name||('Planet '+planetId)):nameFor(planetId);
+ const coverage=linkedInfo&&Number.isFinite(linkedInfo.water)?linkedInfo.water+'% (modelled)':family==='ocean'?'68%':family==='verdant'?'28%':family==='ice'?'Frozen':family==='lava'?'Molten':family==='gas'?'No solid surface':'Scarce';
+ const heat=linkedInfo&&Number.isFinite(linkedInfo.temperature)?linkedInfo.temperature:families[family].temp+((planetId%13)-6)*2;
+ const stats=[['Planet ID','#'+String(planetId).padStart(4,'0')],['Environment',families[family].name],[linkedInfo?'Galaxy temperature (modelled)':'Indicative temperature',heat+'°C'],[family==='gas'?'Atmosphere':'Surface water',family==='gas'?(linkedInfo?.atmosphere||'Deep gaseous envelope'):coverage],['Survey regions','5 mapped'],['Generation seed',seed.toString(16).toUpperCase().slice(0,8)]];
+$('stats').innerHTML=stats.map(([a,b])=>'<div class="stat"><span>'+a+'</span><strong>'+b+'</strong></div>').join('');createSpots();viewport.style.background='radial-gradient(ellipse at 50% 74%,'+families[family].sky+' 0%,#111b31 43%,#040a1b 86%)';$('currentFamily').textContent=families[family].name.toUpperCase()+' · #'+planetId;}
+function perspective(fovy,aspect,near,far){const f=1/Math.tan(fovy/2),a=1/(near-far);return [f/aspect,0,0,0,0,f,0,0,0,0,(far+near)*a,-1,0,0,2*far*near*a,0];}
+function lookAt(eye,target){let f=[target[0]-eye[0],target[1]-eye[1],target[2]-eye[2]];let l=Math.hypot(...f);f=f.map(v=>v/l);let side=[-f[2],0,f[0]];l=Math.hypot(...side);side=side.map(v=>v/l);const up=[side[1]*f[2]-side[2]*f[1],side[2]*f[0]-side[0]*f[2],side[0]*f[1]-side[1]*f[0]];return [side[0],up[0],-f[0],0,side[1],up[1],-f[1],0,side[2],up[2],-f[2],0,-(side[0]*eye[0]+side[1]*eye[1]+side[2]*eye[2]),-(up[0]*eye[0]+up[1]*eye[1]+up[2]*eye[2]),f[0]*eye[0]+f[1]*eye[1]+f[2]*eye[2],1];}
+function multiply(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let v=0;for(let k=0;k<4;k++)v+=a[k*4+r]*b[c*4+k];o[c*4+r]=v;}return o;}
+function project(p,mat){const [x,y,z]=p;const xx=mat[0]*x+mat[4]*y+mat[8]*z+mat[12],yy=mat[1]*x+mat[5]*y+mat[9]*z+mat[13],ww=mat[3]*x+mat[7]*y+mat[11]*z+mat[15];return {x:(xx/ww*.5+.5)*canvas.clientWidth,y:(.5-yy/ww*.5)*canvas.clientHeight,w:ww};}
+function resize(){const dpr=Math.min(devicePixelRatio||1,1.6),w=canvas.clientWidth,h=canvas.clientHeight;const cw=Math.round(w*dpr),ch=Math.round(h*dpr);if(canvas.width!==cw||canvas.height!==ch){canvas.width=cw;canvas.height=ch;gl.viewport(0,0,cw,ch);}}
+function renderMesh(mesh,mode){if(!mesh)return;gl.bindBuffer(gl.ARRAY_BUFFER,mesh.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.ib);const stride=9*4;gl.vertexAttribPointer(loc.pos,3,gl.FLOAT,false,stride,0);gl.vertexAttribPointer(loc.normal,3,gl.FLOAT,false,stride,3*4);gl.vertexAttribPointer(loc.color,3,gl.FLOAT,false,stride,6*4);gl.uniform1f(loc.mode,mode);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0);}
+let lastTime=0,t=0,lastPaint=0,paintIndex=0;
+function frame(ms){requestAnimationFrame(frame);if(ms-lastPaint<28)return;lastPaint=ms;const dt=Math.min(.05,(ms-lastTime)/1000||0);lastTime=ms;t+=dt;if(auto)camera.yaw+=dt*.12;resize();const eye=[camera.target[0]+camera.dist*Math.cos(camera.pitch)*Math.sin(camera.yaw),camera.target[1]+camera.dist*Math.sin(camera.pitch),camera.target[2]+camera.dist*Math.cos(camera.pitch)*Math.cos(camera.yaw)];const vp=multiply(perspective(.84,canvas.width/canvas.height,.1,650),lookAt(eye,camera.target));gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.uniformMatrix4fv(loc.vp,false,vp);gl.uniform1f(loc.time,t);gl.uniform1f(loc.night,night?1:0);gl.uniform3fv(loc.eye,eye);gl.uniform3fv(loc.fog,families[family].fog);renderMesh(terrain,family==='gas'?6:0);renderMesh(water,family==='lava'?2:family==='ice'?3:1);renderMesh(objects,4);renderMesh(river,5);
+ for(let i=0;i<spots.length;i++){const b=$('markers').children[i],spot=spots[i],pos=project([spot.x,spot.y,spot.z],vp);const x=pos.x,y=pos.y;const ok=pos.w>0&&x>20&&x<canvas.clientWidth-20&&y>65&&y<canvas.clientHeight-44;b.hidden=!ok;if(ok){b.style.left=x+'px';b.style.top=y+'px';}}
+}
+function zoom(scale){camera.dist=clamp(camera.dist*scale,70,285);}
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});dragMoved=0;previousMid=null;lastPinch=0;});
+canvas.addEventListener('pointermove',e=>{const p=pointers.get(e.pointerId);if(!p)return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});const dx=e.clientX-p.x,dy=e.clientY-p.y;dragMoved+=Math.abs(dx)+Math.abs(dy);
+ if(pointers.size===1){camera.yaw-=dx*.006;camera.pitch=clamp(camera.pitch+dy*.005,.24,1.42);}
+ else if(pointers.size===2){const ps=[...pointers.values()],distance=Math.hypot(ps[0].x-ps[1].x,ps[0].y-ps[1].y);if(lastPinch)zoom(lastPinch/distance);lastPinch=distance;const mx=(ps[0].x+ps[1].x)/2,my=(ps[0].y+ps[1].y)/2;if(previousMid){const xx=mx-previousMid[0],yy=my-previousMid[1];camera.target[0]-=xx*.08*Math.cos(camera.yaw)-yy*.08*Math.sin(camera.yaw);camera.target[2]+=xx*.08*Math.sin(camera.yaw)-yy*.08*Math.cos(camera.yaw);camera.target[0]=clamp(camera.target[0],-35,35);camera.target[2]=clamp(camera.target[2],-35,35);}previousMid=[mx,my];}
+});
+function release(e){pointers.delete(e.pointerId);lastPinch=0;previousMid=null;}
+canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom(Math.exp(e.deltaY*.001));},{passive:false});
+$('types').addEventListener('click',e=>{const b=e.target.closest('.world');if(b)changeWorld(planetId,b.dataset.type);});
+$('goBtn').onclick=()=>changeWorld($('planetId').value,family);$('planetId').addEventListener('keydown',e=>{if(e.key==='Enter')changeWorld(e.target.value,family)});
+$('prevBtn').onclick=()=>changeWorld(planetId===1?1000:planetId-1,family);$('nextBtn').onclick=()=>changeWorld(planetId===1000?1:planetId+1,family);
+$('randomBtn').onclick=()=>changeWorld(1+((planetId+Math.floor(Math.random()*29))%1000),family);
+$('autoBtn').onclick=()=>{auto=!auto;$('autoBtn').setAttribute('aria-pressed',String(auto));$('autoBtn').classList.toggle('on',auto)};
+$('resetBtn').onclick=()=>{camera.yaw=.5;camera.pitch=.63;camera.dist=155;camera.target=[0,0,0]};
+$('beaconBtn').onclick=()=>{try{if(hasBeacon())localStorage.removeItem(beaconKey());else localStorage.setItem(beaconKey(),String(selected));}catch(e){$('beaconNote').textContent='Local storage is disabled in this browser; this beacon cannot be saved.';}selectSpot(selected);};
+$('saveBtn').onclick=()=>{try{const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download='ClaimYourPlanet_Surface_'+family+'_'+String(planetId).padStart(4,'0')+'.png';document.body.appendChild(a);a.click();a.remove()}catch(err){alert('Image export is unavailable in this browser.')}};
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&linked)parent.postMessage({kind:'surface-v9:close'},location.origin);});
+changeWorld(linkedInfo?.id||247,linkedInfo?.family||'ocean');requestAnimationFrame(frame);
+})();
+</script>
+</body></html>

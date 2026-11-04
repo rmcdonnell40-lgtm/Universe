@@ -359,7 +359,7 @@ requestAnimationFrame(draw);
 <script>
 (()=>{'use strict';
 const shell=document.getElementById('galaxyV7Shell'),frame=document.getElementById('galaxyV7Frame'),open=document.getElementById('openGalaxyV7'),close=document.getElementById('galaxyV7Close');
-open.addEventListener('click',()=>{shell.classList.add('open');shell.setAttribute('aria-hidden','false');if(!frame.getAttribute('src'))frame.setAttribute('src','Galaxy_1000_Planet_Experience_V9.html?ownerGlow=1');close.focus()});
+open.addEventListener('click',()=>{shell.classList.add('open');shell.setAttribute('aria-hidden','false');if(!frame.getAttribute('src'))frame.setAttribute('src','Galaxy_1000_Planet_Experience_V9_GlowFix.html');close.focus()});
 close.addEventListener('click',()=>{shell.classList.remove('open');shell.setAttribute('aria-hidden','true');open.focus()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&shell.classList.contains('open'))close.click()});
 })();

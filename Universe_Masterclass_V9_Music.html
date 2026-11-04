@@ -420,10 +420,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&shell.classList.con
     if(!muted)attemptPlayback();
   });
   // The visitor's first tap/click on the main site unlocks audio where permitted.
-  document.addEventListener('pointerdown',e=>{
+  // On touch screens the user activation happens on pointerup/click, not pointerdown.
+  function startOnInteraction(e){
     if(e.target===button||button.contains(e.target))return;
     attemptPlayback();
-  },true);
+  }
+  document.addEventListener('pointerdown',startOnInteraction,true);
+  document.addEventListener('pointerup',startOnInteraction,true);
+  document.addEventListener('click',startOnInteraction,true);
   document.addEventListener('keydown',e=>{
     if(e.key==='Enter'||e.key===' '||e.key.startsWith('Arrow'))attemptPlayback();
   },true);

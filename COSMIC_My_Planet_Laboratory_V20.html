@@ -53,7 +53,7 @@ function readLab(){
   const saved=JSON.parse(localStorage.getItem(LAB_KEY));
   if(!saved||typeof saved!=='object')return defaultLab();
   const defaults=defaultLab();
-  return {stock:Object.fromEntries(specs.map(x=>[x.id,Math.max(0,Number(saved.stock?.[x.id]??defaults.stock[x.id])||0)])),added:Array.isArray(saved.added)?saved.added.filter(id=>specs.some(x=>x.id===id)):[],living:!!saved.living,cultures:Math.max(0,Number(saved.cultures)||0),seeded:!!saved.seeded};
+  return {stock:Object.fromEntries(specs.map(x=>[x.id,Math.max(0,Number(saved.stock?.[x.id]??defaults.stock[x.id])||0)])),added:Array.isArray(saved.added)?saved.added.filter(id=>specs.some(x=>x.id===id)):[],living:!!saved.living,cultures:Math.max(0,Number(saved.cultures)||0),seeded:!!saved.seeded,seedStartedAt:Math.max(0,Number(saved.seedStartedAt)||0)};
  }catch(e){return defaultLab();}
 }
 const labState=readLab();

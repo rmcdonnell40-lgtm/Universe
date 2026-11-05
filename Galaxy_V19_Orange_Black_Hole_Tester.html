@@ -97,6 +97,7 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
         <button class="btn" id="backBtn" hidden>← Galaxy</button>
         <button class="btn" id="pauseOrbitsBtn" hidden aria-pressed="true">▶ Resume orbits</button>
         <button class="btn" id="randomBtn">Random system</button>
+        <button class="btn" id="blackHoleTesterBtn" title="Tester shortcut: view an active black hole">☀ View Black Hole</button>
         <button class="btn primary" id="reseedBtn">Regenerate galaxy</button>
       </div>
     </div>
@@ -882,6 +883,11 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 function syncOrbitButton(){const b=$('pauseOrbitsBtn');b.hidden=mode!=='system';b.textContent=orbitsPaused?'▶ Resume orbits':'Ⅱ Pause orbits';b.setAttribute('aria-pressed',String(orbitsPaused));}
 function selectSystem(s){selectedSystem=s;selectedPlanet=null;mode='system';orbitsPaused=true;$('backBtn').hidden=false;syncOrbitButton();resetView();renderPanel();}
 function backToGalaxy(){mode='galaxy';selectedPlanet=null;selectedSystem=null;$('backBtn').hidden=true;syncOrbitButton();resetView();renderPanel();}
+function viewBlackHoleTester(){
+ const target=galaxy?.systems?.find(s=>s.type==='blackHole'&&s.active) || galaxy?.systems?.find(s=>s.type==='blackHole');
+ if(target)selectSystem(target);
+}
+$('blackHoleTesterBtn').onclick=viewBlackHoleTester;
 function randomSystem(){const s=galaxy.systems[Math.floor(Math.random()*galaxy.systems.length)];if(mode==='galaxy'){camX=-s.x;camY=-s.y;hovered=s;renderPanel();} else {selectSystem(s)}}
 function regenerate(){for(let tries=0;tries<30;tries++){const seed=Math.floor(Math.random()*1000000000);try{const next=generateGalaxy(seed);galaxySeed=seed;galaxy=next;backToGalaxy();return;}catch(e){console.warn('Trying a different stable civilisation seed',e.message);}}alert('Unable to generate sufficient plausible worlds. Keeping your existing galaxy.');}
 

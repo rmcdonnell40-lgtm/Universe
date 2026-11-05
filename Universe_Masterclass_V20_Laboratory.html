@@ -386,7 +386,7 @@ requestAnimationFrame(draw);
 window.COSMIC_MASTERCLASS_PAUSED=false;
 (()=>{'use strict';
 const shell=document.getElementById('galaxyV7Shell'),frame=document.getElementById('galaxyV7Frame'),open=document.getElementById('openGalaxyV7'),close=document.getElementById('galaxyV7Close');
-open.addEventListener('click',()=>{window.COSMIC_MASTERCLASS_PAUSED=true;shell.classList.add('open');shell.setAttribute('aria-hidden','false');if(!frame.getAttribute('src'))frame.setAttribute('src','Galaxy_V20_LabIntegrated.html');close.focus()});
+open.addEventListener('click',()=>{window.COSMIC_MASTERCLASS_PAUSED=true;shell.classList.add('open');shell.setAttribute('aria-hidden','false');if(!frame.getAttribute('src'))frame.setAttribute('src','Galaxy_V20_LabIntegrated.html?rev=seeding-home');close.focus()});
 close.addEventListener('click',()=>{window.COSMIC_MASTERCLASS_PAUSED=false;shell.classList.remove('open');shell.setAttribute('aria-hidden','true');open.focus()});
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==frame.contentWindow)return;

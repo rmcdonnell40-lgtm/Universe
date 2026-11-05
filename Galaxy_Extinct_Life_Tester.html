@@ -100,7 +100,7 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
         <button class="btn primary" id="reseedBtn">Regenerate galaxy</button>
       </div>
     </div>
-    <div class="mode-pill" id="modePill">Galaxy view</div><div class="civt"><button id="civOpen">✧ Survey Progress</button><button id="hzShow" class="active">◎ Habitable Zone ON</button></div><section id="civList" class="civlist" hidden><div id="civWrap" class="civwrap"></div></section>
+    <div class="mode-pill" id="modePill">Galaxy view</div><div class="civt"><button id="civOpen">✧ Survey Progress</button><button id="testerReveal" type="button" aria-label="Show extinct world test targets">🧪 Test Worlds</button><button id="hzShow" class="active">◎ Habitable Zone ON</button></div><section id="civList" class="civlist" hidden><div id="civWrap" class="civwrap"></div></section>
     <div class="nebula-controls" id="nebulaControls" aria-label="Distant space scenery controls">
       <label><input type="checkbox" id="nebulaShow" checked> Distant galaxies</label>
       <label>Glow <input type="range" id="nebulaGlow" min="15" max="100" value="62" step="5" aria-label="Background glow strength"></label>
@@ -335,10 +335,39 @@ function openCivilisations(){
  const summary=document.createElement('p');
  summary.textContent=progress.surveyed+' planets surveyed · '+progress.extinct+' extinct worlds confirmed · '+progress.technology+' ancient-technology signals recorded';
  wrap.append(summary);
- const note=document.createElement('p');note.textContent='Ancient-life planets remain secret until discovered by the existing Planet Scan. No target list or spoilers.';wrap.append(note);
+ const note=document.createElement('p');note.textContent='Normal gameplay hides ancient-life classifications until the standard Scan Planet is completed. For testing, use the separate 🧪 Test Worlds button.';wrap.append(note);
  $('civList').hidden=false;
 }
+function openTestWorlds(){
+ const wrap=$('civWrap');wrap.replaceChildren();
+ const close=document.createElement('button');close.textContent='✕ Close';close.className='civworld';close.onclick=()=>{$('civList').hidden=true;};wrap.append(close);
+ const title=document.createElement('h2');title.textContent='🧪 Extinct Worlds — Tester Only';wrap.append(title);
+ const intro=document.createElement('p');intro.textContent='These locations are deliberately revealed ONLY in the tester. Choose a world to jump directly to its solar system, then press View Terrain → Scan Planet. Scanning reveals its ancient-life history and resource markers.';wrap.append(intro);
+ const total=document.createElement('p');total.textContent=galaxy.extinctWorlds.length+' extinct-world test targets · '+galaxy.extinctWorlds.filter(o=>o.p.life.pastLife?.ancientTechnology).length+' contain ancient technology';wrap.append(total);
+ for(const o of galaxy.extinctWorlds){
+   const item=document.createElement('button');item.type='button';item.className='civworld';
+   const info=document.createElement('span'),name=document.createElement('strong'),desc=document.createElement('small'),tag=document.createElement('small');
+   name.textContent='Planet #'+String(o.p.id).padStart(4,'0')+' · '+o.p.name;
+   desc.textContent=o.sys.name+' · '+o.p.type+' · '+o.p.temperature+'°C';
+   tag.textContent=o.p.life.pastLife.ancientTechnology?'✧ ANCIENT TECHNOLOGY':'🦠 FOSSIL RECORD';
+   tag.style.color=o.p.life.pastLife.ancientTechnology?'#ffd58d':'#9beacb';
+   info.append(name,desc);item.append(info,tag);
+   item.onclick=()=>{
+     $('civList').hidden=true;
+     selectSystem(o.sys);
+     selectedPlanet=o.p;
+     renderPanel();
+   };
+   wrap.append(item);
+ }
+ const outro=document.createElement('p');
+ outro.textContent='This shortcut is for development testing only. Planetary profiles and the journal retain their normal hidden-until-scanned rules.';
+ wrap.append(outro);
+ $('civList').hidden=false;
+}
+
 $('civOpen').onclick=openCivilisations;
+$('testerReveal').onclick=openTestWorlds;
 $('hzShow').onclick=()=>{hzEnabled=!hzEnabled;$('hzShow').classList.toggle('active',hzEnabled);$('hzShow').textContent=hzEnabled?'◎ Habitable Zone ON':'◎ Habitable Zone OFF';};
 
 function generateGalaxy(seed){

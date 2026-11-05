@@ -257,14 +257,34 @@ function addLife(g){
  pick('Subsurface Civilisation World',2,o=>o.s.type!=='blackHole'&&o.s.type!=='blueGiant'&&o.p.water>=10&&o.p.temperature<15&&o.p.temperature>-115&&['ice','rocky','terrestrial'].includes(o.p.type),o=>(o.p.type==='ice'?100:30)-Math.abs(o.p.temperature+30)*.3,'Subsurface','Underground settlements');
  pick('Arid Colony World',4,o=>o.s.type!=='blackHole'&&o.p.temperature>-115&&o.p.temperature<125&&['rocky','desert','ice','terrestrial'].includes(o.p.type),o=>(o.p.type==='desert'?100:0)-Math.abs(o.p.temperature-25)*.3,'Engineered','Pressurised habitat domes');
  pick('Synthetic Intelligence World',3,o=>o.s.type!=='blackHole'&&o.p.type!=='gasGiant'&&o.p.type!=='lava'&&o.p.temperature<95,o=>(o.p.type==='rocky'?90:0)+Math.abs(o.p.temperature-22)*.2,'Artificial intelligence','Autonomous machine cities');
- g.civilisations=all.filter(o=>o.p.life.civilisation).sort((a,b)=>a.p.id-b.p.id);return g;
+ g.civilisations=all.filter(o=>o.p.life.civilisation).sort((a,b)=>a.p.id-b.p.id);
+ for(const o of all){
+  const p=o.p,kind=p.life.civilisation||'';
+  const forest=kind==='Verdant Civilisation World',ocean=kind==='Oceanic Civilisation World';
+  const isDome=kind==='Arid Colony World',isRobot=kind==='Synthetic Intelligence World',under=kind==='Subsurface Civilisation World';
+  p.life.worldClass=forest?'Temperate Biosphere World':ocean?'Oceanic Biosphere World':
+    isDome?'Engineered Habitat World':isRobot?'Machine-Occupied World':under?'Subsurface Habitat World':
+    p.type==='forest'?'Temperate Forest World':p.type==='ocean'?'Ocean World':
+    p.type==='terrestrial'?(p.water>=35?'Water-Bearing Terrestrial World':'Terrestrial World'):
+    p.type==='gasGiant'?'Gas Giant':p.type==='toxic'?'Corrosive Atmosphere World':
+    p.type==='desert'?'Arid World':p.type==='ice'?'Cryogenic World':p.type==='lava'?'Volcanic World':'Rocky World';
+  p.life.surfaceFamily=forest?'verdant':ocean?'ocean':
+    p.type==='terrestrial'?(p.water>=55&&p.temperature>-8&&p.temperature<65?'ocean':p.water>=15&&p.temperature>-20&&p.temperature<65?'verdant':'rocky'):
+    p.type==='forest'?'verdant':p.type==='ocean'?'ocean':p.type==='gasGiant'?'gas':
+    p.type==='ice'?'ice':p.type==='desert'?'desert':p.type==='lava'?'lava':p.type==='toxic'?'toxic':'rocky';
+  if(forest)p.palette=['#104d77','#277f98','#4fa16c'];
+  if(ocean)p.palette=['#0a4279','#168cbb','#5bc8b9'];
+  if(isDome&&p.type==='terrestrial'&&p.water<20)p.palette=['#614f49','#a37a58','#d0b18b'];
+  if(isRobot&&p.type==='rocky')p.palette=['#3a4551','#677585','#97a6b8'];
+ }
+ return g;
 }
 function drawHZ(){
  if(!hzEnabled||!selectedSystem?.hz)return;
  const ss=selectedSystem,scale=Math.min(W,H)*.37/(ss.planets[ss.planets.length-1].orbit*1.14)*zoom;
  const x=W*.49+camX*Math.min(W,H)*.37*zoom,y=H*.53+camY*Math.min(W,H)*.37*zoom;
  const inner=ss.hz.inner*scale,outer=ss.hz.outer*scale;
- ctx.save();ctx.beginPath();ctx.arc(x,y,outer,0,TAU);ctx.arc(x,y,inner,0,TAU,true);ctx.fillStyle='rgba(78,222,142,.12)';ctx.fill('evenodd');ctx.strokeStyle='rgba(105,242,171,.40)';for(const radius of [inner,outer]){ctx.beginPath();ctx.arc(x,y,radius,0,TAU);ctx.stroke();}ctx.restore();
+ ctx.save();ctx.beginPath();ctx.ellipse(x,y,outer,outer*.73,0,0,TAU);ctx.ellipse(x,y,inner,inner*.73,0,0,TAU,true);ctx.fillStyle='rgba(78,222,142,.12)';ctx.fill('evenodd');ctx.strokeStyle='rgba(105,242,171,.40)';for(const radius of [inner,outer]){ctx.beginPath();ctx.ellipse(x,y,radius,radius*.73,0,0,TAU);ctx.stroke();}ctx.restore();
 }
 function openCivilisations(){
  const wrap=$('civWrap');wrap.replaceChildren();
@@ -501,7 +521,7 @@ function drawSystem(){
 
 
 const terrainOverlay=$('terrainOverlay'),terrainFrame=$('terrainFrame'),terrainBtn=$('viewTerrainBtn'),terrainFloat=$('viewTerrainFloat'),returnTerrain=$('returnFromTerrain');
-function surfaceFamily(p){
+function surfaceFamily(p){if(p.life?.surfaceFamily)return p.life.surfaceFamily;
  if(p.type==='gasGiant')return 'gas';
  if(p.type==='lava')return 'lava';
  if(p.type==='ice')return 'ice';
@@ -521,10 +541,10 @@ function surfaceUrl(p){
    color0:p.palette[0],color1:p.palette[1],color2:p.palette[2]
   }).toString();
  }
- return 'ClaimYourPlanet_Surface_V17.html?'+new URLSearchParams({
+ return 'ClaimYourPlanet_Surface_Civilisation_Tester.html?'+new URLSearchParams({
   linked:'1',id:String(p.id),type:p.type,family:surfaceFamily(p),
   name:p.name,system:selectedSystem.name,temperature:String(p.temperature),
-  water:String(p.water),atmosphere:p.atmosphere,seed:String(p.seed>>>0)
+  water:String(p.water),atmosphere:p.atmosphere,seed:String(p.seed>>>0),society:p.life.society,settlement:p.life.settlement,worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2]
  }).toString();
 }
 function openTerrain(){
@@ -552,7 +572,7 @@ function lifeUrl(p){
     linked:'1',id:String(p.id),name:p.name,type:p.type,
     temperature:String(p.temperature),water:String(p.water),atmosphere:p.atmosphere,
     system:selectedSystem.name,seed:String(p.seed>>>0),
-    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:p.life.civilisation||'',biosphere:p.life.biosphere,
+    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:p.life.civilisation||'',biosphere:p.life.biosphere,worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2],hz:p.life.hz?'1':'0',
     rings:p.hasRings?'1':'0',moons:String(p.moons.length)
   }).toString();
 }
@@ -723,14 +743,15 @@ function renderPanel(){
     $('panelEyebrow').textContent='PLANET PROFILE';
     $('panelTitle').textContent=selectedPlanet.name;
     $('panelIntro').textContent='Orbiting '+selectedSystem.name+'. This world is procedurally generated from a fixed seed, so its look and stats stay consistent.';
-    stats.push(['Life compatibility',selectedPlanet.life.score+'%'],['Biosphere',selectedPlanet.life.biosphere],['Civilisation',selectedPlanet.life.civilisation||'None detected'],['Planet ID',selectedPlanet.id],['Type',selectedPlanet.type],['Moons',selectedPlanet.moons.length],['Modelled temp',selectedPlanet.temperature+'°C'],['Orbit',selectedPlanet.orbit.toFixed(2)+' AU'],['Orbital period',selectedPlanet.periodYears.toFixed(2)+' yr']);
-    $('details').textContent=(selectedPlanet.life.civilisation?selectedPlanet.life.civilisation+' · '+selectedPlanet.life.society+' · '+selectedPlanet.life.settlement+'. ':'')+(selectedPlanet.life.hz?'Inside the habitable zone. ':'Outside the habitable zone. ')+'Atmosphere: '+selectedPlanet.atmosphere+'. '+(selectedPlanet.type==='gasGiant'?'No conventional solid surface: explore the cloud-top storms instead. ':'Surface water (illustrative): '+selectedPlanet.water+'%. ')+'Orbit radius: '+selectedPlanet.orbit.toFixed(2)+' AU. Orbital period: '+selectedPlanet.periodYears.toFixed(2)+' years. Estimated radiative equilibrium: '+selectedPlanet.equilibrium+' K, plus simplified greenhouse/internal heating. '+(selectedPlanet.hasRings?'This world has a ring system. ':'')+selectedPlanet.climateNote;
+    stats.push(['Natural habitability',selectedPlanet.life.score+'%'],['World type',selectedPlanet.life.worldClass],['Biosphere',selectedPlanet.life.biosphere],['Civilisation status',selectedPlanet.life.civilisation||'None detected'],['Settlement',selectedPlanet.life.settlement],['Planet ID',selectedPlanet.id],['Physical type',selectedPlanet.type],['Moons',selectedPlanet.moons.length],['Modelled temp',selectedPlanet.temperature+'°C'],['Orbit',selectedPlanet.orbit.toFixed(2)+' AU'],['Orbital period',selectedPlanet.periodYears.toFixed(2)+' yr']);
+    const orbitalNote=selectedPlanet.life.hz?'Inside the stellar habitable zone. ':('Outside the stellar habitable zone despite a modelled '+selectedPlanet.temperature+'°C. Greenhouse heating ('+selectedPlanet.greenhouse+' K) or internal heating ('+selectedPlanet.internal+' K) can raise the modelled temperature; zone membership uses stellar flux and is not determined by temperature alone. ');
+    $('details').textContent=selectedPlanet.life.worldClass+'. '+(selectedPlanet.life.civilisation?selectedPlanet.life.society+' · '+selectedPlanet.life.settlement+'. ':'')+orbitalNote+'Atmosphere: '+selectedPlanet.atmosphere+'. '+(selectedPlanet.type==='gasGiant'?'No conventional solid surface: explore the cloud-top storms instead. ':'Surface water (illustrative): '+selectedPlanet.water+'%. ')+'Orbit radius: '+selectedPlanet.orbit.toFixed(2)+' AU. Orbital period: '+selectedPlanet.periodYears.toFixed(2)+' years. Estimated radiative equilibrium: '+selectedPlanet.equilibrium+' K, plus simplified greenhouse/internal heating. '+(selectedPlanet.hasRings?'This world has a ring system. ':'')+selectedPlanet.climateNote;
     $('ownerBox').innerHTML=selectedPlanet.owner?'<div class="owner">Owner: '+escapeHtml(selectedPlanet.owner)+'</div>':'';
   } else if(selectedSystem){
     $('panelEyebrow').textContent='SYSTEM PROFILE';
     $('panelTitle').textContent=selectedSystem.name;
     $('panelIntro').textContent='A '+selectedSystem.type.replace(/([A-Z])/g,' $1').toLowerCase()+' system containing '+selectedSystem.planetCount+' planets. '+selectedSystem.activity+'.';
-    stats.push(['Habitable zone',selectedSystem.hz?selectedSystem.hz.inner.toFixed(2)+'–'+selectedSystem.hz.outer.toFixed(2)+' AU':'Not modelled'],['Civilisations',selectedSystem.planets.filter(p=>p.life.civilisation).length],['System ID',selectedSystem.id],['Planets',selectedSystem.planetCount],['Central body',selectedSystem.type],['Central mass',selectedSystem.mass.toFixed(2)+' M☉'],['Brightness',selectedSystem.luminosity.toFixed(2)+' L☉'],['Claimed',selectedSystem.planets.filter(p=>p.owner).length]);
+    stats.push(['Habitable zone · stellar flux',selectedSystem.hz?selectedSystem.hz.inner.toFixed(2)+'–'+selectedSystem.hz.outer.toFixed(2)+' AU':'Not modelled'],['Civilisations',selectedSystem.planets.filter(p=>p.life.civilisation).length],['System ID',selectedSystem.id],['Planets',selectedSystem.planetCount],['Central body',selectedSystem.type],['Central mass',selectedSystem.mass.toFixed(2)+' M☉'],['Brightness',selectedSystem.luminosity.toFixed(2)+' L☉'],['Claimed',selectedSystem.planets.filter(p=>p.owner).length]);
     $('details').textContent='Tap any orbiting world to inspect it. '+selectedSystem.activity+'. '+(selectedSystem.type==='blackHole'?(selectedSystem.active?'The accretion disk supplies estimated radiation; it is not a star.':'This black hole is quiet, so surrounding worlds receive negligible external heating.'):'Its orbital periods follow a simplified Kepler relation.')
     $('ownerBox').innerHTML='';
   }

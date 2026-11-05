@@ -548,11 +548,11 @@ window.addEventListener('message',e=>{if(e.origin===location.origin&&e.source===
 
 const lifeBtn=$('viewLifeBtn'),lifeFloat=$('viewLifeFloat'),lifeOverlay=$('lifeOverlay'),lifeFrame=$('lifeFrame'),closeLifeBtn=$('closeLifeBtn');
 function lifeUrl(p){
-  return 'ClaimYourPlanet_Life_Analysis_V11.html?'+new URLSearchParams({
+  return 'ClaimYourPlanet_Life_Civilisation_Tester.html?'+new URLSearchParams({
     linked:'1',id:String(p.id),name:p.name,type:p.type,
     temperature:String(p.temperature),water:String(p.water),atmosphere:p.atmosphere,
     system:selectedSystem.name,seed:String(p.seed>>>0),
-    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),
+    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:p.life.civilisation||'',biosphere:p.life.biosphere,
     rings:p.hasRings?'1':'0',moons:String(p.moons.length)
   }).toString();
 }

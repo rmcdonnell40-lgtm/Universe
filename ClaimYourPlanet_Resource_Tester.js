@@ -69,7 +69,7 @@ function normalFindings(p,seed){
 function init(api){
  const terrain=$('terrainOverlay'),toolbar=terrain.querySelector('.terrain-toolbar');
  const frame=$('terrainFrame');
- let modal=null,scanning=false,selectedIndex=-1;
+ let modal=null,scanning=false,selectedIndex=-1,lastSignature='';
  const nav=node('nav','rt-nav');nav.setAttribute('aria-label','Gameplay navigation');
  const tabs=[
   ['home','⌂ My Planet'],
@@ -192,6 +192,7 @@ function init(api){
  }
  function renderMarkers(){
   const c=current(),visible=api.isTerrainOpen()&&!!c?.record?.surveyed;
+  lastSignature=c?(c.key+'|'+api.isTerrainOpen()+'|'+!!c.record?.surveyed+'|'+JSON.stringify(c.record?.collected||{})):'none';
   markers.hidden=!visible;markers.replaceChildren();selectedCard.hidden=true;
   scanbar.hidden=!api.isTerrainOpen()||!c;
   if(!api.isTerrainOpen()||!c)return;
@@ -218,7 +219,10 @@ function init(api){
   const c=current(),visible=api.isTerrainOpen();
   scanBtn.hidden=!visible||!c;
   if(!visible||!c){markers.hidden=true;selectedCard.hidden=true;scanbar.hidden=true;}
-  else if(!scanning)renderMarkers();
+  else if(!scanning){
+   const signature=c?(c.key+'|'+visible+'|'+!!c.record?.surveyed+'|'+JSON.stringify(c.record?.collected||{})):'none';
+   if(signature!==lastSignature)renderMarkers();
+  }
   updateNavigation();
  }
  function scan(){
@@ -244,7 +248,7 @@ function init(api){
    row.append(view,all);card.append(row);sync();
   }requestAnimationFrame(tick);
  }
- function onTerrainChange(){scanBtn.hidden=!api.isTerrainOpen();sync();}
+ function onTerrainChange(){lastSignature='';scanBtn.hidden=!api.isTerrainOpen();sync();}
  for(const [key,b] of tabButtons){
   b.onclick=()=>{if(key==='galaxy')navigateGalaxy();else showSheet(key);};
  }

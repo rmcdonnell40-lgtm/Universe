@@ -511,11 +511,16 @@ function drawCentralObject(type,cx,cy){
     ctx.beginPath(); ctx.strokeStyle='rgba(210,168,255,.35)'; ctx.lineWidth=9; ctx.ellipse(cx,cy,56,20,.25,0,TAU); ctx.stroke();
     ctx.beginPath(); ctx.strokeStyle='rgba(255,214,164,.25)'; ctx.lineWidth=4; ctx.ellipse(cx,cy,66,26,.25,0,TAU); ctx.stroke();
   }else if(type==='binary'){
-    for(const o of [[-18,'#fff2b4',18],[18,'#e5edff',15]]){const g=ctx.createRadialGradient(cx+o[0]-4,cy-5,1,cx+o[0],cy,o[2]*2);g.addColorStop(0,'#fff');g.addColorStop(.2,o[1]);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx+o[0],cy,o[2]*2,0,TAU);ctx.fill();}
+    for(const o of [[-18,'#fff2b4',18],[18,'#e5edff',15]]){const g=ctx.createRadialGradient(cx+o[0]-4,cy-5,1,cx+o[0],cy,o[2]*2);g.addColorStop(0,'#fff');g.addColorStop(.2,o[1]);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx+o[0],cy,o[2]*2,0,TAU);ctx.fill();
+      ctx.fillStyle=o[1];ctx.beginPath();ctx.arc(cx+o[0],cy,o[2]*.83,0,TAU);ctx.fill();}
   }else{
     const color={sun:'#ffd38c',redDwarf:'#ff8d6b',blueGiant:'#8ad5ff'}[type]||'#ffd38c';
     const r=type==='blueGiant'?34:type==='redDwarf'?18:26;
     const g=ctx.createRadialGradient(cx-5,cy-7,1,cx,cy,r*2.1);g.addColorStop(0,'#fff');g.addColorStop(.18,color);g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,r*2.1,0,TAU);ctx.fill();
+    // Modest opaque stellar disc so far-side planets pass behind the star.
+    const core=ctx.createRadialGradient(cx-r*.25,cy-r*.30,1,cx,cy,r*.96);
+    core.addColorStop(0,'#fff8dd');core.addColorStop(.45,color);core.addColorStop(1,color);
+    ctx.fillStyle=core;ctx.beginPath();ctx.arc(cx,cy,r*.96,0,TAU);ctx.fill();
   }
 }
 

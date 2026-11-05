@@ -46,8 +46,8 @@ const specs=[
  {id:'energy',name:'Energy Source',subtitle:'Geothermal vent concentrate',color:'#9aeeff',icon:'⚡',stock:1},
  {id:'culture',name:'Primordial Culture',subtitle:'Rare viable microbial specimen',color:'#93ffc9',icon:'🧬',stock:1}
 ];
-const LAB_KEY='cosmic:myworld:laboratory:v20';
-const defaultLab=()=>({stock:Object.fromEntries(specs.map(x=>[x.id,x.stock])),added:[],living:false,cultures:0,seeded:false});
+const LAB_KEY='cosmic:myworld:laboratory:v21';
+const defaultLab=()=>({stock:Object.fromEntries(specs.map(x=>[x.id,0])),added:[],living:false,cultures:0,seeded:false});
 function readLab(){
  try{
   const saved=JSON.parse(localStorage.getItem(LAB_KEY));

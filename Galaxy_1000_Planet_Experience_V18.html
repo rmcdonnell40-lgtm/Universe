@@ -331,7 +331,7 @@ function openCivilisations(){
  const wrap=$('civWrap');wrap.replaceChildren();
  const close=document.createElement('button');close.textContent='✕ Close';close.className='civworld';close.onclick=()=>{$('civList').hidden=true;};wrap.append(close);
  const title=document.createElement('h2');title.textContent='Expedition Progress';wrap.append(title);
- const progress=window.CYResourceTester?.getProgress?.()||{surveyed:0,extinct:0,technology:0};
+ const progress=cyScanner?.getProgress?.()||{surveyed:0,extinct:0,technology:0};
  const summary=document.createElement('p');
  summary.textContent=progress.surveyed+' planets surveyed · '+progress.extinct+' extinct worlds confirmed · '+progress.technology+' ancient-technology signals recorded';
  wrap.append(summary);
@@ -612,7 +612,7 @@ function lifeUrl(p){
     linked:'1',id:String(p.id),name:p.name,type:p.type,
     temperature:String(p.temperature),water:String(p.water),atmosphere:p.atmosphere,
     system:selectedSystem.name,seed:String(p.seed>>>0),
-    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:'',surveyed:window.CYResourceTester?.getSurvey?.(p)?'1':'0',biosphere:(window.CYResourceTester?.getSurvey?.(p)?.history?'Extinct World':'Unsurveyed'),worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2],hz:p.life.hz?'1':'0',
+    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:'',surveyed:cyScanner?.getSurvey?.(p)?'1':'0',biosphere:(cyScanner?.getSurvey?.(p)?.history?'Extinct World':'Unsurveyed'),worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2],hz:p.life.hz?'1':'0',
     rings:p.hasRings?'1':'0',moons:String(p.moons.length)
   }).toString();
 }
@@ -777,14 +777,14 @@ function renderPanel(){
     $('panelEyebrow').textContent='GALAXY OVERVIEW';
     $('panelTitle').textContent='1000 Worlds';
     $('panelIntro').textContent='Explore 1000 unique planets across 100 star systems. Each system contains a central object, orbiting planets, and optional moons.';
-    stats.push(['Confirmed extinct worlds',window.CYResourceTester?.getProgress?.().extinct||0],['Star systems',galaxy.systems.length],['Planets',galaxy.totalPlanets],['Moons',galaxy.totalMoons],['Seed',galaxy.seed]);
+    stats.push(['Confirmed extinct worlds',cyScanner?.getProgress?.().extinct||0],['Star systems',galaxy.systems.length],['Planets',galaxy.totalPlanets],['Moons',galaxy.totalMoons],['Seed',galaxy.seed]);
     $('details').textContent=hovered ? (hovered.name+' contains '+hovered.planetCount+' planets around a '+hovered.type.replace(/([A-Z])/g,' $1').toLowerCase()+'. Click to enter this system.') : 'Nothing selected yet. In galaxy view, select a system. In system view, select a planet.';
     $('ownerBox').innerHTML='';
   } else if(selectedPlanet){
     $('panelEyebrow').textContent='PLANET PROFILE';
     $('panelTitle').textContent=selectedPlanet.name;
     $('panelIntro').textContent='Orbiting '+selectedSystem.name+'. This world is procedurally generated from a fixed seed, so its look and stats stay consistent.';
-    const surveyed=window.CYResourceTester?.getSurvey?.(selectedPlanet);stats.push(['Natural habitability',selectedPlanet.life.score+'%'],['Biological classification',surveyed?(surveyed.history?'Extinct World':'No ancient biosignatures detected'):'Unknown · Scan required'],['Biological history',surveyed?(surveyed.history?surveyed.history.evidence:'No evidence in surveyed region'):'Unsurveyed'],['Planet ID',selectedPlanet.id],['Physical type',selectedPlanet.type],['Moons',selectedPlanet.moons.length],['Modelled temp',selectedPlanet.temperature+'°C'],['Orbit',selectedPlanet.orbit.toFixed(2)+' AU'],['Orbital period',selectedPlanet.periodYears.toFixed(2)+' yr']);
+    const surveyed=cyScanner?.getSurvey?.(selectedPlanet);stats.push(['Natural habitability',selectedPlanet.life.score+'%'],['Biological classification',surveyed?(surveyed.history?'Extinct World':'No ancient biosignatures detected'):'Unknown · Scan required'],['Biological history',surveyed?(surveyed.history?surveyed.history.evidence:'No evidence in surveyed region'):'Unsurveyed'],['Planet ID',selectedPlanet.id],['Physical type',selectedPlanet.type],['Moons',selectedPlanet.moons.length],['Modelled temp',selectedPlanet.temperature+'°C'],['Orbit',selectedPlanet.orbit.toFixed(2)+' AU'],['Orbital period',selectedPlanet.periodYears.toFixed(2)+' yr']);
     const orbitalNote=selectedPlanet.life.hz?'Inside the stellar habitable zone. ':('Outside the stellar habitable zone despite a modelled '+selectedPlanet.temperature+'°C. Greenhouse heating ('+selectedPlanet.greenhouse+' K) or internal heating ('+selectedPlanet.internal+' K) can raise the modelled temperature; zone membership uses stellar flux and is not determined by temperature alone. ');
     $('details').textContent=(surveyed?(surveyed.history?'Ancient life detected. ':'No ancient-life evidence in this scan. '):'Biological history unknown until scanned. ')+orbitalNote+'Atmosphere: '+selectedPlanet.atmosphere+'. '+(selectedPlanet.type==='gasGiant'?'No conventional solid surface: explore the cloud-top storms instead. ':'Surface water (illustrative): '+selectedPlanet.water+'%. ')+'Orbit radius: '+selectedPlanet.orbit.toFixed(2)+' AU. Orbital period: '+selectedPlanet.periodYears.toFixed(2)+' years. Estimated radiative equilibrium: '+selectedPlanet.equilibrium+' K, plus simplified greenhouse/internal heating. '+(selectedPlanet.hasRings?'This world has a ring system. ':'')+selectedPlanet.climateNote;
     $('ownerBox').innerHTML=selectedPlanet.owner?'<div class="owner">Owner: '+escapeHtml(selectedPlanet.owner)+'</div>':'';

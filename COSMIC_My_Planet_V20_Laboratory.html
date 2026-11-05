@@ -70,8 +70,21 @@
 .life-stat strong{font-size:clamp(14px,2.8vw,21px)}
 .life-art{margin-top:18px;min-height:160px;border-radius:16px;border:1px dashed #65aec271;background:#081e2d;display:grid;place-items:center;color:#77b4c9;text-align:center;padding:15px}
 @media(max-width:720px){.life-page{padding-top:70px}.life-stat{padding:11px;min-height:73px}.life-entry{font-size:10px;padding:7px 10px}}
+/* Seeding feedback belongs to the homeworld, not the galaxy. */
+@keyframes cosmicHomePulse{0%,100%{opacity:.35;transform:scale(.75);box-shadow:0 0 4px #2ebeff}50%{opacity:1;transform:scale(1.4);box-shadow:0 0 13px #5acfff}}
+.my-planet-activity{display:none;flex:none;width:7px;height:7px;border-radius:50%;background:#5acaff;margin-left:2px}
+.my-planet-activity.active{display:inline-block;animation:cosmicHomePulse 1.5s ease-in-out infinite}
+.home-seeding-progress{position:fixed;z-index:85;left:14px;bottom:94px;width:min(350px,calc(100vw - 28px));padding:14px 15px;border:1px solid #63cae8a3;border-radius:14px;background:#051b2eee;color:#e6f6ff;box-shadow:0 6px 28px #0009;pointer-events:none;font:12px system-ui}
+.home-seeding-progress[hidden]{display:none!important}
+.home-seeding-progress-title{font-weight:800;letter-spacing:.1em;color:#a1e9f7}
+.home-seeding-progress-note{margin:7px 0 10px;color:#c8e2ed}
+.home-seeding-track{height:10px;background:#15334d;border-radius:99px;overflow:hidden}
+.home-seeding-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#36a8e8,#7ff2ca);transition:width .4s ease}
+.home-seeding-time{margin-top:8px;text-align:right;color:#b0deee}
+@media(max-width:720px){.home-seeding-progress{bottom:86px;left:10px;width:min(290px,calc(100vw - 20px));padding:11px 13px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.my-planet-activity.active{animation:none}}
 </style></head><body>
-<nav class="myworld-nav" aria-label="COSMIC navigation"><button type="button" data-cosmic-tab="home" class="active">⌂ My Planet</button><button type="button" data-cosmic-tab="galaxy">✧ Galaxy</button><button type="button" data-cosmic-tab="journal">▣ Journal</button><button type="button" data-cosmic-tab="resources">◈ Resources</button></nav>
+<nav class="myworld-nav" aria-label="COSMIC navigation"><button type="button" data-cosmic-tab="home" class="active">⌂ My Planet<span id="myPlanetActivity" class="my-planet-activity" aria-hidden="true"></span></button><button type="button" data-cosmic-tab="galaxy">✧ Galaxy</button><button type="button" data-cosmic-tab="journal">▣ Journal</button><button type="button" data-cosmic-tab="resources">◈ Resources</button></nav>
 <canvas id="scene" aria-label="Interactive rotating 3D homeworld with white clouds and storm spirals"></canvas><div class="shade"></div>
 <div class="ui"><header class="header"><div><div class="eyebrow">COSMIC / MY PLANET · HOMEWORLD</div><h1>Your Homeworld</h1><div class="desc" id="homeLifeDescription">A living world waiting for its first microbes.</div><button class="lab-entry" type="button" data-cosmic-tab="laboratory">⚗ Laboratory</button><button id="openLifePage" type="button" class="life-entry" hidden>🧬 Life</button></div></header>
 <button id="controlTab" class="control-tab" type="button" aria-expanded="false">☷ CONTINENTS</button><div class="side closed" id="controlsSide"><div class="panel"><h2>PLANET STATUS</h2><div class="stat"><span>Designation</span><strong>ASTRA-01</strong></div><div class="stat"><span>Life stage</span><strong id="homeLifeStage">Sterile</strong></div><div class="stat"><span>Atmosphere</span><strong>N₂ / O₂</strong></div><div class="stat"><span>Axial tilt</span><strong>23.5°</strong></div><div class="divider"></div><div class="stat"><span>Storm systems</span><strong id="stormCount">2 ACTIVE</strong></div><div class="stat"><span>Season</span><strong id="seasonLabel">NORTHERN SUMMER</strong></div></div>
@@ -100,6 +113,12 @@
   <p style="font-size:11px">Breeding speed is a fictional gameplay baseline, not a verified biological observation. Future evolution stages will be separate milestones.</p>
  </div>
  </section>
+<section id="homeSeedingProgress" class="home-seeding-progress" hidden role="status" aria-label="ASTRA-01 seeding progress">
+<div class="home-seeding-progress-title">ASTRA-01 · LIFE SEEDING</div>
+<div class="home-seeding-progress-note" id="homeSeedingNote">Seeding · 0% complete</div>
+<div class="home-seeding-track"><div id="homeSeedingFill" class="home-seeding-fill"></div></div>
+<div class="home-seeding-time" id="homeSeedingTime">10:00 remaining</div>
+</section>
 <div id="terrainView" class="terrain-view" aria-label="3D selected continent terrain">
   <canvas id="terrainScene"></canvas>
   <div class="terrain-head"><div><button class="terrain-back" id="backToOrbit" type="button">← Back to orbit</button><div class="terrain-title" id="terrainName">Continent</div><div class="terrain-subtitle" id="terrainClimate">Planetary surface · unexplored</div></div><span class="badge">TERRAIN VIEW</span></div>
@@ -117,7 +136,19 @@ function refreshHomeLifeStatus(){
   const seeded=!!lab?.seeded;
   let started=Number(lab?.seedStartedAt)||0;
   if(seeded&&!started){started=Date.now();if(lab){lab.seedStartedAt=started;try{localStorage.setItem(key,JSON.stringify(lab));}catch(e){}}}
-  const mature=seeded&&(Date.now()-started>=HOME_SEED_TIME);
+  const elapsed=seeded?Math.max(0,Date.now()-started):0;
+  const mature=seeded&&elapsed>=HOME_SEED_TIME;
+  const seeding=seeded&&!mature;
+  const bar=$('homeSeedingProgress'),dot=$('myPlanetActivity');
+  bar.hidden=!seeding;
+  dot.classList.toggle('active',seeding);
+  document.querySelector('[data-cosmic-tab="home"]').setAttribute('aria-label',seeding?'My Planet — seeding in progress':'My Planet');
+  if(seeding){
+    const progress=Math.min(1,elapsed/HOME_SEED_TIME),seconds=Math.ceil((HOME_SEED_TIME-elapsed)/1000);
+    $('homeSeedingNote').textContent='Seeding · '+Math.floor(progress*100)+'% complete';
+    $('homeSeedingFill').style.width=(progress*100).toFixed(2)+'%';
+    $('homeSeedingTime').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')+' remaining';
+  }
   $('homeLifeStage').textContent=mature?'Microbial':seeded?'Seeding':'Sterile';
   $('homeLifeDescription').textContent=mature?'Your first microbial ecosystem has formed. Explore its Life statistics.':seeded?'Seeding in progress. First life is establishing on ASTRA-01.':'A living world waiting for its first microbes.';
   $('openLifePage').hidden=!mature;

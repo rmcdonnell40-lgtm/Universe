@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061026">
+<title>Ancient Life — Biological Suitability Report</title>
+<style>
+:root{color-scheme:dark;--bg:#040a18;--panel:#0a172b;--panel2:#0d2139;--line:rgba(143,192,248,.18);--txt:#e9f4ff;--muted:#91adc9;--blue:#78caff;--cyan:#8feaff;--mint:#71deb8;--gold:#e8c587}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #c5f4ff;outline-offset:3px}button:disabled{cursor:not-allowed;opacity:.5}
+.shell{max-width:1510px;margin:0 auto;padding:0 clamp(12px,2.4vw,36px) 50px}
+header{height:80px;display:flex;align-items:center;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:12px}.brandicon{width:39px;height:39px;display:grid;place-items:center;border:1px solid #66b8f58c;background:#0e2a4c;border-radius:12px;box-shadow:0 0 24px #4089cc3b;font-size:23px}.brandname{font-size:12px;letter-spacing:.21em;font-weight:800}.brandsub{font-size:10px;letter-spacing:.07em;color:#8daece;margin-top:3px}.status{font-size:10px;letter-spacing:.12em;border:1px solid #6b9bc35f;border-radius:99px;background:#0b233e;color:#b8dcfa;padding:9px 12px;white-space:nowrap}.status i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#6decbe;box-shadow:0 0 12px #6decbe;margin-right:7px}
+.intro{padding:32px 0 24px;display:flex;align-items:end;justify-content:space-between;gap:14px}.eyebrow{font-size:10px;letter-spacing:.21em;color:#96d4ff;font-weight:800}.intro h1{font-weight:710;font-size:clamp(31px,4vw,56px);line-height:1.04;letter-spacing:-.065em;margin:10px 0 10px}.intro h1 em{font-style:normal;color:#89dfff}.intro p{max-width:610px;color:#a4bcd8;margin:0;font-size:13px;line-height:1.7}.wallet{flex:none;background:#0d2039;border:1px solid #5b85bc65;border-radius:15px;padding:12px 17px;text-align:right;min-width:138px}.wallet small{font-size:9px;color:#8dafd3;letter-spacing:.16em;display:block}.wallet strong{font-size:27px;letter-spacing:-.04em;color:#f5d99c}.wallet span{font-size:10px;color:#aecbe4;margin-left:5px}
+.main{display:grid;grid-template-columns:minmax(300px,.95fr) minmax(340px,1.05fr);gap:16px}.pane{background:linear-gradient(145deg,#0b1a2f,#081223 88%);border:1px solid var(--line);border-radius:20px;overflow:hidden;min-width:0;box-shadow:0 12px 46px #0003}
+.stage{position:relative;height:375px;overflow:hidden;background:radial-gradient(ellipse at 60% 50%,#1e3767,#0b1834 43%,#030916 80%)}#planet{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}.stage::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#03081377 0%,transparent 65%),linear-gradient(0deg,#01050fc4,transparent 42%);z-index:1}.stage-top{position:absolute;z-index:2;left:21px;top:19px;max-width:75%}.stage-tag{font-size:9px;letter-spacing:.2em;font-weight:800;color:#9edbff}.stage-name{font-size:27px;line-height:1.1;letter-spacing:-.04em;font-weight:680;margin:9px 0 5px;text-shadow:0 3px 16px #000}.stage-detail{font-size:11px;color:#b3cee7;line-height:1.5;text-shadow:0 2px 10px #000}.stage-bottom{position:absolute;z-index:2;left:21px;right:20px;bottom:19px;display:flex;gap:9px;align-items:end;justify-content:space-between}.stage-bottom small{font-size:10px;color:#a2c0df;max-width:260px}.stage-bottom span{font-size:9px;letter-spacing:.1em;padding:7px 9px;border:1px solid #5e9bbb66;border-radius:99px;background:#05132db3;white-space:nowrap}
+.chooser{padding:19px}.sectionhead{font-size:10px;letter-spacing:.17em;font-weight:800;color:#abc9ec;margin:0 0 12px;text-transform:uppercase}.types{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.type{min-width:0;text-align:center;padding:10px 3px 9px;border:1px solid rgba(113,163,226,.22);border-radius:11px;background:#0a1e36;color:#a6bed8;font-size:11px}.type[aria-pressed=true]{border-color:#80dbff;color:white;background:#194064;box-shadow:inset 0 0 0 1px #6bc5ff22}.type span{display:block;font-size:21px;margin-bottom:4px}.idrow{display:flex;align-items:center;gap:9px;margin-top:14px}.idrow label{font-size:11px;color:#9bb7d5}.idrow input{background:#081a31;border:1px solid #628bb14c;color:white;border-radius:9px;width:86px;padding:9px 10px}.btn{font-size:12px;border-radius:10px;border:1px solid rgba(137,190,250,.37);background:#122b4a;color:#d9eeff;padding:10px 13px;font-weight:700;white-space:nowrap}.btn:hover{background:#1e4670;border-color:#80c8ff}.btn.primary{background:linear-gradient(120deg,#286caa,#24538f);border-color:#8acbff;color:#fff}.btn.soft{background:#0b1d35}.reset{margin-left:auto}
+.assessment{padding:22px}.assessment-top{display:flex;align-items:start;justify-content:space-between;gap:8px}.assessment h2{font-size:23px;letter-spacing:-.04em;margin:6px 0 5px}.subtext{font-size:11px;color:#95aecb;margin:0;line-height:1.6}.scoregroup{display:flex;align-items:center;gap:21px;margin:17px 0}.gauge{position:relative;--g:40%;--gcol:#72d8b9;width:132px;height:132px;border-radius:50%;flex:none;display:grid;place-items:center;background:conic-gradient(var(--gcol) 0 var(--g),rgba(100,146,210,.14) var(--g) 100%);box-shadow:0 0 28px #388bdc15}.gauge::before{content:"";position:absolute;inset:11px;border-radius:50%;background:radial-gradient(circle at center,#132943,#071528);border:1px solid #5889b844}.gauge-core{position:relative;text-align:center}.gauge strong{font-size:32px;letter-spacing:-.07em;line-height:1}.gauge small{display:block;color:#b1cbe5;font-size:9px;margin-top:3px;letter-spacing:.09em}.summary{flex:1;min-width:0}.summary strong{font-size:14px;display:block;color:#dcf3ff}.summary p{margin:6px 0 0;color:#a9bed5;line-height:1.65;font-size:12px}.summary .science{display:block;margin-top:8px;font-size:10px;color:#7ce1b9;line-height:1.5}
+.score-list{display:grid;gap:9px;margin-top:8px}.score-item{display:grid;grid-template-columns:104px 1fr 45px;gap:10px;align-items:center;font-size:11px}.score-item label{color:#b5cbe6}.score-item output{text-align:right;color:#c8e8ff;font-weight:700;font-variant-numeric:tabular-nums}.track{height:7px;border-radius:99px;overflow:hidden;background:#172d48}.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#377aaa,#77e5c6);transition:width .45s ease}.sciencebox{margin-top:16px;border:1px solid #5682a45c;background:#0b2139;border-radius:12px;padding:11px 13px;color:#afc7df;line-height:1.65;font-size:11px}.sciencebox strong{color:#cde8ff}.sciencebox span{color:#f3cb95}
+.market{margin-top:17px;padding:22px}.market-top{display:flex;align-items:center;justify-content:space-between;gap:15px}.market h2{font-size:24px;letter-spacing:-.045em;margin:6px 0}.market p{margin:0;font-size:12px;color:#a9bdd8;line-height:1.65}.market-tag{white-space:nowrap;font-size:10px;letter-spacing:.13em;color:#f5cc8e;background:#31271b;border:1px solid #bc90555e;border-radius:99px;padding:8px 10px}.market-layout{display:grid;grid-template-columns:1fr 312px;gap:17px;margin-top:18px}.shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:start}.good{border:1px solid rgba(125,164,214,.19);border-radius:14px;background:linear-gradient(145deg,#10243d,#0c1b30);padding:13px;display:flex;flex-direction:column;gap:8px;min-width:0;transition:border-color .2s}.good:hover{border-color:#5189b677}.good-top{display:flex;gap:9px;align-items:center}.symbol{width:42px;height:42px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;border:1px solid #5b95b765;background:#0a3048;color:#bbf5ff;font-size:21px;font-weight:780}.good-title{font-size:13px;font-weight:730}.good-desc{font-size:10px;color:#93acc9;line-height:1.3}.stockrow{display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9bb6d4;gap:4px}.stockrow strong{color:#d6edff;font-size:12px}.smalltrack{height:5px;background:#18314b;border-radius:99px;overflow:hidden}.smalltrack div{height:100%;border-radius:99px;background:#55b6db;transition:width .3s ease}.goodfoot{display:flex;align-items:center;gap:6px;margin-top:auto}.price{font-size:10px;color:#bbd4e7;min-width:0;flex:1}.price strong{display:block;color:#ebcd95;font-size:13px}.buy{font-size:11px;min-width:75px;padding:9px 7px;background:#174873;border:1px solid #69c5f37d;color:#e9f9ff;border-radius:9px;font-weight:750}.buy:hover{background:#286a9c}.buy:disabled{opacity:.4}.good[data-needed=true]{border-color:#57a2c580}
+.sidepanel{display:grid;align-content:start;gap:10px}.tradebox{background:#081a30;border:1px solid #5a7eac53;border-radius:14px;padding:14px}.tradebox h3{font-size:11px;letter-spacing:.12em;color:#c7e4ff;margin:0 0 11px}.log{display:flex;flex-direction:column;gap:9px;min-height:95px;max-height:216px;overflow:auto}.entry{font-size:11px;color:#adc3dd;line-height:1.55;border-bottom:1px solid #52719130;padding-bottom:8px}.entry b{color:#a8ecf1}.entry small{font-size:9px;color:#729abd;display:block}.empty{font-size:11px;color:#7e9ab8;line-height:1.6}.goal{display:flex;gap:8px;align-items:start;font-size:11px;color:#c0d6e8;margin:8px 0}.goal i{font-style:normal;font-size:15px}.facility{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #5b87b64f;border-radius:10px;background:#122742;color:#ecf7ff;padding:10px;margin:8px 0;text-align:left}.facility strong{font-size:11px;display:block}.facility span{font-size:10px;color:#96b7d5;line-height:1.45;display:block}.facility em{font-style:normal;font-size:11px;color:#eed29d;white-space:nowrap}.facility[aria-pressed=true]{border-color:#6bdcc0;background:#123d40}.mission-state{color:#80e3b6;font-weight:650;font-size:11px;margin-top:12px}
+.footerline{padding:20px 0;color:#849cb9;font-size:11px;line-height:1.7;text-align:center}.toast{position:fixed;bottom:24px;left:50%;transform:translate(-50%,18px);z-index:100;border:1px solid #6abff3;background:#102c4c;box-shadow:0 14px 46px #0009,0 0 20px #59b8ff24;border-radius:13px;padding:12px 17px;color:#e8faff;font-size:12px;font-weight:650;max-width:min(440px,calc(100vw - 28px));opacity:0;pointer-events:none;transition:.24s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1050px){.market-layout{grid-template-columns:1fr}.sidepanel{grid-template-columns:1fr 1fr}.main{grid-template-columns:1fr 1fr}.stage{height:330px}.scoregroup{gap:12px}.gauge{width:110px;height:110px}}
+@media(max-width:750px){header{height:65px}.brandicon{width:32px;height:32px}.brandname{font-size:10px}.status{font-size:9px;padding:8px}.intro{padding:24px 3px 18px;align-items:start;gap:9px}.intro h1{font-size:32px}.intro p{font-size:11px}.wallet{padding:9px 11px;min-width:95px}.wallet strong{font-size:20px}.main{grid-template-columns:1fr;gap:12px}.stage{height:365px}.assessment,.market{padding:17px}.market{margin-top:12px}.shop{grid-template-columns:1fr 1fr}.scoregroup{gap:14px}.gauge{width:130px;height:130px}.sidepanel{grid-template-columns:1fr 1fr}.type{font-size:10px}}
+@media(max-width:460px){.shell{padding-left:10px;padding-right:10px}.brandname{font-size:9px}.brandsub{font-size:9px}.status{letter-spacing:0;font-size:8px}.intro{align-items:stretch;display:block;position:relative;padding-right:92px;min-height:145px}.intro h1{font-size:30px}.intro p{font-size:11px}.wallet{position:absolute;right:0;top:24px;min-width:83px;padding:8px}.wallet strong{font-size:19px}.wallet span{display:none}.stage{height:320px}.stage-name{font-size:24px}.stage-top{top:16px;left:15px}.stage-bottom{left:15px;right:14px;bottom:15px}.chooser{padding:14px}.types{gap:5px}.type{padding:8px 2px;font-size:10px}.idrow{flex-wrap:wrap}.reset{margin-left:auto}.assessment h2{font-size:21px}.gauge{width:112px;height:112px}.gauge strong{font-size:29px}.summary p{font-size:11px}.score-item{grid-template-columns:91px 1fr 38px;gap:8px}.market h2{font-size:21px}.market-tag{font-size:8px;padding:6px}.shop{gap:7px}.good{padding:10px;gap:7px}.symbol{width:34px;height:34px;font-size:18px}.good-title{font-size:11px}.good-desc{font-size:9px}.price{font-size:9px}.price strong{font-size:12px}.buy{font-size:10px;min-width:53px;padding:8px 5px}.sidepanel{grid-template-columns:1fr}.tradebox{padding:12px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* V11 original galaxy preview is copied live to this science-only report. */
+body.galaxy-linked .chooser{display:none}
+body.galaxy-linked #linkedControls{display:flex!important;align-items:center;justify-content:space-between;gap:12px;padding:14px 19px;font-size:11px;color:#9abddd;line-height:1.4}
+body.galaxy-linked #linkedControls .btn{font-size:10px;padding:8px 10px}
+body.galaxy-linked .stage{min-height:370px}
+body.galaxy-linked .stage #planet{image-rendering:auto}
+body.galaxy-linked .brandicon{box-shadow:0 0 20px #4ca4ff40}
+body.galaxy-linked .stage-tag{color:#92e8ff}
+body.galaxy-linked .stage-bottom small{color:#afd6f1}
+body.galaxy-linked .market-tag{color:#d3e8ff;background:#102c47;border-color:#5e9ac188}
+body.galaxy-linked header{padding-right:78px}
+@media(max-width:700px){body.galaxy-linked header{padding-right:82px}body.galaxy-linked .stage{height:305px;min-height:305px}}
+/* V11: read-only survey */
+.science-inventory{margin-top:17px;padding:22px}.science-inventory h2{font-size:24px;letter-spacing:-.04em;margin:7px 0 6px}.science-inventory p{color:#a8bfdc;font-size:12px;line-height:1.7}
+.ingredients{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-top:19px}
+.ingredient{background:#0c223b;border:1px solid #7195bb40;border-radius:13px;padding:13px;min-width:0}
+.ingredient .label{display:flex;justify-content:space-between;align-items:center;gap:5px}.ingredient b{color:#f0f9ff;font-size:12px}.ingredient em{font-size:10px;color:#89b9d8;font-style:normal}
+.ingredient .amount{font-size:19px;color:#bde7fa;font-weight:750;margin:8px 0 5px}.ingredient .capacity{height:6px;border-radius:20px;background:#173451;overflow:hidden}.ingredient .capacity div{height:100%;border-radius:20px;background:linear-gradient(90deg,#3985bc,#73dbd1)}
+.readonly-note{margin-top:16px;padding:13px;border-radius:12px;border:1px solid #518e9c66;background:#0b283d;color:#bcd9eb;font-size:11px;line-height:1.7}
+@media(max-width:1000px){.ingredients{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:750px){.science-inventory{padding:17px;margin-top:12px}}
+@media(max-width:460px){.intro{padding-right:0;min-height:0}.ingredients{gap:8px}.ingredient{padding:10px}.ingredient .amount{font-size:17px}.science-inventory h2{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header><div class="brand"><div class="brandicon">◉</div><div><div class="brandname">CLAIM YOUR PLANET</div><div class="brandsub">LIFE SCIENCES / PLANETARY SURVEY</div></div></div><div class="status"><i></i> SCIENTIFIC EXPLORATION · READ ONLY</div></header>
+<section class="intro"><div><div class="eyebrow">A NEW LAYER OF YOUR GALAXY</div><h1>Could your planet <em>support life?</em></h1><p>Study water, chemistry and environmental limits in a read-only planetary survey. No resource buying, terraforming or upgrades are active yet.</p></div></section>
+<div class="main">
+<section class="pane" aria-label="Planet selection and visualisation"><div class="stage"><canvas id="planet" aria-label="Procedurally generated rotating planet"></canvas><div class="stage-top"><div class="stage-tag">GALACTIC BIOLOGY SURVEY</div><div id="planetName" class="stage-name">Aurelia-0247</div><div id="planetSubtitle" class="stage-detail">Temperate ocean world</div></div><div class="stage-bottom"><small>Same galaxy-rendered planet · surface and subsurface life potential assessed</small><span id="stageBadge">SYSTEM 018 / 100</span></div></div></section>
+<section class="pane assessment" aria-label="Life potential analysis"><div class="assessment-top"><div><div class="eyebrow">LIVE ENVIRONMENTAL ANALYSIS</div><h2>Natural Habitability</h2><p class="subtext">Science-inspired suitability score, not a probability that life exists.</p></div></div><div class="scoregroup"><div id="gauge" class="gauge"><div class="gauge-core"><strong id="lifeScore">—</strong><small>OUT OF 100</small></div></div><div class="summary"><strong id="lifeStatus">Scanning...</strong><p id="lifeNarrative">Evaluating physical and chemical constraints.</p><span class="science" id="lifeChange">Informational assessment only · no changes can be made here.</span></div></div><div class="score-list"><div class="score-item"><label>Biochemistry</label><div class="track"><div id="barChem" class="fill"></div></div><output id="valueChem">0</output></div><div class="score-item"><label>Surface life</label><div class="track"><div id="barSurf" class="fill"></div></div><output id="valueSurf">0</output></div><div class="score-item"><label>Subsurface life</label><div class="track"><div id="barSub" class="fill"></div></div><output id="valueSub">0</output></div><div class="score-item"><label>Human habitats</label><div class="track"><div id="barHuman" class="fill"></div></div><output id="valueHuman">0</output></div></div><div class="sciencebox"><strong id="limitTitle">Scientific constraints</strong><div id="limitText" style="margin-top:5px">Water, chemical elements and energy alone do not guarantee biology.</div><div style="margin-top:7px"><span>Important:</span> An oxygen *element* supply is not the same as a breathable oxygen atmosphere.</div></div></section>
+</div>
+<section class="pane science-inventory" aria-label="Planetary chemical ingredients">
+<div class="eyebrow">BIOLOGICAL INGREDIENTS</div><h2>Planetary ingredients</h2>
+<p>Estimated carbon, hydrogen, nitrogen, oxygen, phosphorus and sulfur, plus water and energy. These are procedural indicators, not actual measured compositions.</p>
+<div id="ingredientGrid" class="ingredients"></div>
+<div id="ingredientNote" class="readonly-note">Read-only scientific assessment. No resources can be purchased.</div>
+</section>
+<div class="footerline">CLAIMYOURPLANET.COM · SCIENCE-INSPIRED VISUALISATION · Life potential is not a probability or evidence that life exists.</div>
+</div><div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const query=new URLSearchParams(location.search),linked=query.get('linked')==='1';
+const galaxyPlanet=linked?{
+ id:clamp(Math.trunc(Number(query.get('id')))||1,1,1000),
+ name:String(query.get('name')||'Galaxy planet').slice(0,80),
+ nativeType:String(query.get('type')||'rocky').slice(0,40),
+ temp:clamp(Number(query.get('temperature'))||0,-1000,1500),
+ water:clamp(Number(query.get('water'))||0,0,100),
+ atmosphere:String(query.get('atmosphere')||'unknown').slice(0,35),
+ system:String(query.get('system')||'Unnamed system').slice(0,90),
+ seed:Number(query.get('seed'))>>>0,
+ galaxySeed:Number(query.get('galaxySeed'))>>>0,
+ flux:Math.max(0,Math.min(100000,Number(query.get('flux'))||0)),
+ rings:query.get('rings')==='1',
+ moons:clamp(Math.trunc(Number(query.get('moons'))||0),0,20)
+}:null;
+function linkedFamily(type,p){
+ if(type==='gasGiant')return 'gas';
+ if(type==='forest')return 'verdant';
+ if(type==='terrestrial')return p.water>=55&&p.temp>=-15&&p.temp<=70?'ocean':'rocky';
+ return worlds[type]?type:'rocky';
+}
+const civilisationDetails={score:Math.min(100,Math.max(0,Number(query.get('civilScore'))||0)),name:String(query.get('civilisation')||'').slice(0,80),biosphere:String(query.get('biosphere')||'').slice(0,80),
+ worldClass:String(query.get('worldClass')||'').slice(0,80),hz:query.get('hz')==='1',
+ palette:['color0','color1','color2'].map(k=>String(query.get(k)||'')).filter(c=>/^#[0-9a-fA-F]{6}$/.test(c))};
+const worlds={
+ ocean:{title:'Ocean',icon:'🌊',label:'Temperate ocean world',temp:19,water:84,pressure:83,radiation:80,energy:79,deepWater:75,deepTemp:80,capSurface:93,capSub:93,capHuman:80,subEnv:70,chem:[12,73,61,65,54,62],color:['#0d3a6d','#1c89ae','#52b7c0','#2b7654'],note:'Surface seas and moderate conditions provide promising environments, though life is not guaranteed.'},
+ lava:{title:'Lava',icon:'🌋',label:'Extreme volcanic world',temp:180,water:1,pressure:30,radiation:24,energy:91,deepWater:18,deepTemp:38,capSurface:3,capSub:40,capHuman:33,subEnv:36,chem:[30,18,13,41,57,78],color:['#17131d','#732920','#e15d1f','#ffb244'],note:'At 180°C, familiar surface life is strongly constrained. Cooler protected sites are hypothetical.'},
+ ice:{title:'Frozen',icon:'🧊',label:'Cryogenic ice world',temp:-120,water:5,pressure:24,radiation:38,energy:49,deepWater:78,deepTemp:72,capSurface:11,capSub:80,capHuman:40,subEnv:70,chem:[28,65,24,60,12,37],color:['#153754','#5b99b9','#c2e9f0','#e8fcff'],note:'Surface conditions are hostile, but a potential subsurface ocean could be a more promising environment.'},
+ desert:{title:'Desert',icon:'🏜️',label:'Arid rocky world',temp:72,water:4,pressure:53,radiation:41,energy:88,deepWater:32,deepTemp:68,capSurface:29,capSub:65,capHuman:58,subEnv:51,chem:[47,18,35,42,61,48],color:['#572e28','#a16a43','#d8a26b','#f4d19c'],note:'Water scarcity limits surface prospects. Underground aquifers or imported supplies might support sealed colonies.'},
+ verdant:{title:'Verdant',icon:'🌱',label:'Temperate green world',temp:22,water:69,pressure:90,radiation:93,energy:84,deepWater:58,deepTemp:75,capSurface:96,capSub:91,capHuman:90,subEnv:76,chem:[62,78,75,70,19,49],color:['#092d45','#0c6687','#2d8e61','#97b967'],note:'Favourable environmental conditions are promising, but a living ecosystem is not automatically present.'},
+ toxic:{title:'Toxic',icon:'☣️',label:'Corrosive atmosphere',temp:96,water:13,pressure:20,radiation:40,energy:69,deepWater:37,deepTemp:57,capSurface:16,capSub:55,capHuman:30,subEnv:47,chem:[52,62,27,16,50,66],color:['#2b3228','#65783e','#b8ad59','#d1d37a'],note:'Chemical availability may be high even when the surface is corrosive or otherwise unsuitable.'},
+ rocky:{title:'Rocky',icon:'☄️',label:'Barren silicate world',temp:7,water:3,pressure:12,radiation:30,energy:58,deepWater:20,deepTemp:53,capSurface:22,capSub:52,capHuman:40,subEnv:43,chem:[18,16,30,19,8,35],color:['#222c39','#585e69','#949294','#bbb9b2'],note:'A thin atmosphere and scarce water make this world a difficult candidate for surface biology.'},
+ gas:{title:'Gas giant',icon:'🪐',label:'Gaseous giant, no solid surface',temp:-95,water:5,pressure:2,radiation:18,energy:66,deepWater:12,deepTemp:26,capSurface:0,capSub:0,capHuman:25,subEnv:18,chem:[82,89,49,27,28,67],color:['#322c4a','#836a9a','#c89d8a','#e6cbaf'],note:'No conventional solid surface exists. Atmospheric microbial life is speculative; human habitats would be orbital or floating.'}
+};
+const typeKeys=['ocean','lava','ice','desert','verdant','toxic','rocky','gas'];
+const namesA=['Aure','Niva','Talo','Pyro','Cyno','Ves','Nex','Sera','Keplo','Or','Helio','Thal','Cora','Zeta','Evo'],namesB=['lia','ris','on','ara','is','oria','aris','eon','ae','ara'];
+let state,score;
+const hash=(n)=>{n=Math.imul(n^61,1)^Math.imul(n<<3,11);n^=n>>>16;n=Math.imul(n,0x27d4eb2d);return (n^(n>>>15))>>>0};
+const random=(seed)=>{let x=seed>>>0;return()=>{x=(Math.imul(1664525,x)+1013904223)>>>0;return x/4294967296}};
+function planetDetails(id,type){const r=random(hash(id*37+typeKeys.indexOf(type)*9187));const preset=worlds[type];const variance=(preset.chem||[]).map((x,i)=>clamp(Math.round(x+(r()-.5)*10),0,100));
+return{id,type,name:namesA[Math.floor(r()*namesA.length)]+namesB[Math.floor(r()*namesB.length)]+'-'+String(id).padStart(4,'0'),temp:preset.temp+Math.round((r()-.5)*12),water:preset.water,pressure:preset.pressure,radiation:preset.radiation,energy:preset.energy,deepWater:preset.deepWater,deepTemp:preset.deepTemp,stocks:{C:variance[0],H:variance[1],N:variance[2],O:variance[3],P:variance[4],S:variance[5],water:0,energy:0},credits:1200,owned:{drill:false,shelter:false,shield:false}};
+}
+function temperatureScore(t){if(t>110||t< -80)return 0;if(t<0)return clamp(100+t*1.25,0,100);return clamp(100-Math.abs(t-22)*1.3,0,100)}
+function calculate(){const p=worlds[state.type],s=state.stocks;const six=['C','H','N','O','P','S'].map(k=>s[k]);const avg=six.reduce((a,b)=>a+b,0)/6,min=Math.min(...six);
+ const chem=Math.round(.65*avg+.35*min);
+ const wSurf=clamp(state.water*.95 + s.water*.2,0,100);
+ const wSub=clamp(p.deepWater+(state.owned.drill?24:0)+s.water*.3,0,100);
+ const radiation=clamp(state.radiation+(state.owned.shield?30:0),0,100);
+ const energy=clamp(state.energy+s.energy*.25,0,100);
+ const surfaceEnv=(wSurf*.3+temperatureScore(state.temp)*.32+state.pressure*.14+radiation*.12+energy*.12);
+ const deepEnv=(wSub*.33+p.deepTemp*.27+radiation*.16+energy*.24);
+ let surface=Math.min(p.capSurface,linked&&temperatureScore(state.temp)<5?Math.min(4,p.capSurface):100,Math.round(chem*.60+surfaceEnv*.40));
+ let subsurface=Math.min(p.capSub,linked&&state.temp>600?Math.min(8,p.capSub):100,Math.round(chem*.64+deepEnv*.36));
+ if(state.type==='gas'){surface=0;subsurface=0}
+ const humanEnv=(temperatureScore(state.temp)*.32+state.pressure*.24+state.radiation*.22+wSurf*.22);
+ const humanBase=state.type==='gas'?0:Math.min(p.capHuman,linked&&(state.temp>120||state.temp< -90)?Math.min(12,p.capHuman):100,Math.round(chem*.24+humanEnv*.46+(state.owned.shelter?23:0)+(state.owned.shield?8:0)+(state.owned.drill?4:0)));
+ const human=state.type==='gas'?Math.round((state.owned.shelter?17:0)+(state.owned.shield?7:0)):humanBase;
+ const overall=Math.max(surface,subsurface);
+ return {chem,surface,subsurface,human,overall,waterSurface:Math.round(wSurf),waterDeep:Math.round(wSub),minimum:min,lowest:['C','H','N','O','P','S'].find(k=>s[k]===min)};
+}
+function onWorld(type,id){
+ state=planetDetails(id,type);
+ if(linked){
+   state.name=galaxyPlanet.name;
+   state.temp=galaxyPlanet.temp;
+   state.water=galaxyPlanet.water;
+   state.pressure=({thin:20,moderate:68,dense:50,'methane-rich':29,stormy:42})[galaxyPlanet.atmosphere]??35;
+   state.radiation=galaxyPlanet.flux>80?22:galaxyPlanet.flux>4?53:galaxyPlanet.flux===0?65:worlds[type].radiation;
+   state.energy=clamp(Math.round(36+Math.log1p(galaxyPlanet.flux)*12),15,95);
+ }
+ score=calculate();renderAll();
+ if(!linked)planetTexture();
+}
+function renderAll(){const p=worlds[state.type],sc=calculate(),prior=score?.overall;if(linked&&query.has('civilScore')){sc.overall=civilisationDetails.score;sc.surface=state.type==='gas'?0:civilisationDetails.score;}score=sc;$('planetName').textContent=state.name;$('planetSubtitle').textContent=(linked?(civilisationDetails.worldClass||galaxyPlanet.nativeType.replace(/([A-Z])/g,' $1'))+' · '+galaxyPlanet.system:p.label)+' · '+state.temp+'°C (modelled)';$('stageBadge').textContent=(linked?'GALAXY PLANET ':'PLANET ')+String(state.id).padStart(4,'0')+' / 1000';
+ let desc,subline;colorStage(sc);
+ if(state.type==='gas')desc='No conventional surface environment';else if(sc.overall>=74)desc='Favourable candidate for familiar biochemistry';else if(sc.overall>=45)desc='Conditional potential · major unknowns remain';else if(sc.overall>=20)desc='Harsh environment · protected niches may matter';else desc='Severe environmental constraints';
+ if(state.type==='lava')subline='Extreme surface heat imposes a strict cap; underground prospects remain speculative.';
+ else if(state.type==='ice')subline='An insulated subsurface ocean is more promising than the exposed frozen surface.';
+ else if(state.type==='gas')subline='Life in gas-giant clouds is highly speculative; no solid ground is modelled.';
+ else if(state.type==='desert')subline='Access to water matters, but importing supplies does not terraform the planet.';
+ else if(state.type==='toxic')subline='Chemical abundance is not enough to overcome a corrosive environment.';
+ else subline='Suitable conditions are not evidence that organisms have evolved.';
+ if(linked&&query.has('civilScore'))
+  desc=query.get('surveyed')==='1'?(civilisationDetails.name||civilisationDetails.biosphere||desc):'Biological classification unknown — scan required';
+ $('lifeStatus').textContent=desc;$('lifeNarrative').textContent=subline;
+ $('gauge').style.setProperty('--g',sc.overall+'%');$('lifeScore').textContent=sc.overall+'%';
+ for(const [key,v] of [['Chem',sc.chem],['Surf',sc.surface],['Sub',sc.subsurface],['Human',sc.human]]){$('bar'+key).style.width=clamp(v,0,100)+'%';$('value'+key).textContent=v+'%';}
+ $('lifeChange').textContent=linked&&query.has('civilScore')
+  ?'Natural habitability '+sc.overall+'% · '+(query.get('surveyed')==='1'?'Survey outcome: '+civilisationDetails.biosphere:'Life history is unknown until the original Planet Scan is completed')+'. This is a speculative game suitability index, not a probability of life.'
+  :'Informational survey: chemical resources, environments and life potential cannot be edited.';
+ $('limitTitle').textContent='CURRENT LIMIT • '+(state.type==='gas'?'NO SOLID SURFACE':state.type==='lava'?'EXTREME HEAT':state.type==='ice'?'SURFACE FREEZING':state.type==='desert'?'WATER SCARCITY':state.type==='toxic'?'CORROSIVE ATMOSPHERE':sc.lowest+' / RESOURCE SHORTAGE');
+ $('limitText').textContent=linked&&query.has('civilScore')?'Natural biological suitability '+sc.overall+'%. '+(query.get('surveyed')==='1'?civilisationDetails.biosphere:'Biological history not yet surveyed')+'. Separate chemical and habitat indicators are illustrative legacy estimates.':'Biochemical readiness '+sc.chem+'%. Surface '+sc.surface+'%, subsurface '+sc.subsurface+'%, human habitat '+sc.human+'%. '+p.note;
+ renderIngredientChart(sc);}
+function colorStage(sc){let col=sc.overall>=70?'#69e1b2':sc.overall>=40?'#8ed7f9':sc.overall>=18?'#e9c17c':'#d5958c';$('gauge').style.setProperty('--gcol',col)}
+function renderIngredientChart(sc){
+ const basic=[['C','Carbon'],['H','Hydrogen'],['N','Nitrogen'],['O','Oxygen'],['P','Phosphorus'],['S','Sulfur']];
+ const values=basic.map(([symbol,label])=>({symbol,label,value:state.stocks[symbol]}));
+ values.push({symbol:'H₂O',label:'Surface water',value:Math.round(sc.waterSurface)});
+ values.push({symbol:'⚡',label:'Energy',value:Math.round(state.energy)});
+ const root=$('ingredientGrid');root.replaceChildren();
+ for(const v of values){
+  const card=document.createElement('div');card.className='ingredient';
+  const title=document.createElement('div');title.className='label';
+  const id=document.createElement('b');id.textContent=v.symbol;
+  const label=document.createElement('em');label.textContent=v.label;
+  title.append(id,label);
+  const amount=document.createElement('div');amount.className='amount';amount.textContent=v.value+' / 100';
+  const track=document.createElement('div');track.className='capacity';
+  const fill=document.createElement('div');fill.style.width=clamp(v.value,0,100)+'%';track.append(fill);
+  card.append(title,amount,track);root.append(card);
+ }
+ const lowest=basic.reduce((a,b)=>state.stocks[b[0]]<state.stocks[a[0]]?b:a,basic[0]);
+ $('ingredientNote').textContent='Lowest estimated essential element: '+lowest[1]+'. Life also depends on temperature, pressure, water, radiation, usable energy and stability. Values are from this simplified game model. All controls for purchases and changes are disabled in V11.';
+}
+// Procedural art. Each planet id + classification gives a stable texture; these graphics are illustrative.
+const canvas=$('planet'),ctx=canvas.getContext('2d',{alpha:false}),sphere=document.createElement('canvas');sphere.width=sphere.height=220;const sc=sphere.getContext('2d');let tex=null,stars=[],spin=0,lastDraw=0,drag=false,lastX=0;
+function textureRandom(seed){return random(seed)}
+function planetTexture(){const r=textureRandom(hash(state.id*97+typeKeys.indexOf(state.type)*4242));const tw=480,th=240;tex=new Uint8Array(tw*th*4);
+ function n2(x,y){const v=Math.sin(x*11.3+Math.sin(y*.041)*4.7)+Math.sin(y*.073-x*.059)+Math.sin(x*.027+y*.06)+Math.sin(x*.13-y*.19)*.25;return clamp(.5+v*.13,0,1)}
+ const sourcePalette=linked&&civilisationDetails.palette.length===3
+  ?[civilisationDetails.palette[0],civilisationDetails.palette[0],civilisationDetails.palette[1],civilisationDetails.palette[2]]
+  :worlds[state.type].color;
+ const colors=sourcePalette.map(h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]);
+ for(let y=0;y<th;y++)for(let x=0;x<tw;x++){const j=(y*tw+x)*4,fy=y/th,fx=x/tw,n=n2(x+r()*1.2,y+r()*1.2),nB=Math.sin(x*.035+Math.sin(y*.018)*3+r()*1.3)*.5+.5;let c;
+  if(state.type==='gas'){c=nB>.58?colors[3]:nB>.38?colors[2]:colors[1];}
+  else if(state.type==='lava'){c=n>.70?colors[3]:n>.58?colors[2]:n>.38?colors[1]:colors[0];}
+  else if(state.type==='ice'){c=n>.57?colors[3]:n>.43?colors[2]:colors[1];}
+  else if(state.type==='desert'){c=n>.61?colors[3]:n>.47?colors[2]:colors[1];}
+  else if(state.type==='toxic'){c=n>.62?colors[3]:n>.43?colors[2]:colors[1];}
+  else if(state.type==='rocky'){c=n>.64?colors[3]:n>.43?colors[2]:colors[1];}
+  else {const threshold=state.type==='ocean'?.67:.52;c=n>threshold?colors[3]:n>.44?colors[2]:colors[1];if(Math.abs(fy-.5)>.43)c=colors[3]}
+  const shade=.88+.15*nB;tex[j]=c[0]*shade;tex[j+1]=c[1]*shade;tex[j+2]=c[2]*shade;tex[j+3]=255;
+ }
+}
+function drawPlanet(ts){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio||1,1.8);
+ if(linked){
+   if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr)}
+   ctx.setTransform(dpr,0,0,dpr,0,0);
+   const bg=ctx.createRadialGradient(w*.6,h*.5,4,w*.6,h*.5,Math.max(w,h)*.8);
+   bg.addColorStop(0,'#14274f');bg.addColorStop(1,'#020813');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+   let source=null;
+   try{if(parent!==window&&parent.location.origin===location.origin)source=parent.document.getElementById('preview')}catch(e){}
+   if(source&&source.width>0&&source.height>0){
+      // EXACTLY the parent galaxy's renderer, not a second recoloured/generated world.
+      const sz=Math.min(w*.88,h*.94,345),cx=w*(w<600?.59:.63),cy=h*.51;
+      ctx.drawImage(source,cx-sz/2,cy-sz/2,sz,sz);
+      return;
+   }
+   // Direct standalone link fallback: render a labelled illustrative planet.
+   if(!tex)planetTexture();
+ }
+if(canvas.width!==Math.floor(w*dpr)||canvas.height!==Math.floor(h*dpr)){canvas.width=Math.floor(w*dpr);canvas.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:150},(_,i)=>{const r=textureRandom(i*117+27);return [r(),r(),.4+r()*1.1,.2+r()*.5]})}ctx.setTransform(dpr,0,0,dpr,0,0);const bg=ctx.createRadialGradient(w*.61,h*.48,20,w*.6,h*.5,Math.max(w,h)*.8);bg.addColorStop(0,'#18355d');bg.addColorStop(.6,'#071429');bg.addColorStop(1,'#020711');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);for(const [x,y,s,a] of stars){ctx.globalAlpha=a;ctx.fillStyle='#b8d7fb';ctx.fillRect(x*w,y*h,s,s)}ctx.globalAlpha=1;
+ const x=w*(w<600?.61:.64),y=h*.51,r=Math.min(h*.34,w*.27,145),halo=ctx.createRadialGradient(x,y,r*.7,x,y,r*1.7);halo.addColorStop(0,'#5bbee911');halo.addColorStop(.55,'#4c9cde33');halo.addColorStop(1,'#4c9cde00');ctx.fillStyle=halo;ctx.beginPath();ctx.arc(x,y,r*1.7,0,7);ctx.fill();
+ if(state.type==='gas'){ctx.save();ctx.translate(x,y);ctx.rotate(-.27);ctx.strokeStyle='#c3bdd560';ctx.lineWidth=r*.17;ctx.beginPath();ctx.ellipse(0,0,r*1.65,r*.40,0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+ if(tex){const im=sc.createImageData(220,220),out=im.data;spin+=drag?0:.0012;const light=[-.6,.1,.78];for(let sy=0;sy<220;sy++)for(let sx=0;sx<220;sx++){const u=(sx-110)/106,v=(sy-110)/106,d=u*u+v*v,j=(sy*220+sx)*4;if(d>=1){out[j+3]=0;continue}let z=Math.sqrt(1-d),longitude=Math.atan2(u,z)+spin,lat=Math.asin(v),tx=((longitude/(2*Math.PI)+.5)%1+1)%1,ty=clamp(lat/Math.PI+.5,0,.999);const idx=(Math.floor(ty*240)*480+Math.floor(tx*480))*4;const lambert=clamp(.24+(.9*Math.max(0,u*light[0]-v*light[1]+z*light[2])),.12,1.15),limb=Math.pow(1-z,4)*.28;out[j]=clamp(tex[idx]*lambert+limb*32,0,255);out[j+1]=clamp(tex[idx+1]*lambert+limb*103,0,255);out[j+2]=clamp(tex[idx+2]*lambert+limb*193,0,255);out[j+3]=255;}sc.putImageData(im,0,0);ctx.drawImage(sphere,x-r,y-r,r*2,r*2);
+ const rim=ctx.createRadialGradient(x,y,r*.8,x,y,r*1.15);rim.addColorStop(0,'#79daff00');rim.addColorStop(.81,'#8ddcff00');rim.addColorStop(.88,'#76ccff36');rim.addColorStop(.99,'#75c4ff0f');rim.addColorStop(1,'#75c4ff00');ctx.fillStyle=rim;ctx.beginPath();ctx.arc(x,y,r*1.15,0,7);ctx.fill();}
+ if(state.type==='gas'){ctx.save();ctx.translate(x,y);ctx.rotate(-.27);ctx.strokeStyle='#f6d3a966';ctx.lineWidth=r*.11;ctx.beginPath();ctx.ellipse(0,0,r*1.65,r*.40,0,Math.PI*.02,Math.PI*.98);ctx.stroke();ctx.restore()}
+ for(let i=0;i<3;i++){let angle=ts*.00012*(.7+i*.19)+i*2.4;const mx=x+Math.cos(angle)*r*(1.4+i*.2),my=y+Math.sin(angle)*r*.7;ctx.fillStyle=i===0?'#b9c6da':'#a6b0bf';ctx.beginPath();ctx.arc(mx,my,Math.max(1.5,r*(.025+i*.008)),0,7);ctx.fill();}
+}
+canvas.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener('pointermove',e=>{if(drag){spin+=(e.clientX-lastX)*.006;lastX=e.clientX}});canvas.addEventListener('pointerup',()=>{drag=false});canvas.addEventListener('pointercancel',()=>{drag=false});
+function frame(ts){requestAnimationFrame(frame);if(ts-lastDraw<48)return;lastDraw=ts;drawPlanet(ts)}
+if(linked){
+ document.body.classList.add('galaxy-linked');
+ document.querySelector('.stage-tag').textContent='GALAXY-LINKED PLANET IMAGE';
+ document.querySelector('.stage-bottom small').textContent='Exact same visual as the selected galaxy planet · live canvas preview';
+ 
+ document.querySelector('.status').innerHTML='<i></i> GALAXY LINKED';
+ 
+ 
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')parent.postMessage({kind:'v10:life-close'},location.origin)});
+}
+onWorld(linked?linkedFamily(galaxyPlanet.nativeType,galaxyPlanet):'ocean',linked?galaxyPlanet.id:247);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

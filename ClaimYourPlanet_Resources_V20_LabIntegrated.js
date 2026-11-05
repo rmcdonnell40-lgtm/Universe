@@ -401,7 +401,7 @@ function init(api){
      homeWorldOverlay.style.cssText='position:fixed;inset:0;z-index:10000;background:#020713;';
      const view=document.createElement('iframe');
      view.title='My Planet — six continent orbit and terrain';
-     view.src='COSMIC_My_Planet_V20_Laboratory.html';
+     view.src='COSMIC_My_Planet_V20_Laboratory.html?rev=seeding-home';
      view.addEventListener('load',()=>{view.contentWindow?.postMessage({type:'COSMIC_SET_WORLD_ACTIVE',active:!homeWorldOverlay.hidden},location.origin);});
      view.setAttribute('allow','fullscreen');
      view.style.cssText='position:absolute;inset:0;border:0;width:100%;height:100%;';

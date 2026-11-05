@@ -407,6 +407,7 @@ function drawSystem(){
   $('modePill').textContent='System view';
   $('hint').textContent=orbitsPaused?'Orbits paused for easier selection. Tap a planet to inspect it, or press Resume orbits.':'Planets and moons are orbiting. Press Pause orbits to select a world more easily.';
   drawBackground();
+  drawDistantSystem();
   const panUnit=Math.min(W,H)*.37*zoom;
   const cx=W*.49+camX*panUnit,cy=H*.53+camY*panUnit;
   ctx.save();ctx.translate(cx,cy);const starZoom=Math.pow(zoom,.55);ctx.scale(starZoom,starZoom);

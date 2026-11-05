@@ -159,6 +159,18 @@ body:not(.exploring) .telemetry,body:not(.exploring) .discover,body:not(.explori
 .gm-modal .gm-close{position:absolute;right:15px;top:12px;background:#102a45}
 @media(max-width:860px){.gm-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.gm-art{height:165px}}
 @media(max-width:550px){.mode-menu .hub{padding:15px 11px 30px}.gm-heading{padding:37px 0 31px}.gm-heading h1{font-size:clamp(53px,14vw,77px)}.gm-heading p{max-width:290px;margin:16px auto 0;font-size:12px}.gm-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.gm-art{height:clamp(112px,34vw,165px)}.gm-info{padding:12px 10px 15px}.gm-info strong{font-size:17px}.gm-info small{font-size:10px}.gm-top{font-size:8px}.gm-foot{padding-top:22px}}
+
+/* Exact uploaded game logo and black-background menu */
+body.mode-menu,.mode-menu .hub,.mode-menu .gm-page{background:#000!important}
+.mode-menu .hub{background-image:none!important}
+.mode-menu .gm-page{min-height:100%;justify-content:flex-start}
+.mode-menu .gm-heading.gm-logo-header{padding:clamp(16px,4vh,46px) 0 clamp(22px,4vh,45px);margin:0;max-width:none;text-align:center}
+.gm-logo{display:block;width:min(870px,94%);height:auto;object-fit:contain;margin:0 auto;filter:none}
+@media(max-width:550px){
+ .mode-menu .gm-heading.gm-logo-header{padding:16px 0 24px}
+ .gm-logo{width:100%}
+ .gm-page{min-height:calc(100vh - 45px)}
+}
 </style>
 </head>
 <body>
@@ -166,14 +178,14 @@ body:not(.exploring) .telemetry,body:not(.exploring) .discover,body:not(.explori
 
 <button class="home-chip" id="goHome">⌂ &nbsp; MODELS</button>
 <div id="hub" class="hub" aria-label="Game main menu"><main class="gm-page">
-<div class="gm-top"><span>UNIVERSE · V19</span><span>COSMIC EXPLORATION</span></div>
-<header class="gm-heading"><span>WELCOME TO THE UNKNOWN</span><h1>BEYOND<br><em>THE STARS</em></h1><p>Discover worlds. Uncover ancient histories. Build your future.</p></header>
+
+<header class="gm-heading gm-logo-header"><img class="gm-logo" src="assets/cosmic-logo.webp" alt="COSMIC — THE SPACE GAME" width="650" height="226"></header>
 <div class="gm-grid"><button type="button" class="gm-tile" id="openGalaxyV7" aria-label="New Game"><div class="gm-art gm-new"><div class="gm-sky"></div><div class="gm-celestial"></div><div class="gm-arc"></div><div class="gm-shine"></div></div><span class="gm-info"><strong>New Game</strong><small>Explore the galaxy</small></span></button>
 <button type="button" class="gm-tile" id="menuLoad" aria-label="Load Game"><div class="gm-art gm-load"><div class="gm-sky"></div><div class="gm-celestial"></div><div class="gm-arc"></div><div class="gm-shine"></div></div><span class="gm-info"><strong>Load Game</strong><small>Continue your journey</small></span></button>
 <button type="button" class="gm-tile" id="menuTutorial" aria-label="Tutorial"><div class="gm-art gm-tutorial"><div class="gm-sky"></div><div class="gm-celestial"></div><div class="gm-arc"></div><div class="gm-shine"></div></div><span class="gm-info"><strong>Tutorial</strong><small>Learn the controls</small></span></button>
 <button type="button" class="gm-tile" id="menuSettings" aria-label="Settings"><div class="gm-art gm-settings"><div class="gm-sky"></div><div class="gm-celestial"></div><div class="gm-arc"></div><div class="gm-shine"></div></div><span class="gm-info"><strong>Settings</strong><small>Audio and preferences</small></span></button>
 <button type="button" class="gm-tile" id="menuProfile" aria-label="Profile"><div class="gm-art gm-profile"><div class="gm-sky"></div><div class="gm-celestial"></div><div class="gm-arc"></div><div class="gm-shine"></div></div><span class="gm-info"><strong>Profile</strong><small>Your explorer identity</small></span></button></div>
-<div class="gm-foot">YOUR UNIVERSE AWAITS · 1,000 PLANETS · 100 STAR SYSTEMS</div>
+
 </main><button id="openQuantum" hidden tabindex="-1" aria-hidden="true"></button>
 <div id="gmDialog" class="gm-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="gmDialogTitle"><section class="gm-modal"><button type="button" class="gm-close" id="gmClose">✕</button><span id="gmDialogLabel">EXPEDITION</span><h2 id="gmDialogTitle"></h2><div id="gmDialogContent"></div></section></div>
 </div><section class="theory" id="theory" aria-label="Theoretical universe explorer">

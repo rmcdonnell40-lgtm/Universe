@@ -254,7 +254,7 @@ function assignExtinctHistory(g){
  for(const {p} of selected){
   let x=(p.seed^(g.seed>>>0)^0x794ac611)>>>0;
   x=Math.imul(x^(x>>>16),0x85ebca6b)>>>0;
-  const tech=x/4294967296<.16;
+  const tech=x/4294967296<.20;
   p.life.pastLife={
    status:'Extinct World',ancientTechnology:tech,
    evidence:p.type==='ice'?'Fossilised microbial mats beneath ancient ice':
@@ -607,11 +607,11 @@ window.addEventListener('message',e=>{if(e.origin===location.origin&&e.source===
 
 const lifeBtn=$('viewLifeBtn'),lifeFloat=$('viewLifeFloat'),lifeOverlay=$('lifeOverlay'),lifeFrame=$('lifeFrame'),closeLifeBtn=$('closeLifeBtn');
 function lifeUrl(p){
-  return 'ClaimYourPlanet_Life_Civilisation_Tester.html?'+new URLSearchParams({
+  return 'ClaimYourPlanet_Life_Extinct_Tester.html?'+new URLSearchParams({
     linked:'1',id:String(p.id),name:p.name,type:p.type,
     temperature:String(p.temperature),water:String(p.water),atmosphere:p.atmosphere,
     system:selectedSystem.name,seed:String(p.seed>>>0),
-    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:'',biosphere:(window.CYResourceTester?.getSurvey?.(p)?.history?'Extinct World':'Unsurveyed'),worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2],hz:p.life.hz?'1':'0',
+    galaxySeed:String(galaxySeed>>>0),flux:String(p.flux),civilScore:String(p.life.score),civilisation:'',surveyed:window.CYResourceTester?.getSurvey?.(p)?'1':'0',biosphere:(window.CYResourceTester?.getSurvey?.(p)?.history?'Extinct World':'Unsurveyed'),worldClass:p.life.worldClass,color0:p.palette[0],color1:p.palette[1],color2:p.palette[2],hz:p.life.hz?'1':'0',
     rings:p.hasRings?'1':'0',moons:String(p.moons.length)
   }).toString();
 }

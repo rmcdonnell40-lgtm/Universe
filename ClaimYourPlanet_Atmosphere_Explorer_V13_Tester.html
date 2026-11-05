@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070e1d"><title>V13 — Gas Giant Atmosphere Explorer</title>
+<style>
+:root{color-scheme:dark;--ink:#eff8ff;--muted:#a8c4d9;--line:#87c6ef3e}
+*{box-sizing:border-box}html,body{height:100%;margin:0;overflow:hidden;background:#061020;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid #a3eeff;outline-offset:2px}
+#sky{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab;background:radial-gradient(ellipse at 50% 55%,#34526a,#081324 80%)}#sky:active{cursor:grabbing}
+.scrim{position:fixed;inset:0;pointer-events:none;background:linear-gradient(180deg,#030a1bc9,transparent 33%,transparent 65%,#030a1cd4),radial-gradient(ellipse at center,transparent 49%,#030a1c44)}
+.chrome{position:fixed;inset:0;z-index:2;pointer-events:none}
+.top{position:absolute;left:clamp(16px,3.5vw,50px);right:clamp(16px,3.5vw,50px);top:clamp(17px,3vw,38px);display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.kicker{font-weight:800;font-size:10px;color:#9ed8ff;letter-spacing:.21em;text-shadow:0 2px 15px #000}
+h1{font-weight:650;font-size:clamp(31px,4.5vw,62px);letter-spacing:-.07em;margin:12px 0 8px;line-height:1.02;text-shadow:0 4px 30px #000}
+.top p{font-size:12px;line-height:1.65;color:#bbd5e9;max-width:400px;margin:0;text-shadow:0 2px 12px #000}
+.tag{display:inline-flex;gap:8px;align-items:center;color:#c6ecff;font-weight:750;font-size:10px;letter-spacing:.075em;border:1px solid #7ebee954;background:#0a2640b9;border-radius:99px;padding:8px 12px;margin-top:15px}
+.tag:before{content:"";height:6px;width:6px;border-radius:50%;background:#82e7df;box-shadow:0 0 12px #83e7ff}
+.btn{border:1px solid #90c6ec65;border-radius:10px;background:#0b2645db;color:#ecf8ff;padding:11px 14px;min-height:40px;font-size:12px;font-weight:740;backdrop-filter:blur(14px)}.btn:hover{background:#215276}.btn.active{background:#215973;border-color:#8de9f4}
+.top button{pointer-events:auto}
+.depth{position:absolute;left:clamp(16px,3.5vw,50px);top:clamp(156px,26vh,232px);padding:7px 13px;border-left:2px solid #82d4ff;background:#07192ba3;font-size:10px;letter-spacing:.15em;color:#c8edff}
+.points{position:absolute;inset:0;pointer-events:none}
+.pin{position:absolute;pointer-events:auto;transform:translate(-50%,-50%);display:flex;align-items:center;gap:7px;border:1px solid #b0e0ff8c;background:#061a31e0;color:#effaff;border-radius:99px;padding:8px 11px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 8px 20px #0009}
+.pin:before{content:"";width:7px;height:7px;border-radius:50%;background:#81d8ff;box-shadow:0 0 12px #9ae5ff}
+.pin.selected{background:#15546d;border-color:#d0f3ff;box-shadow:0 0 0 2px #7ed7ff66,0 0 20px #2da5e566}
+.pin[hidden]{display:none}
+.bottom{position:absolute;bottom:max(15px,env(safe-area-inset-bottom,0px) + 12px);left:clamp(15px,3.5vw,50px);right:clamp(15px,3.5vw,50px);display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.telemetry{border:1px solid var(--line);border-radius:13px;background:#06192ee0;padding:12px 16px;backdrop-filter:blur(15px);max-width:370px}
+.telemetry small{color:#a7d8f8;font-size:9px;font-weight:800;letter-spacing:.15em}
+.telemetry strong{display:block;margin:5px 0;font-size:24px;letter-spacing:-.04em}
+.telemetry p{font-size:10px;line-height:1.6;color:#b4cbe2;margin:0}
+.actions{pointer-events:auto;display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.panel{position:absolute;z-index:5;pointer-events:auto;right:clamp(15px,3vw,40px);top:110px;bottom:100px;width:min(350px,35vw);border:1px solid var(--line);border-radius:15px;background:#07162ce8;backdrop-filter:blur(24px);overflow-y:auto;overscroll-behavior:contain;padding:23px 20px;box-shadow:0 12px 42px #0009;transition:transform .24s,opacity .24s}
+.panel.hidden{opacity:0;pointer-events:none;transform:translateX(calc(100% + 55px))}
+.panel small{color:#98d3ff;font-weight:800;letter-spacing:.15em;font-size:10px}
+.panel h2{font-size:25px;letter-spacing:-.05em;margin:9px 0}
+.panel p{color:#aac4db;font-size:12px;line-height:1.75;margin:0 0 14px}
+.divider{border-top:1px solid var(--line);margin:19px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#0b243e;border:1px solid #6892b34e;border-radius:11px;padding:11px}
+.stat span{display:block;font-size:9px;color:#92b3d0;margin-bottom:5px}
+.stat strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.feature{border:1px solid #619fc774;background:#103047;border-radius:12px;padding:14px}
+.feature b{display:block;font-size:15px;margin:7px 0}.feature p{font-size:11px;margin:0}
+.row{display:flex;justify-content:space-between;font-size:11px;color:#b8d6eb;margin:14px 0 8px}.row output{color:#93e0fa}
+input[type=range]{width:100%;accent-color:#80ceff}
+.notice{border:1px solid #ab9b6e5e;border-radius:10px;background:#453a2426;color:#c3ced9;font-size:11px;line-height:1.7;padding:12px}
+#closePanel{display:none;float:right;border:0;background:transparent;color:white;font-size:22px}
+@media(max-width:850px){.top{left:16px;right:16px;top:16px}h1{font-size:32px}.top p{font-size:10px;max-width:265px}.panel{top:79px;right:12px;bottom:80px;width:min(420px,calc(100% - 24px))}.depth{left:16px;top:170px}}
+@media(max-width:600px){h1{font-size:29px;margin:9px 0}.kicker{font-size:8px;letter-spacing:.12em}.top p{max-width:225px;font-size:9px}.tag{padding:6px 9px;font-size:8px;margin-top:9px}.btn{padding:8px 10px;font-size:10px;min-height:33px}.top #info span{display:none}.bottom{left:12px;right:12px;bottom:12px}.telemetry{max-width:59%;padding:9px 11px}.telemetry small{font-size:8px}.telemetry strong{font-size:17px}.telemetry p{font-size:9px}.actions{gap:4px}.pin{padding:6px 8px;font-size:9px}.panel{padding:18px 16px}.depth{top:148px;font-size:8px}.panel h2{font-size:22px}#closePanel{display:block}}
+@media(prefers-reduced-motion:reduce){.panel{transition:none}}
+</style></head>
+<body>
+<canvas id="sky" aria-label="Immersive WebGL gas giant clouds, rotating storms and lightning. Drag and pinch to explore."></canvas>
+<div class="scrim"></div>
+<div class="chrome">
+<div class="top"><div><div class="kicker">CLAIM YOUR PLANET / ATMOSPHERIC EXPLORER</div>
+<h1>Into the storm.</h1><p>Enter turbulent cloud decks and discover the immense weather systems of a gas giant.</p>
+<div class="tag">NO SOLID SURFACE · MOVING CLOUDS</div></div>
+<button id="info" type="button" class="btn" aria-expanded="false">ⓘ <span>Explore the science</span></button></div>
+<div id="depth" class="depth">DEPTH / UPPER CLOUDS</div>
+<div class="points" id="points"></div>
+<div class="bottom"><div class="telemetry"><small>ATMOSPHERIC EXPEDITION <span id="idLabel">#0247</span></small><strong id="planetName">Gas giant</strong><p>Drag to look around · Pinch to zoom · Inspect storm markers</p></div>
+<div class="actions"><button class="btn" id="minus" aria-label="Zoom out">−</button><button class="btn" id="plus" aria-label="Zoom in">+</button><button class="btn" id="reset" aria-label="Reset view">↺</button><button class="btn" id="pause" aria-pressed="false">Ⅱ Pause</button></div></div>
+<aside id="panel" class="panel hidden" aria-label="Atmospheric science"><button id="closePanel" aria-label="Close panel">×</button>
+<small>GAS GIANT METEOROLOGY / V13</small><h2>Weather beyond Earth</h2>
+<p>Observe immense rotating cloud formations, banded jet streams, deep atmospheric layers and lightning storms.</p>
+<div id="stats" class="stats"></div><div class="divider"></div>
+<div class="feature"><small id="featureTag">VORTEX</small><b id="featureName">The Great Vortex</b><p id="featureText"></p></div>
+<div class="divider"></div><small>ATMOSPHERIC VISUALS</small>
+<div class="row"><span>Cloud speed</span><output id="speedValue">1.0×</output></div><input type="range" min="0" max="2.5" step=".1" value="1" id="speed">
+<div class="row"><span>Storm turbulence</span><output id="stormValue">100%</output></div><input type="range" min="20" max="150" step="5" value="100" id="turbulence">
+<div class="divider"></div><div class="notice"><strong>SCIENCE CHECK</strong> · This is an artistic visualisation, not actual atmospheric survey data or a numerical fluid simulation. Gas giants have no conventional rocky surface; their temperature and pressure change substantially with altitude and depth.</div>
+</aside></div>
+<script id="vert" type="x-shader/x-vertex">
+attribute vec2 pos;varying vec2 vUV;
+void main(){vUV=pos*.5+.5;gl_Position=vec4(pos,0.,1.);}
+</script>
+<script id="frag" type="x-shader/x-fragment">
+precision highp float;
+varying vec2 vUV;
+uniform vec2 resolution,pan;
+uniform float zoom,time,storm,theme,seed,flash;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+seed*.001)*43758.5453);}
+float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1.,0.)),f.x),mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float a=.50,n=0.;for(int i=0;i<4;i++){n+=a*noise(p);p=p*2.06+vec2(9.41,4.31);a*=.51;}return n;}
+vec2 rot(vec2 p,float a){float s=sin(a),c=cos(a);return vec2(c*p.x-s*p.y,s*p.x+c*p.y);}
+void main(){
+vec2 uv=vUV;float aspect=resolution.x/resolution.y;
+vec2 p=(uv-.5)*vec2(aspect,1.)*1.6/zoom+pan;
+vec2 drift=vec2(time*.013,-time*.004);
+float m1=fbm(p*1.7+drift+vec2(2.3,8.1));
+float m2=fbm(p*1.4-drift*.3+vec2(5.6,-3.4));
+vec2 q=p*2.+vec2(m1-.45,m2-.45)*.83;
+vec2 vortexPos=vec2(.05,-.11);
+vec2 r=(p-vortexPos)*vec2(1.,1.4);float radius=length(r);
+vec2 spiralPos=vortexPos+rot(r,-3.4*exp(-radius*3.)*storm+time*.019)/vec2(1.,1.4);
+float field=fbm(q*2.+drift);
+float details=fbm(q*5.7+vec2(time*.02,0.));
+float fine=fbm(q*12.);
+float sw=fbm(spiralPos*6.+vec2(m1,m2)*1.8);
+float arc=sin(atan(r.y,r.x)*3.-radius*40.+time*.1);
+float influence=(1.-smoothstep(.26,.85,radius))*storm;
+float density=mix(field*.60+details*.30+fine*.16,sw*.85+arc*.15+details*.18,influence*.72);
+density+=.065*sin(p.y*12.+m1*5.+field*6.+time*.1);
+density-=.27*(1.-smoothstep(.045,.13,radius))*storm;
+float lit=clamp(.38+details*.47+fine*.27+(field-m2)*.2,0.,1.);
+vec3 dark=vec3(.06,.12,.21),mid=vec3(.19,.38,.52),pale=vec3(.58,.76,.81),bright=vec3(.89,.94,.90);
+if(theme>.5&&theme<1.5){dark=vec3(.21,.11,.13);mid=vec3(.51,.27,.17);pale=vec3(.83,.56,.38);bright=vec3(.99,.85,.64);}
+if(theme>1.5){dark=vec3(.045,.10,.23);mid=vec3(.12,.28,.50);pale=vec3(.37,.62,.83);bright=vec3(.77,.91,1.);}
+float d=density*1.28;
+vec3 col=mix(dark,mid,smoothstep(.08,.55,d));
+col=mix(col,pale,smoothstep(.36,.85,d));
+col=mix(col,bright,smoothstep(.75,1.13,d));
+float shadow=1.-smoothstep(.24,.59,d);col=mix(col,vec3(.026,.056,.097),shadow*.52);
+col*=.76+.47*lit;col+=vec3(.15,.16,.20)*smoothstep(.61,.96,d)*max(0.,lit-.52);
+col*=.83+.22*clamp(.9-p.x*.30+p.y*.22,0.,1.);
+col+=vec3(.28,.46,.76)*flash*exp(-length((p-vec2(-.43,.20))*vec2(1.,1.3))*5.);
+float vignette=pow(max(0.,16.*uv.x*(1.-uv.x)*uv.y*(1.-uv.y)),.24);
+col*=(.60+.40*vignette);
+col=1.-exp(-max(col,vec3(0.))*1.65);
+gl_FragColor=vec4(pow(clamp(col,0.,1.),vec3(.91)),1.);
+}
+</script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),q=new URLSearchParams(location.search),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const id=clamp(parseInt(q.get('id')||'247',10)||247,1,1000),name=(q.get('name')||'Planet '+id).slice(0,60);
+const temp=q.has('temperature')?Number(q.get('temperature')):-115,seed=(Number(q.get('seed'))>>>0)||id;
+const tone=q.get('theme'),theme=tone==='warm'?1:tone==='cold'?2:temp < -140?2:temp>135?1:0;
+$('planetName').textContent=name;$('idLabel').textContent='#'+String(id).padStart(4,'0');
+const vals=[['PLANET CLASS','Gas giant'],['MODEL TEMP',Number.isFinite(temp)?Math.round(temp)+' °C':'Unknown'],['ATMOSPHERE',(q.get('atmosphere')||'Gaseous').slice(0,30)],['SURFACE','None']];
+for(const v of vals){const cell=document.createElement('div');cell.className='stat';const lab=document.createElement('span'),value=document.createElement('strong');lab.textContent=v[0];value.textContent=v[1];cell.append(lab,value);$('stats').append(cell);}
+const features=[
+ {x:.05,y:-.11,name:'The Great Vortex',tag:'GIANT ATMOSPHERIC VORTEX',text:'A vast cloud system inspired by long-lived storms such as Jupiter’s Great Red Spot. Rotating structures arise in planetary atmospheres without any solid ground.'},
+ {x:-.43,y:.20,name:'Lightning Belt',tag:'CONVECTIVE THUNDERSTORMS',text:'Deep convection may separate electrical charge, producing lightning in enormous clouds. The occasional glow here is illustrative.'},
+ {x:.50,y:.26,name:'Jet Stream Boundary',tag:'FAST ATMOSPHERIC WINDS',text:'Cloud bands at adjacent latitudes may move at different speeds, producing strong wind shear and turbulence.'}
+];
+let selected=0;
+const buttons=features.map((f,i)=>{const b=document.createElement('button');b.className='pin';b.textContent=f.name;b.onclick=()=>{selected=i;select();if(innerWidth<850)showPanel(true);};$('points').append(b);return b;});
+function select(){const f=features[selected];$('featureName').textContent=f.name;$('featureTag').textContent=f.tag;$('featureText').textContent=f.text;buttons.forEach((b,i)=>b.classList.toggle('selected',i===selected));}select();
+let panel=false;function showPanel(v){panel=v;$('panel').classList.toggle('hidden',!v);$('info').setAttribute('aria-expanded',String(v));}
+$('info').onclick=()=>showPanel(!panel);$('closePanel').onclick=()=>showPanel(false);
+let zoom=1,pan=[0,0],clock=0,last=0,speed=1,storm=1,paused=false,flash=0,boltTime=8+(seed%7);
+function setZoom(v){zoom=clamp(v,.55,4);$('depth').textContent=zoom>2.4?'DEPTH / INTO THE STORM':zoom>1.4?'DEPTH / CLOUD-TOP APPROACH':'DEPTH / UPPER CLOUDS';}
+$('minus').onclick=()=>setZoom(zoom/1.3);$('plus').onclick=()=>setZoom(zoom*1.3);$('reset').onclick=()=>{pan=[0,0];setZoom(1);};
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶ Resume':'Ⅱ Pause';$('pause').setAttribute('aria-pressed',String(paused));};
+$('speed').oninput=e=>{speed=Number(e.target.value);$('speedValue').textContent=speed.toFixed(1)+'×';};
+$('turbulence').oninput=e=>{storm=Number(e.target.value)/100;$('stormValue').textContent=e.target.value+'%';};
+const canvas=$('sky'),gl=canvas.getContext('webgl',{alpha:false,antialias:false,powerPreference:'high-performance'});
+let program,uniforms,good=!!gl;
+if(gl){try{
+const compile=(type,source)=>{const v=gl.createShader(type);gl.shaderSource(v,source);gl.compileShader(v);if(!gl.getShaderParameter(v,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(v));return v;};
+program=gl.createProgram();gl.attachShader(program,compile(gl.VERTEX_SHADER,$('vert').textContent));gl.attachShader(program,compile(gl.FRAGMENT_SHADER,$('frag').textContent));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));
+gl.useProgram(program);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);const pos=gl.getAttribLocation(program,'pos');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+uniforms={};for(const u of ['resolution','pan','zoom','time','storm','theme','seed','flash'])uniforms[u]=gl.getUniformLocation(program,u);
+}catch(err){good=false;console.error(err);}}
+if(!good){const x=document.createElement('div');x.style.cssText='position:fixed;top:42%;left:10%;right:10%;z-index:30;background:#122841;border:1px solid #9edfff;border-radius:12px;padding:24px';x.textContent='This browser could not start the WebGL atmosphere. Open the tester in Chrome with hardware acceleration enabled.';document.body.append(x);}
+let touches=new Map(),pinch=0,mid=null;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});pinch=0;mid=null;});
+canvas.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;let prev=touches.get(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+if(touches.size===2){let a=[...touches.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch)setZoom(zoom*d/pinch);pinch=d;let current={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};if(mid){pan[0]-=(current.x-mid.x)/innerHeight*1.6/zoom;pan[1]+=(current.y-mid.y)/innerHeight*1.6/zoom;}mid=current;}
+else{pan[0]-=(e.clientX-prev.x)/innerHeight*1.6/zoom;pan[1]+=(e.clientY-prev.y)/innerHeight*1.6/zoom;}
+pan[0]=clamp(pan[0],-2.2,2.2);pan[1]=clamp(pan[1],-1.7,1.7);});
+const release=e=>{touches.delete(e.pointerId);pinch=0;mid=null;};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+canvas.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*Math.exp(-e.deltaY*.0013));},{passive:false});
+function markers(){const w=canvas.clientWidth,h=canvas.clientHeight;for(let i=0;i<features.length;i++){let f=features[i],x=((f.x-pan[0])*zoom/1.6/(w/h)+.5)*w,y=(.5-(f.y-pan[1])*zoom/1.6)*h;const b=buttons[i];b.hidden=x<48||x>w-50||y<154||y>h-100||(w>900&&x>w-365);if(!b.hidden){b.style.left=x+'px';b.style.top=y+'px';}}}
+function frame(ms){requestAnimationFrame(frame);let dt=Math.min(.065,(ms-last)/1000||0);last=ms;if(!paused){clock+=dt*speed;if(clock>boltTime){flash=1;boltTime=clock+8+(Math.sin(clock+seed)*.5+.5)*9;}flash=Math.max(0,flash-dt*4.5);}
+if(!good)return;let dpr=Math.min(devicePixelRatio||1,innerWidth<760?.9:1.3),w=Math.max(1,Math.floor(canvas.clientWidth*dpr)),h=Math.max(1,Math.floor(canvas.clientHeight*dpr));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+gl.viewport(0,0,w,h);gl.uniform2f(uniforms.resolution,w,h);gl.uniform2f(uniforms.pan,pan[0],pan[1]);gl.uniform1f(uniforms.zoom,zoom);gl.uniform1f(uniforms.time,clock);gl.uniform1f(uniforms.storm,storm);gl.uniform1f(uniforms.theme,theme);gl.uniform1f(uniforms.seed,seed%100003);gl.uniform1f(uniforms.flash,flash);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);markers();}
+requestAnimationFrame(frame);
+})();
+</script></body></html>

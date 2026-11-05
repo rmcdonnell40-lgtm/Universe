@@ -15,6 +15,9 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
 .app.galaxy-full,.app:has(#backBtn[hidden]){display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important}
 .app.galaxy-full>.panel,.app:has(#backBtn[hidden])>.panel{display:none!important}
 #nebulaGlow,#nebulaGlowValue,#nebulaGlowLabel{display:none!important}
+/* Galaxy overview has no survey or habitable-zone UI; keep both inside star systems. */
+.app.galaxy-full .civt,.app:has(#backBtn[hidden]) .civt{display:none!important}
+
 
 /* V20: hide overview sidebar only in galaxy view. */
 .app.galaxy-full{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}

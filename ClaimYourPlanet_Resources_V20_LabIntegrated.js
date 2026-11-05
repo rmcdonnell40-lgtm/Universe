@@ -9,10 +9,11 @@ function hash(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++)h=Math.imul(h^s
 function seeded(n){return()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};}
 // Names must match V15 exactly. A number means virtual inventory units, not a physical assay.
 const RESOURCE_DROPS={"Ancient impact basin":{"item":"Minerals","amount":0.5},"Metal-rich strata":{"item":"Iron","amount":0.5},"Ancient riverbed":{"item":"Water","amount":0.5},"Dormant caldera":{"item":"Minerals","amount":0.5},"Sulfur vent field":{"item":"Minerals","amount":0.5},"Obsidian plains":{"item":"Minerals","amount":0.5},"Magma reservoir":{"item":"Energy","amount":0.5},"Subsurface brine":{"item":"Water","amount":0.5},"Cryovolcanic fissure":{"item":"Water","amount":0.5},"Deep ice archive":{"item":"Water","amount":0.5},"Hydrothermal vent":{"item":"Energy","amount":0.5},"Abyssal trench":null,"Seabed mineral field":{"item":"Minerals","amount":0.5},"Organic chemical traces":{"item":"Carbon","amount":0.5},"Isotope anomaly":null,"Magnetic anomaly":null,"Jet-stream boundary":null,"Giant storm vortex":{"item":"Energy","amount":0.5},"Electrical storm belt":{"item":"Energy","amount":0.5},"Polar auroral oval":null,"Exotic cloud chemistry":{"item":"Minerals","amount":0.5},"High-altitude haze":null};
-const COSMIC_LAB_KEY='cosmic:myworld:laboratory:v20';
+const COSMIC_LAB_KEY='cosmic:myworld:laboratory:v21';
 const COSMIC_TEST_INGREDIENTS=[['water','Water'],['carbon','Carbon'],['phosphorus','Phosphorus'],['sulfur','Sulfur'],['metals','Catalytic Metals'],['energy','Energy Source'],['culture','Primordial Culture']];
 function readCosmicLab(){
- const initial={stock:{water:3,carbon:3,phosphorus:2,sulfur:2,metals:2,energy:1,culture:1},added:[],living:false,cultures:0,seeded:false};
+ const initial={stock:{water:0,carbon:0,phosphorus:0,sulfur:0,metals:0,energy:0,culture:0},added:[],living:false,cultures:0,seeded:false};
+ try{const old=JSON.parse(localStorage.getItem('cosmic:myworld:laboratory:v20')||'null');if(old){initial.cultures=Math.max(0,Number(old.cultures)||0);initial.seeded=!!old.seeded;}}catch(e){}
  try{const loaded=JSON.parse(localStorage.getItem(COSMIC_LAB_KEY));if(loaded&&typeof loaded==='object'){return {...initial,...loaded,stock:{...initial.stock,...loaded.stock}}}}catch(e){}
  return initial;
 }
@@ -41,6 +42,37 @@ function aggregate(){
  });
  return {totals,byWorld};
 }
+const PLANET_INGREDIENT_TYPES={terrestrial:[65,65,55,40,50,25],ocean:[95,70,40,40,20,55],forest:[85,85,55,35,40,30],desert:[15,50,75,60,75,30],ice:[95,45,15,35,30,30],rocky:[20,55,75,50,90,25],lava:[3,25,55,95,80,95],gasGiant:[25,85,0,45,0,90],toxic:[15,70,25,85,35,65]};
+const INGREDIENT_DESCRIPTIONS={
+water:['Frozen aquifer','💧','Water ice or subsurface reservoir'],
+carbon:['Carbon compounds','◆','Methane, organic chemistry or carbon mineral'],
+phosphorus:['Phosphate strata','✦','Phosphorus-bearing rock deposits'],
+sulfur:['Sulfur deposit','⬡','Sulfur-rich gas or volcanic vent'],
+metals:['Catalytic ores','◈','Iron-nickel and catalytic trace metals'],
+energy:['Energy gradient','⚡','Geothermal vents or storm energy'],
+culture:['Primordial microbial sample','🧬','Extremely rare viable microbial sample (fictional)']};
+function planetaryIngredients(p,seed){
+ const rnd=seeded(hash(seed+'|'+p.seed+'|'+p.id+'|resources-v21'));
+ const w=[...(PLANET_INGREDIENT_TYPES[p.type]||PLANET_INGREDIENT_TYPES.rocky)];
+ if(p.water>50)w[0]=Math.min(98,w[0]+10);
+ if(p.temperature>175)w[0]=Math.min(8,w[0]);
+ const sorted=COSMIC_TEST_INGREDIENTS.slice(0,6).map(([id,label],i)=>({id,label,weight:w[i]})).sort((a,b)=>b.weight-a.weight);
+ let chosen=sorted.filter(s=>s.weight>0&&rnd()*100<s.weight).slice(0,2);
+ if(!chosen.length)chosen=[sorted[0]];
+ const plausible=['ice','ocean','terrestrial','forest'].includes(p.type)&&p.temperature>-170&&p.temperature<95;
+ if((plausible&&rnd()<.055)||(p.life?.pastLife&&rnd()<.09))chosen.unshift({id:'culture',label:'Primordial Culture',weight:2});
+ return chosen.map(s=>{
+  const [name,icon,description]=INGREDIENT_DESCRIPTIONS[s.id];
+  return {name,type:'Astrobiology deposit',icon,rarity:s.id==='culture'?'Extraordinary':s.weight>=70?'Common':'Uncommon',
+   description:description+'. Collect one sealed laboratory sample.',
+   resource:{item:s.label,amount:1,id:s.id},cosmicIngredientId:s.id};
+ });
+}
+function awardLaboratoryDeposit(f){
+ const id=f?.cosmicIngredientId;if(!Object.prototype.hasOwnProperty.call({water:1,carbon:1,phosphorus:1,sulfur:1,metals:1,energy:1,culture:1},id))return;
+ const lab=readCosmicLab();lab.stock[id]=(Math.max(0,Number(lab.stock[id])||0)+1);saveCosmicLab(lab);
+}
+
 function normalFindings(p,seed){
  const base=window.CYPlanetScannerV15.find(p,seed),history=p.life?.pastLife;
  const finds=history?base.slice(0,history.ancientTechnology?3:4):base.slice(0,5);
@@ -50,12 +82,13 @@ function normalFindings(p,seed){
   if(history.ancientTechnology)finds.push({name:'Ancient Technology',type:'Archaeological anomaly',icon:'✧',rarity:'Extraordinary',
    resource:{item:'Ancient Technology',amount:.5},description:'Fragments of engineered technology found within ancient strata. The origin remains uncertain.'});
  }
+ finds.push(...planetaryIngredients(p,seed).slice(0,Math.max(1,8-finds.length)));
  return finds.map((f,i)=>{
   const loot=f.resource===null?null:f.resource||RESOURCE_DROPS[f.name]||null;
   const rnd=seeded(hash(seed+'|'+p.seed+'|'+p.id+'|'+i));
   return {...f,resource:loot?{item:loot.item,amount:loot.amount}:null,
-   x:clamp([.24,.72,.33,.68,.47][i]+(rnd()-.5)*.08,.14,.85),
-   y:clamp([.37,.46,.67,.72,.56][i]+(rnd()-.5)*.07,.28,.78)};
+   x:clamp([.24,.72,.33,.68,.47][i%5]+(rnd()-.5)*.08,.14,.85),
+   y:clamp([.37,.46,.67,.72,.56][i%5]+(rnd()-.5)*.07,.28,.78)};
  });
 }
 
@@ -110,12 +143,12 @@ function init(api){
   const c=current();if(!c||!c.record?.surveyed)return;
   const item=c.findings[i];
   if(!item?.resource||c.record.collected[i])return;
-  c.record.collected[i]=true;persist();renderMarkers();renderSelected(i);updateNavigation();
+  c.record.collected[i]=true;persist();awardLaboratoryDeposit(item);renderMarkers();renderSelected(i);updateNavigation();
  }
  function uncollected(c){return c.findings.filter((f,i)=>f.resource&&!c.record?.collected?.[i]).length;}
  function collectAll(){
   const c=current();if(!c||!c.record?.surveyed)return;
-  c.findings.forEach((f,i)=>{if(f.resource)c.record.collected[i]=true;});
+  c.findings.forEach((f,i)=>{if(f.resource&&!c.record.collected[i]){c.record.collected[i]=true;awardLaboratoryDeposit(f);}});
   persist();renderMarkers();selectedCard.hidden=true;updateNavigation();
  }
  function showSheet(which){
@@ -138,7 +171,7 @@ function init(api){
     if(!entries.length)grid.append(node('div','rt-empty','No resources yet. Explore a planet, scan it and collect a resource-bearing finding.'));
     inner.append(grid,node('div','rt-ribbon','Resource amounts are fictional game units. This is a single-player browser save, not an online trading wallet.'));
     const lab=readCosmicLab();
-    inner.append(node('h3','','Laboratory · Test Inventory'));
+    inner.append(node('h3','','Laboratory · Collected Ingredients'));
     const labGrid=node('div','rt-grid');
     for(const [id,label] of COSMIC_TEST_INGREDIENTS){const card=node('article','rt-card');card.append(node('strong','',label),node('p','',String(Math.max(0,Number(lab.stock?.[id])||0))+' available'));labGrid.append(card);}
     const cultureCard=node('article','rt-card');cultureCard.append(node('strong','','🧫 First Life Culture'),node('p','',String(Math.max(0,Number(lab.cultures)||0))+' ready for seeding'));

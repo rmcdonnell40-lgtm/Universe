@@ -1,0 +1,50 @@
+
+/* Planet resource gameplay tester — isolated from existing builds */
+.rt-nav{position:fixed;z-index:3100;top:0;left:0;right:0;min-height:46px;display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 8px;background:linear-gradient(90deg,#051024ef,#0a2540f2,#051024ef);border-bottom:1px solid #7bbcf066;box-shadow:0 6px 22px #0009;backdrop-filter:blur(15px)}
+.rt-tab{background:#0c2843;color:#b8d8f3;border:1px solid #5d8bae88;border-radius:9px;padding:9px 14px;font:800 11px system-ui;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.rt-tab.active,.rt-tab:hover{background:#246594;border-color:#95dafe;color:#fff}
+.rt-tab .rt-count{color:#a5ebff;font-size:10px}
+body .hud{top:66px}body .terrain-toolbar{top:59px}body .life-toolbar{top:59px}
+.rt-explore-btn{background:linear-gradient(120deg,#17638d,#215eaa);border:1px solid #93deff;border-radius:999px;color:white;font:800 12px system-ui;padding:12px 14px;box-shadow:0 5px 25px #0009;cursor:pointer}
+.rt-markers{position:absolute;z-index:7;inset:0;pointer-events:none;overflow:hidden}
+.rt-markers[hidden],.rt-popover[hidden],.rt-inventory[hidden],.rt-myplanet[hidden],.rt-journal[hidden],.rt-overlay[hidden],.rt-scanbar[hidden]{display:none!important}
+.rt-marker{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;display:flex;align-items:center;justify-content:center;background:#09375deb;color:#e5faff;border:2px solid #7ae4ff;border-radius:50%;width:43px;height:43px;font-size:19px;cursor:pointer;box-shadow:0 0 0 5px #38b6fa35,0 0 23px #25baff9c;animation:rt-ping 2.8s ease-in-out infinite}
+.rt-marker:after{content:attr(data-name);position:absolute;left:50%;top:calc(100% + 7px);transform:translateX(-50%);font:750 9px system-ui;color:#e2f7ff;background:#05182ceb;padding:4px 7px;border-radius:99px;white-space:nowrap;max-width:140px;overflow:hidden;text-overflow:ellipsis;border:1px solid #80b8e052}
+.rt-marker.done{border-color:#81c4ad;background:#12352c;color:#cbfae9;opacity:.84;box-shadow:0 0 9px #1da88944;animation:none}
+.rt-marker.nonresource{background:#2a3156;border-color:#afa5de;box-shadow:0 0 20px #7d7bde66}
+.rt-marker:focus-visible,.rt-tab:focus-visible,.rt-btn:focus-visible{outline:2px solid #e8ffff;outline-offset:2px}
+@keyframes rt-ping{50%{box-shadow:0 0 0 9px #37c3ff18,0 0 32px #4ccaffc0}}
+.rt-scanbar{position:absolute;z-index:9;left:50%;bottom:clamp(14px,3vh,29px);transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 18px);padding:8px;border-radius:14px;background:#06192fe8;border:1px solid #7dafe66a;box-shadow:0 7px 27px #0008}
+.rt-scanbar .rt-caption{color:#c7e9f7;font:800 10px system-ui;white-space:nowrap}
+.rt-btn{background:#174f78;border:1px solid #6fbdef;color:#e9faff;border-radius:10px;padding:9px 11px;font:750 11px system-ui;cursor:pointer;white-space:nowrap}
+.rt-btn.primary{background:linear-gradient(110deg,#287dcb,#14649f);border-color:#b3edff}
+.rt-btn:disabled{opacity:.45;cursor:default}
+.rt-popover{position:absolute;z-index:12;left:50%;bottom:clamp(75px,13vh,132px);transform:translateX(-50%);width:min(355px,calc(100vw - 30px));border:1px solid #9ad8f1;background:linear-gradient(145deg,#0a2744f5,#06162afa);border-radius:15px;padding:16px;box-shadow:0 12px 45px #000c;backdrop-filter:blur(12px)}
+.rt-popover h3{margin:6px 0;font-size:18px}.rt-popover p{font:12px/1.5 system-ui;color:#bad1e9}.rt-popover .rt-rarity{font:800 10px system-ui;color:#ead2a7;letter-spacing:.09em}
+.rt-popover-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+.rt-overlay{position:fixed;z-index:3900;inset:0;background:#020815f5;backdrop-filter:blur(15px);overflow:auto;color:#ecf7ff}
+.rt-sheet{max-width:850px;margin:clamp(65px,11vh,110px) auto 50px;padding:0 clamp(15px,4vw,34px)}
+.rt-head{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.rt-eyebrow{font:800 10px system-ui;letter-spacing:.2em;color:#95caff}
+.rt-sheet h2{font-size:clamp(26px,4vw,44px);letter-spacing:-.05em;margin:10px 0}
+.rt-sheet p{font:12px/1.7 system-ui;color:#b1cbe2}
+.rt-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:19px 0}
+.rt-stat{padding:14px;border:1px solid #669bc257;background:#0b2039;border-radius:12px}
+.rt-stat strong{display:block;font-size:24px}.rt-stat span{display:block;font:11px system-ui;color:#afc5da;margin-top:6px}
+.rt-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:20px 0}
+.rt-card{background:linear-gradient(130deg,#0c253f,#081a2e);border:1px solid #6a97c359;border-radius:14px;padding:15px}
+.rt-card strong{display:block;font:800 15px system-ui}.rt-card small{color:#a5cbeb;font-size:10px}.rt-card p{margin:8px 0 0;font-size:11px}
+.rt-card .rt-amount{font:750 24px system-ui;color:#c0eeff;margin:6px 0}
+.rt-empty{padding:35px;text-align:center;border:1px dashed #5a93bb9a;border-radius:14px}
+.rt-ribbon{display:flex;gap:10px;align-items:center;color:#b9dbea;font:11px/1.7 system-ui;padding:12px;border-radius:11px;border:1px solid #5d8ca26b;background:#082d3b}
+@media(max-width:950px){.rt-tab{padding:8px 10px}.rt-markers{inset:0}}
+@media(max-width:600px){.rt-nav{gap:3px;min-height:44px;padding:5px 3px}.rt-tab{font-size:10px;padding:8px 7px;gap:3px}.rt-tab .rt-count{font-size:9px}body .hud{top:60px}body .terrain-toolbar{top:57px;right:8px}.rt-explore-btn{font-size:10px;padding:10px}.rt-marker{width:36px;height:36px;font-size:16px}.rt-marker:after{font-size:8px;max-width:95px}.rt-grid{grid-template-columns:1fr}.rt-stats{gap:5px}.rt-stat{padding:8px}.rt-stat strong{font-size:19px}.rt-stat span{font-size:9px}.rt-scanbar{bottom:12px;gap:5px;padding:7px}.rt-btn{font-size:10px;padding:8px}.rt-scanbar .rt-caption{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.rt-marker{animation:none}}
+
+/* Keep top navigation present in journal/inventory sheets, but hide it during active radio scan */
+.rt-overlay{z-index:3000}
+.cy-radar{z-index:9000}
+@media(max-width:600px){.rt-scanbar{bottom:65px}.rt-popover{bottom:118px}}
+
+/* World-anchored markers are initially hidden until camera-projected positions arrive. */
+.rt-marker[hidden]{display:none!important}

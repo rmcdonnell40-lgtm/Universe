@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050e1c"><title>Claim Your Planet — Atmospheric Explorer V12</title>
+<style>
+:root{color-scheme:dark;--ink:#eef6ff;--muted:#a1b8d2;--line:#83b5f23c;--cyan:#9fe9ff}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#06101e;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.app{height:100dvh;min-height:520px;display:grid;grid-template-columns:minmax(0,1fr) 350px;overflow:hidden}
+.viewport{position:relative;min-width:0;min-height:0;overflow:hidden;background:#080d1d}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}#sky:active{cursor:grabbing}
+.top{position:absolute;z-index:2;top:clamp(16px,3vw,34px);left:clamp(17px,3vw,35px);right:16px;pointer-events:none;text-shadow:0 3px 20px #02101c}
+.kicker{font-size:10px;letter-spacing:.23em;font-weight:800;color:#9ddaff}
+h1{font-size:clamp(28px,4vw,53px);letter-spacing:-.065em;margin:10px 0;line-height:1.05}
+.top p{max-width:405px;font-size:12px;line-height:1.65;color:#bfd7eb;margin:0}
+.status{margin-top:12px;display:inline-flex;align-items:center;gap:8px;background:#071c33c9;padding:8px 11px;border:1px solid #79bbff57;border-radius:100px;font-size:10px;font-weight:750;letter-spacing:.07em;color:#c1e9fb}
+.status i{background:#73e7f3;box-shadow:0 0 12px #6fdcff;width:6px;height:6px;border-radius:50%}
+.markers{position:absolute;inset:0;z-index:3;pointer-events:none}
+.marker{position:absolute;transform:translate(-50%,-90%);border:1px solid #b3e8ffae;background:#06172edb;color:#effaff;font-size:11px;font-weight:700;border-radius:999px;padding:8px 12px;box-shadow:0 4px 20px #0008;pointer-events:auto;cursor:pointer;white-space:nowrap}
+.marker:after{content:"";position:absolute;left:50%;top:100%;height:21px;border-left:1px solid #8fd7ff8e}
+.marker.active{border-color:#b2f6ff;background:#17527a;box-shadow:0 0 0 2px #72d9ff6b,0 0 23px #3eb5ff75}
+.marker[hidden]{display:none}
+.bottom{position:absolute;left:clamp(13px,3vw,30px);right:12px;bottom:15px;z-index:4;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;pointer-events:none}
+.world-card{background:#06172fdc;border:1px solid #9abfe552;border-radius:14px;padding:12px 15px;backdrop-filter:blur(12px);max-width:60%}
+.world-card small{font-weight:850;letter-spacing:.14em;font-size:9px;color:#a8deff}.world-card strong{display:block;font-size:23px;letter-spacing:-.04em;margin:5px 0}
+.world-card p{color:#b5d0e8;font-size:10px;line-height:1.55;margin:0}
+.actions{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;justify-content:flex-end;pointer-events:auto}
+.btn{background:#102542ed;color:#e7f5ff;border:1px solid #729aca73;border-radius:10px;padding:10px 12px;font:750 11px system-ui;cursor:pointer}
+.btn:hover{background:#204568}.btn:focus-visible{outline:2px solid #b9f5ff;outline-offset:2px}.btn[aria-pressed="true"]{border-color:#a6efff;color:#c9ffff;background:#145577}
+.panel{background:linear-gradient(155deg,#10243c,#091629 56%,#07111f);border-left:1px solid var(--line);overflow-y:auto;min-height:0;padding:25px 19px 30px;scrollbar-color:#436082 transparent}
+.eyebrow{color:#8bc6f3;letter-spacing:.20em;font-size:10px;font-weight:800}
+.panel h2{letter-spacing:-.05em;font-size:27px;margin:9px 0}.desc{font-size:12px;line-height:1.75;color:#a5bdd8;margin:0}
+.block{margin-top:20px;padding-top:19px;border-top:1px solid var(--line)}.block h3{font-size:10px;letter-spacing:.16em;color:#a4c7ed;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{padding:11px;background:#0a1e35;border:1px solid #6384b447;border-radius:11px}.stat span{display:block;color:#9bb1ce;font-size:10px}.stat strong{display:block;margin-top:6px;font-size:14px}
+.scan{background:#0e2843;border:1px solid #639dc577;border-radius:13px;padding:14px}
+.scan .icon{font-size:26px}.scan strong{display:block;font-size:16px;margin:7px 0 4px}.scan p{font-size:12px;line-height:1.65;color:#aec6e0;margin:0 0 11px}
+.scan .line{padding:10px;background:#071b2f;border-radius:9px;font-size:11px;color:#aad4ed;line-height:1.7}
+.scan .line b{color:#f6fbff}
+.control{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#c1d8ec;margin:14px 0 7px}.control output{color:#9fe9ff}
+input[type=range]{width:100%;accent-color:#78cfff}
+.note{padding:14px;border:1px solid #6a9bbf50;border-radius:12px;background:#0b2237;font-size:11px;color:#b0c7df;line-height:1.7}
+@media(max-width:960px){.app{grid-template-columns:1fr;grid-template-rows:minmax(335px,57dvh) minmax(0,1fr)}.panel{border-left:0;border-top:1px solid var(--line);padding:18px 16px}.world-card strong{font-size:18px}.top h1{font-size:34px}.top p{font-size:11px;max-width:300px}}
+@media(max-width:560px){.app{grid-template-rows:minmax(330px,55dvh) minmax(0,1fr)}.top h1{font-size:29px}.top p{font-size:10px;max-width:240px}.marker{font-size:10px;padding:6px 9px}.bottom{left:12px;right:10px;bottom:11px;gap:6px}.world-card{padding:9px 11px;max-width:59%}.world-card small{font-size:8px}.world-card strong{font-size:17px}.world-card p{font-size:9px}.btn{font-size:10px;padding:8px 9px}.actions{gap:4px}.status{font-size:8px;margin-top:8px}.panel h2{font-size:24px}}
+</style></head><body>
+<main class="app">
+<section class="viewport" id="viewport">
+<canvas id="sky" aria-label="Animated gaseous atmosphere showing drifting cloud layers, giant storms and lightning. Drag or pinch to navigate."></canvas>
+<div class="top"><div class="kicker">CLAIM YOUR PLANET · ATMOSPHERIC EXPLORER</div><h1>Inside the<br>storm clouds.</h1><p>Travel above the swirling upper atmosphere of a gas giant. Watch bands of gas flow past immense storm vortices and flashes of lightning.</p><div class="status"><i></i> NO SOLID SURFACE · UPPER ATMOSPHERE</div></div>
+<div id="markers" class="markers"></div>
+<div class="bottom"><div class="world-card"><small>ATMOSPHERIC SURVEY · PLANET <span id="worldNumber">0247</span></small><strong id="worldName">Gas giant</strong><p>Drag to pan · Pinch / scroll to zoom · Tap storm markers</p></div><div class="actions"><button class="btn" id="zoomOut" aria-label="Zoom out">−</button><button class="btn" id="zoomIn" aria-label="Zoom in">+</button><button class="btn" id="reset" aria-label="Reset camera">⟲</button><button class="btn" id="pause" aria-pressed="false">Ⅱ Pause</button></div></div>
+</section>
+<aside class="panel">
+<div class="eyebrow">PLANETARY METEOROLOGY / SURVEY 01</div><h2>Gas giant atmosphere</h2><p class="desc" id="subtitle">A vast envelope of moving gas, cloud decks and turbulent weather — not land or ocean terrain.</p>
+<div class="block"><h3>ATMOSPHERIC CONDITIONS</h3><div class="grid" id="stats"></div></div>
+<div class="block"><h3>STORM SYSTEM INSPECTION</h3><div class="scan"><span class="icon" id="featureIcon">🌀</span><strong id="featureName">Giant vortex</strong><p id="featureDescription"></p><div class="line" id="featureData"></div></div></div>
+<div class="block"><h3>VISUAL CONTROLS</h3><div class="control"><span>Cloud motion</span><output id="speedValue">1.0×</output></div><input id="speed" type="range" min="0.2" max="3" step="0.1" value="1" aria-label="Cloud speed"><div class="control"><span>Storm visibility</span><output id="stormValue">85%</output></div><input id="intensity" type="range" min="20" max="100" step="5" value="85" aria-label="Storm visibility"></div>
+<div class="block"><div class="note"><strong>SCIENCE CHECK ·</strong> Illustrative cloud dynamics, not a fluid-dynamics calculation or observed meteorological map. Gas giants have no conventional solid surface. Deep pressures, chemical composition and temperatures vary greatly with altitude. The lightning, storm sizes and wind patterns are artistic visualisations.</div></div>
+</aside>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const q=new URLSearchParams(location.search);
+const id=Math.max(1,Math.min(1000,Math.trunc(Number(q.get('id')))||247));
+const name=(q.get('name')||('Planet '+id)).slice(0,70);
+const atmosphere=(q.get('atmosphere')||'stormy').slice(0,40);
+const temp=Number(q.get('temperature'));
+const seed=(Number(q.get('seed'))>>>0)||id;
+const isIce=Number.isFinite(temp)&&temp < -100;
+const warm=Number.isFinite(temp)&&temp > 150;
+const canvas=$('sky'),ctx=canvas.getContext('2d',{alpha:false});
+const small=document.createElement('canvas'),sc=small.getContext('2d',{alpha:true});
+small.width=576;small.height=350;
+let W=1,H=1,DPR=1,zoom=1,panX=0,panY=0,clock=0,last=0,paused=false,speed=1,intensity=.85;
+let lightning=0,stormFlash=0,flashCount=0,selected=0;
+const touches=new Map();
+let pinch=0,mid=null;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
+function rng(seed){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}}
+const rand=rng(seed);
+const storms=[
+ {x:.58,y:.62,rad:.22,kind:'Great oval',icon:'🌀',color:'#f0d7bd',desc:'A persistent giant-scale rotating storm embedded within contrasting cloud bands. It represents an analogue of long-lived vortices seen on Jupiter.',data:'Atmospheric vortex · size illustrative'},
+ {x:.26,y:.77,rad:.105,kind:'Cyclonic cluster',icon:'🌪️',color:'#f6e2b7',desc:'Several turbulent storms interact along a fast-moving jet stream, where neighbouring layers may have different wind speeds.',data:'Cloud-top wind shear · illustrative'},
+ {x:.82,y:.39,rad:.13,kind:'Electrified storm',icon:'⚡',color:'#b3eaff',desc:'Cloud convection may generate electrical charge separation. Lightning is observed on Jupiter and Saturn, although the flashes here are artistic.',data:'Lightning activity · simulated'}
+];
+function hash(x,y){let k=Math.imul(x+17,374761393)^Math.imul(y+37,668265263)^seed;k=Math.imul(k^(k>>>13),1274126177);return ((k^(k>>>16))>>>0)/4294967295;}
+function noise(x,y){const i=Math.floor(x),j=Math.floor(y),dx=x-i,dy=y-j;const fx=dx*dx*(3-2*dx),fy=dy*dy*(3-2*dy);return mix(mix(hash(i,j),hash(i+1,j),fx),mix(hash(i,j+1),hash(i+1,j+1),fx),fy);}
+function fbm(x,y){let amp=.55,fr=1,s=0,total=0;for(let i=0;i<4;i++){s+=amp*noise(x*fr,y*fr);total+=amp;amp*=.49;fr*=2.07;}return s/total;}
+const data=sc.createImageData(small.width,small.height);
+for(let y=0;y<small.height;y++)for(let x=0;x<small.width;x++){
+ const i=(y*small.width+x)*4;
+ const strip=y/small.height,warping=fbm(x*.008+13,y*.009+11);
+ const band=Math.sin(strip*47+warping*4.8+Math.sin(x*.008+strip*13)*1.5);
+ const streak=Math.sin(strip*125+warping*15)*.10;
+ const grain=fbm(x*.029,y*.040);
+ let shade=clamp(.5+band*.31+streak+(grain-.5)*.32,0,1);
+ let lo=isIce?[.12,.30,.49]:warm?[.38,.20,.19]:[.36,.21,.21];
+ let hi=isIce?[.66,.83,.94]:warm?[.99,.72,.45]:[.94,.75,.58];
+ let rgba=lo.map((v,j)=>Math.floor(255*mix(v,hi[j],shade)));
+ data.data[i]=rgba[0];data.data[i+1]=rgba[1];data.data[i+2]=rgba[2];data.data[i+3]=255;
+}
+sc.putImageData(data,0,0);
+const starfield=Array.from({length:100},()=>({x:rand(),y:rand()*.65,r:.3+rand()*1.4,alpha:.12+rand()*.5}));
+const buttons=[];
+storms.forEach((s,i)=>{const button=document.createElement('button');button.type='button';button.className='marker';button.innerHTML=s.icon+' <span>'+s.kind+'</span>';button.onclick=()=>{selected=i;refreshInfo();};$('markers').append(button);buttons.push(button);});
+function refreshInfo(){const s=storms[selected];$('featureIcon').textContent=s.icon;$('featureName').textContent=s.kind;$('featureDescription').textContent=s.desc;$('featureData').textContent=s.data;buttons.forEach((b,i)=>b.classList.toggle('active',i===selected))}
+$('worldName').textContent=name;$('worldNumber').textContent=String(id).padStart(4,'0');
+$('subtitle').textContent=(isIce?'A cold, blue-tinted cloud atmosphere. ':'A banded, turbulent cloud atmosphere. ')+'There is no conventional rocky surface to land on.';
+const stats=[['WORLD TYPE','Gas giant'],['MODEL TEMPERATURE',Number.isFinite(temp)?Math.round(temp)+' °C':'Not supplied'],['ATMOSPHERE',atmosphere],['SURFACE','None (gaseous envelope)'],['STORMS','3 surveyed regions'],['PLANET ID','#'+String(id).padStart(4,'0')]];
+$('stats').innerHTML=stats.map(([k,v])=>'<div class="stat"><span>'+k+'</span><strong>'+v.replace(/</g,'&lt;')+'</strong></div>').join('');
+refreshInfo();
+function resize(){const bounds=canvas.getBoundingClientRect();W=Math.max(1,bounds.width);H=Math.max(1,bounds.height);DPR=Math.min(devicePixelRatio||1,1.6);let w=Math.round(W*DPR),h=Math.round(H*DPR);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}ctx.setTransform(DPR,0,0,DPR,0,0);}
+function screenPoint(storm){const sw=Math.max(W,H)*1.55*zoom;return {x:W*.5+panX+(storm.x-.5)*sw,y:H*.73+panY+(storm.y-.61)*sw*.60};}
+function vortex(g,s,r,sec){g.save();g.translate(s.x,s.y);g.rotate(-.15+Math.sin(sec*.14)*.035);g.scale(1,.42);
+let halo=g.createRadialGradient(0,0,0,0,0,r*1.4);halo.addColorStop(0,'rgba(247,234,212,.85)');halo.addColorStop(.18,'rgba(211,150,116,.78)');halo.addColorStop(.44,'rgba(231,185,135,.42)');halo.addColorStop(.7,'rgba(231,190,155,.15)');halo.addColorStop(1,'rgba(231,190,155,0)');g.fillStyle=halo;g.beginPath();g.arc(0,0,r*1.4,0,Math.PI*2);g.fill();
+g.save();g.rotate(sec*.085*(s.kind==='Great oval'?1:-1));for(let j=0;j<11;j++){g.beginPath();g.ellipse(0,0,r*(.22+j*.083),r*(.22+j*.083),0,.2+j*.56,4+j*.48);g.strokeStyle=j%3===0?'rgba(251,239,218,.62)':j%2?'rgba(111,89,110,.35)':'rgba(242,176,128,.48)';g.lineWidth=Math.max(1.5,r*.027);g.stroke();}g.restore();
+g.beginPath();g.ellipse(0,0,r*.23,r*.15,0,0,Math.PI*2);g.fillStyle='#c58d75b8';g.fill();g.restore();}
+function draw(t){
+ resize();ctx.clearRect(0,0,W,H);
+ const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#050e24');bg.addColorStop(.43,isIce?'#173653':'#231a31');bg.addColorStop(1,isIce?'#47748c':'#73514a');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ for(const st of starfield){ctx.globalAlpha=st.alpha;ctx.fillStyle='#d6eaff';ctx.fillRect(st.x*W,st.y*H*.63,st.r,st.r);}ctx.globalAlpha=1;
+ const cx=W*.5+panX,cy=H*.83+panY,size=Math.max(W,H)*1.62*zoom,deckTop=cy-size*.58;
+ const haz=ctx.createRadialGradient(cx,cy-size*.4,10,cx,cy-size*.4,size*.78);haz.addColorStop(0,isIce?'rgba(133,215,246,.2)':'rgba(242,177,125,.23)');haz.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=haz;ctx.fillRect(0,0,W,H);
+ ctx.save();ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,cy-size*.15);
+ ctx.quadraticCurveTo(cx,cy-size*.56,W,cy-size*.15);ctx.lineTo(W,H);ctx.closePath();ctx.clip();
+ // A moving banded cloud texture, not a terrain mesh. Wrapped layers add lateral shear.
+ const texH=size*.71,texY=deckTop+size*.1;
+ ctx.globalAlpha=.98;
+ const drift=(t*speed*11)%(size*1.55);
+ const drawW=size*1.55;
+ for(let n=-2;n<3;n++){ctx.drawImage(small,cx-drawW*.5+n*drawW+drift,texY,drawW,texH);}
+ ctx.globalAlpha=1;
+ // Semi-transparent high-altitude cloud jets and streamlines.
+ for(let j=0;j<18;j++){
+  let yy=cy-size*.20+j*size*.041;
+  ctx.beginPath();
+  for(let x=-45;x<=W+50;x+=12){
+    const wave=Math.sin(x*.008+j*1.6+t*.18*speed)*size*.008 + Math.sin(x*.019-j+t*.3*speed)*size*.004;
+    const Y=yy+wave;
+    x===-45?ctx.moveTo(x,Y):ctx.lineTo(x,Y);
+  }
+  ctx.strokeStyle=j%3===0?'rgba(250,223,189,.24)':j%3===1?'rgba(64,82,129,.24)':'rgba(239,246,240,.19)';
+  ctx.lineWidth=Math.max(5,size*(.005+j%3*.003));ctx.stroke();
+ }
+ for(const storm of storms){const pos=screenPoint(storm);vortex(ctx,{...storm,x:pos.x,y:pos.y},size*storm.rad*.52*intensity,t);}
+ // Subtle veiling vapour and limb shading.
+ const shade=ctx.createLinearGradient(0,0,0,H);shade.addColorStop(0,'rgba(10,19,47,.2)');shade.addColorStop(.33,'rgba(20,25,49,0)');shade.addColorStop(1,'rgba(11,18,43,.38)');ctx.fillStyle=shade;ctx.fillRect(0,0,W,H);
+ ctx.restore();
+ // Light shafts in high clouds near the horizon
+ let rim=ctx.createLinearGradient(0,cy-size*.5,0,cy-size*.13);rim.addColorStop(0,'rgba(207,221,251,0)');rim.addColorStop(.65,isIce?'rgba(147,224,243,.10)':'rgba(255,213,155,.15)');rim.addColorStop(1,'rgba(207,221,251,0)');ctx.fillStyle=rim;ctx.fillRect(0,0,W,cy);
+ if(stormFlash>0){
+   const pos=screenPoint(storms[2]);ctx.save();ctx.globalCompositeOperation='screen';ctx.fillStyle='rgba(145,207,255,'+(stormFlash*.26)+')';ctx.beginPath();ctx.ellipse(pos.x,pos.y,size*.14,size*.06,0,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='rgba(227,248,255,'+Math.min(1,stormFlash)+')';ctx.lineWidth=2.6;ctx.shadowBlur=18;ctx.shadowColor='#c4f4ff';
+   for(let k=0;k<3;k++){let x=pos.x+(k-1)*size*.03,y=pos.y-size*.02;ctx.beginPath();ctx.moveTo(x,y);for(let n=0;n<8;n++){x+=Math.sin(n*2.6+k)*size*.006;y+=size*.018;ctx.lineTo(x,y);}ctx.stroke();}
+   ctx.restore();
+ }
+ for(let i=0;i<storms.length;i++){const pos=screenPoint(storms[i]),btn=buttons[i];btn.hidden=pos.x<25||pos.x>W-25||pos.y<128||pos.y>H-65;if(!btn.hidden){btn.style.left=pos.x+'px';btn.style.top=(pos.y-size*storms[i].rad*.19)+'px';}}
+}
+function frame(ms){requestAnimationFrame(frame);const dt=Math.min(.05,(ms-last)/1000||0);last=ms;if(!paused){clock+=dt;if(rand()<dt*.19){flashCount=1;stormFlash=1;}stormFlash=Math.max(0,stormFlash-dt*5);}draw(clock);}
+function setZoom(x){zoom=clamp(x,.55,3.2)}
+$('zoomIn').onclick=()=>setZoom(zoom*1.22);$('zoomOut').onclick=()=>setZoom(zoom/1.22);$('reset').onclick=()=>{zoom=1;panX=panY=0};
+$('pause').onclick=()=>{paused=!paused;$('pause').textContent=paused?'▶ Resume':'Ⅱ Pause';$('pause').setAttribute('aria-pressed',String(paused));};
+$('speed').oninput=e=>{speed=Number(e.target.value);$('speedValue').textContent=speed.toFixed(1)+'×'};
+$('intensity').oninput=e=>{intensity=Number(e.target.value)/100;$('stormValue').textContent=e.target.value+'%'};
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});pinch=0;mid=null;});
+canvas.addEventListener('pointermove',e=>{if(!touches.has(e.pointerId))return;const p=touches.get(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(touches.size===2){const a=[...touches.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(pinch)setZoom(zoom*d/pinch);pinch=d;const m={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};if(mid){panX+=m.x-mid.x;panY+=m.y-mid.y;}mid=m;}else{panX+=e.clientX-p.x;panY+=e.clientY-p.y;}panX=clamp(panX,-W*1.4,W*1.4);panY=clamp(panY,-H*1.3,H*1.3);});
+function release(e){touches.delete(e.pointerId);pinch=0;mid=null;}canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+canvas.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*Math.exp(-e.deltaY*.0013));},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&window.parent!==window)window.parent.postMessage({kind:'surface-v12:close'},location.origin);});
+requestAnimationFrame(frame);
+})();
+</script></body></html>

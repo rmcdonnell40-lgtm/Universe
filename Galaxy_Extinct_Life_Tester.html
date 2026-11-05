@@ -78,7 +78,7 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
 .nebula-controls button{background:#15345a;border:1px solid #7aace58a;color:#effaff;border-radius:8px;padding:7px 9px;font:700 10px system-ui;cursor:pointer}
 .nebula-controls[hidden]{display:none!important}
 @media(max-width:600px){.nebula-controls{bottom:58px;left:10px;max-width:calc(100% - 75px);padding:8px;gap:7px}.nebula-controls input[type=range]{width:75px}.nebula-controls label,.nebula-controls output{font-size:10px}.mode-pill{bottom:14px}}
-.civt{position:absolute;z-index:12;top:142px;left:8px;display:flex;gap:7px}.civt button{background:#113c4b;color:#e4fffd;border:1px solid #5cbac5;border-radius:11px;padding:10px;font:750 11px system-ui}.civt button.active{background:#206e65}.civlist{position:absolute;z-index:30;inset:0;overflow:auto;background:#05101ff7;color:#ecfaff;padding:25px}.civlist[hidden]{display:none!important}.civwrap{max-width:750px;margin:28px auto}.civworld{display:flex;justify-content:space-between;align-items:center;gap:9px;width:100%;margin:7px 0;padding:13px;border-radius:12px;background:#102a41;border:1px solid #5294a6;color:#eaffff;text-align:left}.civworld small{display:block;font-size:11px;color:#9dc3da;margin-top:5px}@media(max-width:600px){.civt{top:158px}.civt button{font-size:9px;padding:7px}}
+.civt{position:absolute;z-index:12;top:142px;left:8px;display:flex;gap:7px;flex-wrap:wrap;max-width:calc(100% - 55px)}.civt button{background:#113c4b;color:#e4fffd;border:1px solid #5cbac5;border-radius:11px;padding:10px;font:750 11px system-ui}.civt button.active{background:#206e65}.civlist{position:absolute;z-index:30;inset:0;overflow:auto;background:#05101ff7;color:#ecfaff;padding:25px}.civlist[hidden]{display:none!important}.civwrap{max-width:750px;margin:28px auto}.civworld{display:flex;justify-content:space-between;align-items:center;gap:9px;width:100%;margin:7px 0;padding:13px;border-radius:12px;background:#102a41;border:1px solid #5294a6;color:#eaffff;text-align:left}.civworld small{display:block;font-size:11px;color:#9dc3da;margin-top:5px}@media(max-width:600px){.civt{top:158px}.civt button{font-size:9px;padding:7px}}
 </style>
 <link rel="stylesheet" href="ClaimYourPlanet_Discoveries_V15.css">
 <link rel="stylesheet" href="ClaimYourPlanet_Resources_V17.css">
@@ -897,6 +897,8 @@ let lastPanel=0;
 function frame(ms){requestAnimationFrame(frame); if(!terrainOverlay.hidden||!lifeOverlay.hidden){last=ms;return;} let dt=Math.min(.04,(ms-last)/1000||0); last=ms; if(mode!=='system'||!orbitsPaused)t+=dt; ctx.clearRect(0,0,W,H); if(mode==='galaxy')drawGalaxy(); else drawSystem(); if(ms-lastPanel>250){lastPanel=ms;renderPanel();} }
 
 galaxy=generateGalaxy(galaxySeed); updateZoomLevel();renderPanel(); requestAnimationFrame(frame);
+// Developer shortcut: open the extinct-world directory immediately when linked with ?testWorlds=1.
+if(new URLSearchParams(location.search).get('testWorlds')==='1')openTestWorlds();
 })();
 </script>
 </body>

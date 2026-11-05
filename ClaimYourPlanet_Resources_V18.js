@@ -1,7 +1,7 @@
 /* ClaimYourPlanet — Extinct World Resource Expedition V18. Browser-only progression, not a live marketplace. */
 (function(){
 'use strict';
-const KEY='claimyourplanet:extinct-worlds-test:v1';
+const KEY='claimyourplanet:resource-expedition:v18';
 const $=id=>document.getElementById(id);
 function node(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;}
 function clamp(x,a,b){return Math.max(a,Math.min(b,x));}

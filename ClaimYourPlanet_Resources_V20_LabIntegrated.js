@@ -433,28 +433,28 @@ function init(api){
    else if(event.data.destination==='resources')showSheet('resources');
  });
 
- // A compact galaxy HUD; hidden behind the Lab, My Planet and Journal/Resources.
- const seedHUD=node('aside','cosmic-seeding-hud');
- seedHUD.setAttribute('aria-label','ASTRA-01 life seeding progress');
- seedHUD.style.cssText='position:fixed;z-index:950;left:14px;bottom:68px;width:min(330px,calc(100vw - 28px));padding:13px 15px;border:1px solid #62cfe0a3;border-radius:14px;background:#051c2fea;color:#e5f8ff;box-shadow:0 6px 28px #0008;font:12px system-ui;pointer-events:none;';
- seedHUD.innerHTML='<div style="font-weight:800;letter-spacing:.1em;color:#9fe7f3">ASTRA-01 · LIFE SEEDING</div><div class="cosmic-seeding-note" style="margin:6px 0 9px;color:#c7e1ee">Preparing microbial ecosystem</div><div style="height:9px;background:#15334b;border-radius:99px;overflow:hidden"><div class="cosmic-seeding-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#38a5e7,#7af4c9);border-radius:99px"></div></div><div class="cosmic-seeding-time" style="color:#92cbdf;margin-top:7px;text-align:right">10:00 remaining</div>';
- document.body.append(seedHUD);
- function refreshSeedHUD(){
-  const status=seedingState();
-  const sheetOpen=Object.values(sheets).some(sheet=>!sheet.outer.hidden);
-  const worldOpen=homeWorldOverlay&&!homeWorldOverlay.hidden;
-  const labOpen=laboratoryOverlay&&!laboratoryOverlay.hidden;
-  seedHUD.hidden=status.status!=='seeding'||!!sheetOpen||!!worldOpen||!!labOpen;
-  if(status.status!=='seeding')return;
-  const secs=Math.ceil(status.remaining/1000);
-  seedHUD.querySelector('.cosmic-seeding-fill').style.width=Math.round(status.progress*100)+'%';
-  seedHUD.querySelector('.cosmic-seeding-note').textContent='Seeding · '+Math.floor(status.progress*100)+'% complete';
-  seedHUD.querySelector('.cosmic-seeding-time').textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0')+' remaining';
+ // While seeding, only the My Planet tab pulses. The progress bar lives inside My Planet.
+ const homeButton=tabButtons.get('home');
+ const activityDot=node('span','cosmic-home-activity');
+ activityDot.setAttribute('aria-hidden','true');
+ activityDot.style.cssText='display:none;width:7px;height:7px;flex:none;border-radius:50%;background:#51c9ff;box-shadow:0 0 8px #39c4ff;';
+ homeButton.append(activityDot);
+ homeButton.style.display='inline-flex';
+ homeButton.style.alignItems='center';
+ homeButton.style.justifyContent='center';
+ homeButton.style.gap='5px';
+ const activityStyle=node('style','');
+ activityStyle.textContent='@keyframes cosmicPulse{0%,100%{opacity:.38;transform:scale(.76);box-shadow:0 0 3px #4bc9ff}50%{opacity:1;transform:scale(1.38);box-shadow:0 0 14px #4bc9ff}} .cosmic-home-activity.is-seeding{display:inline-block!important;animation:cosmicPulse 1.5s ease-in-out infinite} @media(prefers-reduced-motion:reduce){.cosmic-home-activity.is-seeding{animation:none;opacity:1}}';
+ document.head.append(activityStyle);
+ function refreshSeedingIndicator(){
+  const seeding=seedingState().status==='seeding';
+  activityDot.classList.toggle('is-seeding',seeding);
+  homeButton.setAttribute('aria-label',seeding?'My Planet — seeding in progress':'My Planet');
  }
- window.setInterval(refreshSeedHUD,1000);
- document.addEventListener('visibilitychange',refreshSeedHUD);
- window.addEventListener('focus',refreshSeedHUD);
- refreshSeedHUD();
+ window.setInterval(refreshSeedingIndicator,1000);
+ document.addEventListener('visibilitychange',refreshSeedingIndicator);
+ window.addEventListener('focus',refreshSeedingIndicator);
+ refreshSeedingIndicator();
 
  for(const [key,b] of tabButtons){
   b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else{setWorldVisible(false);showSheet(key);}};

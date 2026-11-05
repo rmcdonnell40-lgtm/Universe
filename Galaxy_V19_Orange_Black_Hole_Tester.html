@@ -912,7 +912,12 @@ $('claimBtn').onclick=()=>{
 let lastPanel=0;
 function frame(ms){requestAnimationFrame(frame); if(!terrainOverlay.hidden||!lifeOverlay.hidden){last=ms;return;} let dt=Math.min(.04,(ms-last)/1000||0); last=ms; if(mode!=='system'||!orbitsPaused)t+=dt; ctx.clearRect(0,0,W,H); if(mode==='galaxy')drawGalaxy(); else drawSystem(); if(ms-lastPanel>250){lastPanel=ms;renderPanel();} }
 
-galaxy=generateGalaxy(galaxySeed); updateZoomLevel();renderPanel(); requestAnimationFrame(frame);
+galaxy=generateGalaxy(galaxySeed);
+if(new URLSearchParams(location.search).get('previewBlackHole')==='1'){
+ const example=galaxy.systems.find(s=>s.type==='blackHole'&&s.active)||galaxy.systems.find(s=>s.type==='blackHole');
+ if(example)selectSystem(example);
+}
+updateZoomLevel();renderPanel();requestAnimationFrame(frame);
 
 })();
 </script>

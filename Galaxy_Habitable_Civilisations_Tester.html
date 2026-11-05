@@ -100,7 +100,7 @@ canvas{display:block}.app{position:fixed;inset:0;display:grid;grid-template-colu
         <button class="btn primary" id="reseedBtn">Regenerate galaxy</button>
       </div>
     </div>
-    <div class="mode-pill" id="modePill">Galaxy view</div><div class="civt"><button id="civOpen">✧ 15 Civilisations</button><button id="hzShow" class="active">◎ Habitable Zone ON</button></div><section id="civList" class="civlist" hidden><div id="civWrap" class="civwrap"></div></section>
+    <div class="mode-pill" id="modePill">Galaxy view</div><div class="civt"><button id="civOpen">✧ 13 Civilisations</button><button id="hzShow" class="active">◎ Habitable Zone ON</button></div><section id="civList" class="civlist" hidden><div id="civWrap" class="civwrap"></div></section>
     <div class="nebula-controls" id="nebulaControls" aria-label="Distant space scenery controls">
       <label><input type="checkbox" id="nebulaShow" checked> Distant galaxies</label>
       <label>Glow <input type="range" id="nebulaGlow" min="15" max="100" value="62" step="5" aria-label="Background glow strength"></label>
@@ -242,7 +242,7 @@ function addLife(g){
      if(p.temperature<-55||p.temperature>85)score=Math.min(score,24);
      if(p.water<9)score=Math.min(score,25);
      if(s.type==='redDwarf')score=Math.min(score,76);
-     p.life={score,hz,biosphere:hz&&score>67?'Complex life candidate':hz&&score>=48?'Microbial life candidate':p.type==='ice'?'Possible subsurface habitat':'No evidence of life',civilisation:null,society:'None',settlement:'None'};
+     p.life={score,hz,biosphere:hz&&score>67?'Complex life candidate':hz&&score>=48?'Microbial life candidate':'No evidence of life',civilisation:null,society:'None',settlement:'None'};
      all.push({p,s});
    }
  }
@@ -254,16 +254,15 @@ function addLife(g){
  }
  pick('Verdant Civilisation World',5,o=>o.p.life.hz&&o.p.life.score>=48&&o.p.water>=18&&o.p.temperature>=-15&&o.p.temperature<=65&&['forest','terrestrial','ocean'].includes(o.p.type)&&o.s.type!=='blueGiant',o=>o.p.life.score+(o.p.type==='forest'?10:0),'Biological','Open-air cities');
  pick('Oceanic Civilisation World',1,o=>o.p.life.hz&&o.p.type==='ocean'&&o.p.water>60&&o.p.life.score>=48,o=>o.p.life.score,'Biological','Floating ocean settlements');
- pick('Subsurface Civilisation World',2,o=>o.s.type!=='blackHole'&&o.s.type!=='blueGiant'&&o.p.water>=10&&o.p.temperature<15&&o.p.temperature>-115&&['ice','rocky','terrestrial'].includes(o.p.type),o=>(o.p.type==='ice'?100:30)-Math.abs(o.p.temperature+30)*.3,'Subsurface','Underground settlements');
  pick('Arid Colony World',4,o=>o.s.type!=='blackHole'&&o.p.temperature>-115&&o.p.temperature<125&&['rocky','desert','ice','terrestrial'].includes(o.p.type),o=>(o.p.type==='desert'?100:0)-Math.abs(o.p.temperature-25)*.3,'Engineered','Pressurised habitat domes');
  pick('Synthetic Intelligence World',3,o=>o.s.type!=='blackHole'&&o.p.type!=='gasGiant'&&o.p.type!=='lava'&&o.p.temperature<95,o=>(o.p.type==='rocky'?90:0)+Math.abs(o.p.temperature-22)*.2,'Artificial intelligence','Autonomous machine cities');
  g.civilisations=all.filter(o=>o.p.life.civilisation).sort((a,b)=>a.p.id-b.p.id);
  for(const o of all){
   const p=o.p,kind=p.life.civilisation||'';
   const forest=kind==='Verdant Civilisation World',ocean=kind==='Oceanic Civilisation World';
-  const isDome=kind==='Arid Colony World',isRobot=kind==='Synthetic Intelligence World',under=kind==='Subsurface Civilisation World';
+  const isDome=kind==='Arid Colony World',isRobot=kind==='Synthetic Intelligence World';
   p.life.worldClass=forest?'Temperate Biosphere World':ocean?'Oceanic Biosphere World':
-    isDome?'Engineered Habitat World':isRobot?'Machine-Occupied World':under?'Subsurface Habitat World':
+    isDome?'Engineered Habitat World':isRobot?'Machine-Occupied World':
     p.type==='forest'?'Temperate Forest World':p.type==='ocean'?'Ocean World':
     p.type==='terrestrial'?(p.water>=35?'Water-Bearing Terrestrial World':'Terrestrial World'):
     p.type==='gasGiant'?'Gas Giant':p.type==='toxic'?'Corrosive Atmosphere World':
@@ -289,8 +288,8 @@ function drawHZ(){
 function openCivilisations(){
  const wrap=$('civWrap');wrap.replaceChildren();
  const close=document.createElement('button');close.textContent='✕ Close';close.className='civworld';close.onclick=()=>{$('civList').hidden=true;};wrap.append(close);
- const h=document.createElement('h2');h.textContent='15 inhabited worlds';wrap.append(h);
- const info=document.createElement('p');info.textContent='5 verdant, 1 oceanic, 4 domed colonies, 2 underground worlds and 3 autonomous machine societies. Natural life is selected from temperate habitable-zone candidates; colonies and machines can occupy hostile planets. This is speculative game design.';wrap.append(info);
+ const h=document.createElement('h2');h.textContent='13 inhabited worlds';wrap.append(h);
+ const info=document.createElement('p');info.textContent='5 verdant, 1 oceanic, 4 domed colonies and 3 autonomous machine societies. Natural life is selected from temperate habitable-zone candidates; colonies and machines can occupy hostile planets. This is speculative game design.';wrap.append(info);
  for(const o of galaxy.civilisations){
   const btn=document.createElement('button');btn.className='civworld';
   const info=document.createElement('span');const title=document.createElement('strong');title.textContent='#'+o.p.id+' '+o.p.name;const desc=document.createElement('small');desc.textContent=o.p.life.civilisation+' · '+o.s.name+' · '+o.p.temperature+'°C';info.append(title,desc);

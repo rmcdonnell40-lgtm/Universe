@@ -115,6 +115,14 @@ body:not(.exploring) .telemetry,body:not(.exploring) .discover,body:not(.explori
 #siteMusicToggle:hover{background:#14385c}
 #siteMusicToggle[aria-pressed="true"]{border-color:rgba(142,167,206,.54);color:#bacbdf;box-shadow:0 5px 19px #0008}
 @media(prefers-reduced-motion:reduce){#siteMusicToggle{transition:none}}
+
+/* Only the COSMIC logo: the original V19 education cards and menu logic are preserved. */
+.hub-top{position:relative}
+.hub-cosmic-logo{position:absolute;left:50%;top:-24px;transform:translateX(-50%);width:clamp(190px,34vw,360px);height:auto;max-width:48%;object-fit:contain;pointer-events:none;z-index:1}
+@media(max-width:650px){
+ .hub-cosmic-logo{top:32px;width:min(75vw,300px);max-width:none}
+ .hub-hero{padding-top:clamp(118px,16vh,160px)}
+}
 </style>
 </head>
 <body>
@@ -122,7 +130,7 @@ body:not(.exploring) .telemetry,body:not(.exploring) .discover,body:not(.explori
 
 <button class="home-chip" id="goHome">⌂ &nbsp; MODELS</button>
 <div id="hub" class="hub" aria-label="Choose a universe model">
- <div class="hub-inner"><div class="hub-top"><div class="hub-id">UNIVERSE / MASTERCLASS</div><div class="hub-version">VOL. 01 &nbsp; · &nbsp; VERSION 18</div></div>
+ <div class="hub-inner"><div class="hub-top"><div class="hub-id">UNIVERSE / MASTERCLASS</div><img class="hub-cosmic-logo" src="assets/cosmic-metallic-logo.webp" alt="COSMIC — THE SPACE GAME" width="520" height="178" decoding="async"><div class="hub-version">VOL. 01 &nbsp; · &nbsp; VERSION 18</div></div>
  <div class="hub-hero"><div class="hub-eyebrow">AN INTERACTIVE EXPLORATION OF REALITY</div><h1>Explore the<br><span>universe.</span></h1><p>One cosmos. Many ideas. Travel through the science of our universe, then investigate the fascinating hypotheses about what reality might be.</p></div>
  <div class="hub-head"><strong>Choose an experience</strong><span>SELECT A MODEL TO BEGIN EXPLORING</span></div>
  <div class="model-grid">

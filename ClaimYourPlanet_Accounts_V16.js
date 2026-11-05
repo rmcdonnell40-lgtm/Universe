@@ -61,7 +61,8 @@ async function writeCloud(doc){
 }
 async function signInReady(user){
  if(!user)return;
- if(initializing||loadedUser===user.id){showGame(user);return;}
+ if(initializing)return;
+ if(loadedUser===user.id){showGame(user);return;}
  initializing=true;
  $('cyAccountStatus').textContent='Loading cloud save…';
  try{

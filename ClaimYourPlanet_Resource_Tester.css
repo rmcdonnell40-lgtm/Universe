@@ -40,3 +40,8 @@ body .hud{top:66px}body .terrain-toolbar{top:59px}body .life-toolbar{top:59px}
 @media(max-width:950px){.rt-tab{padding:8px 10px}.rt-markers{inset:0}}
 @media(max-width:600px){.rt-nav{gap:3px;min-height:44px;padding:5px 3px}.rt-tab{font-size:10px;padding:8px 7px;gap:3px}.rt-tab .rt-count{font-size:9px}body .hud{top:60px}body .terrain-toolbar{top:57px;right:8px}.rt-explore-btn{font-size:10px;padding:10px}.rt-marker{width:36px;height:36px;font-size:16px}.rt-marker:after{font-size:8px;max-width:95px}.rt-grid{grid-template-columns:1fr}.rt-stats{gap:5px}.rt-stat{padding:8px}.rt-stat strong{font-size:19px}.rt-stat span{font-size:9px}.rt-scanbar{bottom:12px;gap:5px;padding:7px}.rt-btn{font-size:10px;padding:8px}.rt-scanbar .rt-caption{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.rt-marker{animation:none}}
+
+/* Keep top navigation present in journal/inventory sheets, but hide it during active radio scan */
+.rt-overlay{z-index:3000}
+.cy-radar{z-index:9000}
+@media(max-width:600px){.rt-scanbar{bottom:65px}.rt-popover{bottom:118px}}

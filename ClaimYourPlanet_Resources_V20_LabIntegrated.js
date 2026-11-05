@@ -18,6 +18,19 @@ function readCosmicLab(){
  return initial;
 }
 function saveCosmicLab(lab){try{localStorage.setItem(COSMIC_LAB_KEY,JSON.stringify(lab));return true}catch(e){return false}}
+// Use real elapsed time, so seeding continues when COSMIC is closed.
+const SEEDING_DURATION_MS=10*60*1000;
+function seedingState(){
+ const lab=readCosmicLab();
+ if(!lab.seeded)return {status:'sterile',progress:0,remaining:SEEDING_DURATION_MS};
+ if(!Number.isFinite(Number(lab.seedStartedAt))||Number(lab.seedStartedAt)<=0){
+  lab.seedStartedAt=Date.now();
+  saveCosmicLab(lab);
+ }
+ const elapsed=Math.max(0,Date.now()-Number(lab.seedStartedAt));
+ return {status:elapsed>=SEEDING_DURATION_MS?'microbes':'seeding',progress:Math.min(1,elapsed/SEEDING_DURATION_MS),remaining:Math.max(0,SEEDING_DURATION_MS-elapsed)};
+}
+
 const iconMap={'Iron':'◆','Water':'💧','Carbon':'✦','Minerals':'◈','Energy':'⚡','Ancient Technology':'✧'};
 let state={worlds:{},home:null};
 try{
@@ -177,13 +190,13 @@ function init(api){
     const cultureCard=node('article','rt-card');cultureCard.append(node('strong','','🧫 First Life Culture'),node('p','',String(Math.max(0,Number(lab.cultures)||0))+' ready for seeding'));
     const seedBtn=node('button','rt-btn primary','Seed ASTRA-01');
     seedBtn.disabled=!(lab.cultures>0)||!!lab.seeded;
-    if(lab.seeded){cultureCard.append(node('p','','✓ Microbial seeding initiated on ASTRA-01'));}
+    if(lab.seeded){const phase=seedingState();cultureCard.append(node('p','',phase.status==='microbes'?'✓ First microbial life established on ASTRA-01':'◷ Seeding in progress — '+Math.ceil(phase.remaining/60000)+' minutes or less remaining'));}
     else{
       seedBtn.onclick=()=>{
         const next=readCosmicLab();
         if(next.seeded||!(next.cultures>0))return showSheet('resources');
         if(!confirm('Use one First Life Culture to initiate microbial seeding on ASTRA-01?'))return;
-        next.cultures-=1;next.seeded=true;
+        next.cultures-=1;next.seeded=true;next.seedStartedAt=Date.now();
         if(saveCosmicLab(next)){showSheet('resources');}else alert('Unable to save seeding progress. Please check browser storage.');
       };
       cultureCard.append(seedBtn);
@@ -419,6 +432,30 @@ function init(api){
    if(event.data.destination==='home')openMyWorld();
    else if(event.data.destination==='resources')showSheet('resources');
  });
+
+ // A compact galaxy HUD; hidden behind the Lab, My Planet and Journal/Resources.
+ const seedHUD=node('aside','cosmic-seeding-hud');
+ seedHUD.setAttribute('aria-label','ASTRA-01 life seeding progress');
+ seedHUD.style.cssText='position:fixed;z-index:950;left:14px;bottom:68px;width:min(330px,calc(100vw - 28px));padding:13px 15px;border:1px solid #62cfe0a3;border-radius:14px;background:#051c2fea;color:#e5f8ff;box-shadow:0 6px 28px #0008;font:12px system-ui;pointer-events:none;';
+ seedHUD.innerHTML='<div style="font-weight:800;letter-spacing:.1em;color:#9fe7f3">ASTRA-01 · LIFE SEEDING</div><div class="cosmic-seeding-note" style="margin:6px 0 9px;color:#c7e1ee">Preparing microbial ecosystem</div><div style="height:9px;background:#15334b;border-radius:99px;overflow:hidden"><div class="cosmic-seeding-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#38a5e7,#7af4c9);border-radius:99px"></div></div><div class="cosmic-seeding-time" style="color:#92cbdf;margin-top:7px;text-align:right">10:00 remaining</div>';
+ document.body.append(seedHUD);
+ function refreshSeedHUD(){
+  const status=seedingState();
+  const sheetOpen=Object.values(sheets).some(sheet=>!sheet.outer.hidden);
+  const worldOpen=homeWorldOverlay&&!homeWorldOverlay.hidden;
+  const labOpen=laboratoryOverlay&&!laboratoryOverlay.hidden;
+  seedHUD.hidden=status.status!=='seeding'||!!sheetOpen||!!worldOpen||!!labOpen;
+  if(status.status!=='seeding')return;
+  const secs=Math.ceil(status.remaining/1000);
+  seedHUD.querySelector('.cosmic-seeding-fill').style.width=Math.round(status.progress*100)+'%';
+  seedHUD.querySelector('.cosmic-seeding-note').textContent='Seeding · '+Math.floor(status.progress*100)+'% complete';
+  seedHUD.querySelector('.cosmic-seeding-time').textContent=String(Math.floor(secs/60)).padStart(2,'0')+':'+String(secs%60).padStart(2,'0')+' remaining';
+ }
+ window.setInterval(refreshSeedHUD,1000);
+ document.addEventListener('visibilitychange',refreshSeedHUD);
+ window.addEventListener('focus',refreshSeedHUD);
+ refreshSeedHUD();
+
  for(const [key,b] of tabButtons){
   b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else{setWorldVisible(false);showSheet(key);}};
  }

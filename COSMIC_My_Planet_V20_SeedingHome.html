@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#030711"><title>COSMIC — My Planet | Homeworld</title>
+<style>
+:root{color-scheme:dark;--edge:rgba(143,184,234,.22);--ink:#eaf3ff;--soft:#92accb;--blue:#6bc9ef}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020612;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}#scene{position:fixed;inset:0;touch-action:none;display:block}.shade{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 52% 53%,transparent 28%,rgba(0,3,12,.18) 63%,rgba(0,3,12,.62) 100%)}.ui{position:fixed;inset:0;pointer-events:none}.ui>*{pointer-events:auto}.header{position:absolute;top:0;left:0;right:0;padding:clamp(16px,3vw,30px);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;background:linear-gradient(#020713df,transparent)}.eyebrow{color:#81c8ef;font-size:10px;font-weight:800;letter-spacing:.27em;text-transform:uppercase}.header h1{font-size:clamp(23px,3.6vw,43px);letter-spacing:-.045em;margin:6px 0 3px;font-weight:720}.desc{font-size:11px;color:var(--soft);line-height:1.5}.badge{border:1px solid #72ccef70;background:#123a5280;color:#b7eaff;padding:9px 12px;border-radius:99px;white-space:nowrap;font-size:10px;letter-spacing:.13em;font-weight:700}.badge:before{content:'●';color:#77e4c4;margin-right:7px}.side{position:absolute;right:clamp(12px,2vw,28px);top:50%;transform:translateY(-46%);width:225px;display:grid;gap:11px}.panel{border:1px solid var(--edge);background:linear-gradient(145deg,#10253bda,#071324d9);box-shadow:0 12px 38px #0009;backdrop-filter:blur(16px);border-radius:17px;padding:15px}.panel h2{font-size:10px;letter-spacing:.21em;color:#8bc8ed;margin:0 0 11px}.stat{display:flex;justify-content:space-between;gap:10px;font-size:12px;margin:11px 0}.stat span{color:#9bb1d0}.stat strong{font-size:12px}.divider{border-top:1px solid #9bc5ec22;margin:12px 0}.toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0;color:#d2e5f7;font-size:12px}.toggle input{width:16px;height:16px;accent-color:#6bbfe8}.row{display:flex;gap:7px}.chip{border-radius:10px;border:1px solid #79b7e65e;background:#153456a6;color:#e5f4ff;padding:9px 10px;font-size:11px;font-weight:700;flex:1}.chip.active{border-color:#9af6e9;background:#145267b3}.slider{width:100%;accent-color:#78c7f2}.sl{display:flex;align-items:center;justify-content:space-between;color:#a6c6e8;font-size:11px;margin-top:7px}.footer{position:absolute;left:clamp(13px,3vw,32px);bottom:clamp(15px,4vh,35px);border:1px solid var(--edge);padding:12px 15px;border-radius:13px;background:#071526bb;backdrop-filter:blur(10px);font-size:11px;color:#b7cce4;max-width:310px;line-height:1.7}.footer b{color:#e3f6ff}.footerright{position:absolute;bottom:clamp(16px,4vh,35px);right:clamp(12px,2vw,28px);font-size:10px;color:#6d8aaa;letter-spacing:.12em}.load{position:fixed;inset:0;background:#030815;display:grid;place-items:center;z-index:40;text-align:center;color:#aee7ff;transition:opacity .5s}.load.hide{opacity:0;pointer-events:none}.spinner{width:40px;height:40px;border-radius:50%;border:2px solid #245573;border-top-color:#a4eaff;animation:spin 1s linear infinite;margin:auto auto 20px}@keyframes spin{to{transform:rotate(360deg)}}@media(max-width:720px){.header{padding:18px 14px}.header h1{font-size:27px}.badge{font-size:9px;padding:7px 9px}.side{right:10px;top:auto;bottom:65px;transform:none;width:min(50vw,200px);gap:6px}.panel{padding:11px;border-radius:13px}.panel h2{margin-bottom:8px}.stat{font-size:10px;margin:7px 0}.stat strong{font-size:10px}.toggle{font-size:10px;margin:8px 0}.chip{padding:8px 5px;font-size:10px}.footer{bottom:16px;left:10px;max-width:42vw;padding:9px;font-size:9px}.footerright{display:none}.desc{max-width:190px}.sl{font-size:10px}}@media(max-height:640px){.side{top:auto;bottom:12px;transform:none}.footer{bottom:12px}}
+
+/* V2: unobstructed orbital composition */
+.side{transition:opacity .2s ease,transform .2s ease}
+.control-tab{position:absolute;right:18px;top:92px;padding:11px 15px;background:#10304dcc;color:#d9f5ff;border:1px solid #80c7ed88;border-radius:12px;letter-spacing:.09em;font-size:11px;font-weight:800;display:none}
+@media(max-width:720px){
+ .side{right:10px;top:145px;bottom:auto;transform:none;width:min(80vw,280px);max-height:calc(100dvh - 175px);overflow-y:auto;z-index:10}
+ .side.closed{opacity:0;pointer-events:none;transform:translateX(22px)}
+ .control-tab{display:block;z-index:12;right:12px;top:111px}
+ .footer{max-width:68vw;bottom:15px}
+ .header .desc{max-width:230px}
+}
+
+/* Continent selection and linked terrain tester. */
+.terrain-view{position:fixed;inset:0;z-index:30;display:none;background:#020713}
+.terrain-view.open{display:block}
+#terrainScene{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.terrain-head{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.terrain-head>*{pointer-events:auto}
+.terrain-back,.region-guide{border:1px solid #79caff88;background:#0a223adc;color:#e1f3ff;padding:11px 14px;border-radius:12px;font:700 12px system-ui;backdrop-filter:blur(12px)}
+.terrain-title{margin:8px 0 0;color:#e9f5ff;font:750 clamp(20px,4.6vw,34px) system-ui}
+.terrain-subtitle{color:#a5bdd8;font:12px system-ui;margin-top:4px}
+.terrain-foot{position:absolute;left:14px;right:14px;bottom:16px;display:flex;justify-content:space-between;gap:10px;align-items:end;pointer-events:none}
+.terrain-foot .region-guide{line-height:1.5;max-width:330px;pointer-events:none}
+.region-badge{position:absolute;left:15px;top:116px;border:1px solid #58e9ff88;border-radius:12px;padding:9px 12px;color:#d2f9ff;background:#08213ac9;font:700 11px system-ui;box-shadow:0 0 18px #00cfff2a;pointer-events:none}
+.region-badge[hidden]{display:none}
+@media(max-width:720px){.footer{max-width:70vw}.terrain-head{top:10px;left:10px;right:10px}.terrain-foot{bottom:12px}.region-badge{top:139px;font-size:10px}}
+/* Shared COSMIC navigation, present in both orbit and continent terrain view */
+.myworld-nav{position:fixed;z-index:100;top:0;left:0;right:0;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap;background:linear-gradient(#030b19f5,#041127d9);border-bottom:1px solid #5e8fbc69;pointer-events:auto}
+.myworld-nav button{border:1px solid #5778a17d;background:#102442e8;color:#c5d9ef;border-radius:10px;padding:9px 12px;font:700 11px system-ui;min-height:36px;white-space:nowrap;cursor:pointer}
+.myworld-nav button.active{background:#246a8c;border-color:#81d5f3;color:#fff}
+.header{top:52px}
+.terrain-head{top:69px}
+@media(max-width:720px){.myworld-nav{gap:4px;padding:calc(6px + env(safe-area-inset-top)) 5px 6px;flex-wrap:nowrap}.myworld-nav button{font-size:10px;padding:8px 7px;flex:1;min-width:0}.header{top:50px}.control-tab{top:165px}.side{top:194px;max-height:calc(100dvh - 215px)}.terrain-head{top:64px}.region-badge{top:192px}}
+/* Six-continent navigation replaces the old orbit-controls panel. */
+.legacy-orbital-controls{display:none!important}
+.continent-picker{padding:15px 13px}
+.continent-picker h2{margin-bottom:7px}
+.continent-help{margin:0 0 10px;color:#a7c1db;font-size:11px;line-height:1.45}
+.continent-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.continent-choice{padding:10px 7px;background:#0b2b44df;border:1px solid #5d99c690;border-radius:10px;color:#e6f6ff;font-size:11px;font-weight:750;display:flex;align-items:center;gap:6px;text-align:left;justify-content:flex-start}
+.continent-choice:hover,.continent-choice:focus-visible{background:#1a5474;border-color:#a9e9ff}
+.continent-choice .continent-number{width:20px;height:20px;flex:none;display:inline-grid;place-items:center;border-radius:50%;background:#173e66;color:#b9f0ff;font-size:10px}
+.continent-zoom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid #6799be4b}
+.continent-zoom button{width:39px;height:32px;border-radius:9px;border:1px solid #6fbbeb7c;background:#153b61;color:white;font-size:20px}
+.continent-zoom span{font-size:12px;color:#c2eaff;font-weight:750}
+@media(max-width:720px){.continent-picker{padding:13px 10px}.continent-choice{font-size:10px;padding:9px 5px}}
+
+/* Lab is a My Planet subpage, not a replacement for the galaxy tabs. */
+.lab-entry{margin-top:10px;border:1px solid #7dd1efaa;background:#0c3657e8;color:#eafaff;border-radius:10px;padding:9px 14px;font:750 12px system-ui;cursor:pointer;box-shadow:0 0 15px #25b9ec22}
+.lab-entry:hover{background:#15567a}
+@media(max-width:720px){.lab-entry{margin-top:7px;padding:7px 11px;font-size:10px}}
+
+/* COSMIC My Planet / Life — unlocked after timed microbial seeding */
+.life-entry{display:inline-flex;align-items:center;gap:7px;margin:9px 0 0 7px;border:1px solid #6be3b0a8;background:#123e3fdf;color:#dfffee;border-radius:10px;padding:9px 13px;font:750 12px system-ui;cursor:pointer}
+.life-entry[hidden]{display:none!important}
+.life-page{display:none;position:fixed;inset:0;z-index:180;background:radial-gradient(circle at 42% 42%,#0d3640,#051323 60%,#030915);overflow-y:auto;padding:74px max(16px,4vw) 24px;color:#ebf8ff}
+.life-page.open{display:block}
+.life-inner{max-width:1050px;margin:0 auto}
+.life-back{border:1px solid #5ba5ce8a;background:#102c46;color:#eaf7ff;padding:10px 14px;border-radius:10px;font-weight:750}
+.life-kicker{color:#7ecfe4;font-size:11px;letter-spacing:.2em;font-weight:800;margin:26px 0 6px}
+.life-page h2{font-size:clamp(30px,6vw,50px);margin:0 0 9px;letter-spacing:-.05em}
+.life-page p{color:#a2bfd5;max-width:650px;line-height:1.5}
+.life-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:750px;margin-top:22px}
+.life-stat{background:#0b2940;border:1px solid #6ba8c250;border-radius:13px;padding:15px;min-height:82px}
+.life-stat small{display:block;font-size:10px;letter-spacing:.1em;color:#8cbacf;margin-bottom:7px}
+.life-stat strong{font-size:clamp(14px,2.8vw,21px)}
+.life-art{margin-top:18px;min-height:160px;border-radius:16px;border:1px dashed #65aec271;background:#081e2d;display:grid;place-items:center;color:#77b4c9;text-align:center;padding:15px}
+@media(max-width:720px){.life-page{padding-top:70px}.life-stat{padding:11px;min-height:73px}.life-entry{font-size:10px;padding:7px 10px}}
+/* Seeding feedback belongs to the homeworld, not the galaxy. */
+@keyframes cosmicHomePulse{0%,100%{opacity:.35;transform:scale(.75);box-shadow:0 0 4px #2ebeff}50%{opacity:1;transform:scale(1.4);box-shadow:0 0 13px #5acfff}}
+.my-planet-activity{display:none;flex:none;width:7px;height:7px;border-radius:50%;background:#5acaff;margin-left:2px}
+.my-planet-activity.active{display:inline-block;animation:cosmicHomePulse 1.5s ease-in-out infinite}
+.home-seeding-progress{position:fixed;z-index:85;left:14px;bottom:94px;width:min(350px,calc(100vw - 28px));padding:14px 15px;border:1px solid #63cae8a3;border-radius:14px;background:#051b2eee;color:#e6f6ff;box-shadow:0 6px 28px #0009;pointer-events:none;font:12px system-ui}
+.home-seeding-progress[hidden]{display:none!important}
+.home-seeding-progress-title{font-weight:800;letter-spacing:.1em;color:#a1e9f7}
+.home-seeding-progress-note{margin:7px 0 10px;color:#c8e2ed}
+.home-seeding-track{height:10px;background:#15334d;border-radius:99px;overflow:hidden}
+.home-seeding-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#36a8e8,#7ff2ca);transition:width .4s ease}
+.home-seeding-time{margin-top:8px;text-align:right;color:#b0deee}
+@media(max-width:720px){.home-seeding-progress{bottom:86px;left:10px;width:min(290px,calc(100vw - 20px));padding:11px 13px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){.my-planet-activity.active{animation:none}}
+</style></head><body>
+<nav class="myworld-nav" aria-label="COSMIC navigation"><button type="button" data-cosmic-tab="home" class="active">⌂ My Planet<span id="myPlanetActivity" class="my-planet-activity" aria-hidden="true"></span></button><button type="button" data-cosmic-tab="galaxy">✧ Galaxy</button><button type="button" data-cosmic-tab="journal">▣ Journal</button><button type="button" data-cosmic-tab="resources">◈ Resources</button></nav>
+<canvas id="scene" aria-label="Interactive rotating 3D homeworld with white clouds and storm spirals"></canvas><div class="shade"></div>
+<div class="ui"><header class="header"><div><div class="eyebrow">COSMIC / MY PLANET · HOMEWORLD</div><h1>Your Homeworld</h1><div class="desc" id="homeLifeDescription">A living world waiting for its first microbes.</div><button class="lab-entry" type="button" data-cosmic-tab="laboratory">⚗ Laboratory</button><button id="openLifePage" type="button" class="life-entry" hidden>🧬 Life</button></div></header>
+<button id="controlTab" class="control-tab" type="button" aria-expanded="false">☷ CONTINENTS</button><div class="side closed" id="controlsSide"><div class="panel"><h2>PLANET STATUS</h2><div class="stat"><span>Designation</span><strong>ASTRA-01</strong></div><div class="stat"><span>Life stage</span><strong id="homeLifeStage">Sterile</strong></div><div class="stat"><span>Atmosphere</span><strong>N₂ / O₂</strong></div><div class="stat"><span>Axial tilt</span><strong>23.5°</strong></div><div class="divider"></div><div class="stat"><span>Storm systems</span><strong id="stormCount">2 ACTIVE</strong></div><div class="stat"><span>Season</span><strong id="seasonLabel">NORTHERN SUMMER</strong></div></div>
+<div class="panel continent-picker" aria-label="Choose one of six continents">
+<h2>6 CONTINENTS</h2><p class="continent-help">Choose a continent to explore its terrain.</p>
+<div id="continentButtons" class="continent-buttons"></div>
+<div class="continent-zoom"><button type="button" id="worldZoomOut" aria-label="Zoom out">−</button><span id="continentZoomLabel">0.8×</span><button type="button" id="worldZoomIn" aria-label="Zoom in">+</button></div>
+</div><div class="legacy-orbital-controls" hidden><div class="panel"><h2>ORBITAL CONTROLS</h2><label class="toggle">White cloud layers <input id="clouds" type="checkbox" checked></label><label class="toggle">Storm spirals <input id="storms" type="checkbox" checked></label><label class="toggle">Planet rotation <input id="rotate" type="checkbox" checked></label><label class="toggle">Auroral activity <input id="aurora" type="checkbox" checked></label><div class="divider"></div><div class="sl"><span>Cloud coverage</span><b id="coverageValue">35%</b></div><input id="coverage" class="slider" type="range" min="10" max="90" value="35"><div class="sl"><span>Orbit zoom</span><b id="zoomValue">0.8×</b></div><input id="zoom" class="slider" type="range" min="55" max="170" value="78"><div class="divider"></div><div class="row"><button id="season" class="chip">Change season</button><button id="reset" class="chip">Reset view</button></div></div></div></div>
+<div id="regionBadge" hidden aria-live="polite"></div><div class="footer"><b>DRAG</b> to rotate view · <b>PINCH</b> to zoom<br>Six illuminated land regions · <b>TAP</b> a continent to enter terrain view.<br><span style="color:#88c7ef">Prototype — environment only, no life introduced.</span></div><div class="footerright">COSMIC · HOMEWORLD DEVELOPMENT</div></div>
+<section id="lifePage" class="life-page" aria-label="My Planet Life statistics">
+ <div class="life-inner">
+  <button class="life-back" id="closeLifePage" type="button">← Back to My Planet</button>
+  <div class="life-kicker">COSMIC / MY PLANET / LIFE</div><h2>Life on ASTRA-01</h2>
+  <p>The first living culture has established a microbial population. Complex animals and plants have not yet evolved.</p>
+  <div class="life-grid">
+    <div class="life-stat"><small>LIFE STAGE</small><strong>Microbial</strong></div>
+    <div class="life-stat"><small>LIFE TYPE</small><strong>Single-celled</strong></div>
+    <div class="life-stat"><small>REPRODUCTION</small><strong>Cell division</strong></div>
+    <div class="life-stat"><small>BREEDING SPEED</small><strong>Every ~8 hours</strong></div>
+    <div class="life-stat"><small>HABITAT</small><strong>Aquatic</strong></div>
+    <div class="life-stat"><small>EVOLUTIONARY STATUS</small><strong>Earliest life</strong></div>
+    <div class="life-stat"><small>POPULATION</small><strong>Establishing</strong></div>
+    <div class="life-stat"><small>COMPLEXITY</small><strong>Primitive</strong></div>
+  </div>
+  <div class="life-art">Life-form visualisation placeholder<br>Custom artwork can be added later</div>
+  <p style="font-size:11px">Breeding speed is a fictional gameplay baseline, not a verified biological observation. Future evolution stages will be separate milestones.</p>
+ </div>
+ </section>
+<section id="homeSeedingProgress" class="home-seeding-progress" hidden role="status" aria-label="ASTRA-01 seeding progress">
+<div class="home-seeding-progress-title">ASTRA-01 · LIFE SEEDING</div>
+<div class="home-seeding-progress-note" id="homeSeedingNote">Seeding · 0% complete</div>
+<div class="home-seeding-track"><div id="homeSeedingFill" class="home-seeding-fill"></div></div>
+<div class="home-seeding-time" id="homeSeedingTime">10:00 remaining</div>
+</section>
+<div id="terrainView" class="terrain-view" aria-label="3D selected continent terrain">
+  <canvas id="terrainScene"></canvas>
+  <div class="terrain-head"><div><button class="terrain-back" id="backToOrbit" type="button">← Back to orbit</button><div class="terrain-title" id="terrainName">Continent</div><div class="terrain-subtitle" id="terrainClimate">Planetary surface · unexplored</div></div><span class="badge">TERRAIN VIEW</span></div>
+  <div class="terrain-foot"><div class="region-guide">DRAG to look around · PINCH to zoom<br>Terrain generated from this region of your actual homeworld.</div><button class="terrain-back" id="terrainReset" type="button">Reset camera</button></div>
+</div>
+<div class="load" id="loader"><div><div class="spinner"></div><div style="letter-spacing:.24em;font-size:11px;font-weight:800">FORMING YOUR WORLD</div></div></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
+const $=id=>document.getElementById(id);
+const HOME_SEED_TIME=10*60*1000;
+function refreshHomeLifeStatus(){
+ const oldKey='cosmic:myworld:laboratory:v20',key='cosmic:myworld:laboratory:v21';
+ try{
+  const lab=JSON.parse(localStorage.getItem(key)||'null')||JSON.parse(localStorage.getItem(oldKey)||'null');
+  const seeded=!!lab?.seeded;
+  let started=Number(lab?.seedStartedAt)||0;
+  if(seeded&&!started){started=Date.now();if(lab){lab.seedStartedAt=started;try{localStorage.setItem(key,JSON.stringify(lab));}catch(e){}}}
+  const elapsed=seeded?Math.max(0,Date.now()-started):0;
+  const mature=seeded&&elapsed>=HOME_SEED_TIME;
+  const seeding=seeded&&!mature;
+  const bar=$('homeSeedingProgress'),dot=$('myPlanetActivity');
+  bar.hidden=!seeding;
+  dot.classList.toggle('active',seeding);
+  document.querySelector('[data-cosmic-tab="home"]').setAttribute('aria-label',seeding?'My Planet — seeding in progress':'My Planet');
+  if(seeding){
+    const progress=Math.min(1,elapsed/HOME_SEED_TIME),seconds=Math.ceil((HOME_SEED_TIME-elapsed)/1000);
+    $('homeSeedingNote').textContent='Seeding · '+Math.floor(progress*100)+'% complete';
+    $('homeSeedingFill').style.width=(progress*100).toFixed(2)+'%';
+    $('homeSeedingTime').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')+' remaining';
+  }
+  $('homeLifeStage').textContent=mature?'Microbial ✓':seeded?'Seeding':'Sterile';
+  $('homeLifeDescription').textContent=mature?'Your first microbial ecosystem has formed. Explore its Life statistics.':seeded?'Seeding in progress. First life is establishing on ASTRA-01.':'A living world waiting for its first microbes.';
+  $('openLifePage').hidden=!mature;
+  if(!mature)$('lifePage').classList.remove('open');
+ }catch(e){}
+}
+$('openLifePage').addEventListener('click',()=>{refreshHomeLifeStatus();if(!$('openLifePage').hidden)$('lifePage').classList.add('open')});
+$('closeLifePage').addEventListener('click',()=>$('lifePage').classList.remove('open'));
+window.setInterval(()=>{if(cosmicWorldActive)refreshHomeLifeStatus();},1500);
+window.addEventListener('focus',refreshHomeLifeStatus);
+
+let cosmicWorldActive=true;
+window.addEventListener('message',event=>{
+ if(event.origin!==location.origin||event.source!==window.parent)return;
+ if(event.data?.type==='COSMIC_SET_WORLD_ACTIVE'){
+   cosmicWorldActive=Boolean(event.data.active);
+   if(cosmicWorldActive)refreshHomeLifeStatus();
+ }
+});
+document.querySelectorAll('[data-cosmic-tab]').forEach(button=>button.addEventListener('click',()=>{
+ const destination=button.dataset.cosmicTab;
+ if(destination==='home')refreshHomeLifeStatus();
+ if(destination==='home'){$('lifePage').classList.remove('open');if($('terrainView').classList.contains('open'))$('backToOrbit').click();return;}
+ if(window.parent!==window){
+   window.parent.postMessage({type:'COSMIC_MY_WORLD_NAV',destination},window.location.origin);
+ }else if(destination==='galaxy'){
+   window.location.href='Universe_Masterclass_V20_MyWorld.html';
+ }else{
+   alert('Open My World from the COSMIC main game to access '+destination+'.');
+ }
+}));
+
+const W=1024,H=512,TAU=Math.PI*2;
+let seed=9231741;function rng(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+function fract(x){return x-Math.floor(x)};
+function hash(x,y){return fract(Math.sin(x*127.1+y*311.7)*43758.5453)}
+function lerp(a,b,t){return a+(b-a)*t};function smooth(t){return t*t*(3-2*t)};
+function noise(x,y){const i=Math.floor(x),j=Math.floor(y),u=smooth(fract(x)),v=smooth(fract(y));return lerp(lerp(hash(i,j),hash(i+1,j),u),lerp(hash(i,j+1),hash(i+1,j+1),u),v)}
+function fbm(x,y,oct=5){let f=1,a=.5,s=0;for(let n=0;n<oct;n++){s+=a*noise(x*f,y*f);f*=2.03;a*=.52}return s}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+// Use the actual spherical coordinates for all terrain/noise lookups. The older
+// longitude-only mapping stretched continental and cloud noise into marble stripes.
+function hash3(x,y,z){let h=Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(z,2147483647);h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967295;}
+function noise3(x,y,z){
+ const ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z),fx=smooth(x-ix),fy=smooth(y-iy),fz=smooth(z-iz);
+ const a=lerp(hash3(ix,iy,iz),hash3(ix+1,iy,iz),fx);
+ const b=lerp(hash3(ix,iy+1,iz),hash3(ix+1,iy+1,iz),fx);
+ const c=lerp(hash3(ix,iy,iz+1),hash3(ix+1,iy,iz+1),fx);
+ const d=lerp(hash3(ix,iy+1,iz+1),hash3(ix+1,iy+1,iz+1),fx);
+ return lerp(lerp(a,b,fy),lerp(c,d,fy),fz);
+}
+function fbm3(x,y,z,n=5){let val=0,amp=.55,frequency=1,total=0;for(let i=0;i<n;i++){val+=amp*noise3(x*frequency+3.17,y*frequency+1.75,z*frequency+5.43);total+=amp;frequency*=2.13;amp*=.51;}return val/total;}
+function mix(a,b,t){return a+(b-a)*clamp(t,0,1)}
+function sphereCoords(u,v){const lon=(u-.5)*TAU,lat=(.5-v)*Math.PI;const l=Math.cos(lat);return [l*Math.cos(lon),Math.sin(lat),l*Math.sin(lon)]}
+const terrain=document.createElement('canvas');terrain.width=W;terrain.height=H;
+const tctx=terrain.getContext('2d');const img=tctx.createImageData(W,H);const landHeight=new Float32Array(W*H);
+const oceans=[7,45,91],shelf=[20,109,138],shallow=[34,140,148],forest=[37,89,59],prairie=[103,123,72],dry=[158,135,90],rock=[119,120,108],snow=[227,235,239];
+for(let y=0;y<H;y++){
+ const v=(y+.5)/H,lat=Math.abs(v-.5)*2;
+ for(let x=0;x<W;x++){
+  const u=(x+.5)/W,[nx,ny,nz]=sphereCoords(u,v);
+  const warp=fbm3(nx*2.2+20,ny*2.2,nz*2.2,3);
+  const xx=nx*2.0+(warp-.5)*.58, yy=ny*2.0+(warp-.5)*.35, zz=nz*2.0+(warp-.5)*.58;
+  const continental=fbm3(xx,yy,zz,5);
+  const detail=fbm3(nx*17+14,ny*17,nz*17+19,4);
+  const relief=fbm3(nx*7+8,ny*7+6,nz*7+12,4);
+  const h=continental*.82+detail*.13+relief*.05-.505;
+  landHeight[y*W+x]=h;
+  let color;
+  if(h<0){const depth=clamp(-h*22,0,1);const coast=smooth(clamp((h+.045)/.045,0,1));color=oceans.map((q,i)=>mix(q,shelf[i],1-depth*.75));color=color.map((q,i)=>mix(q,shallow[i],coast*.65));}
+  else {
+    const humid=fbm3(nx*4+50,ny*4+14,nz*4+19,3);
+    const desert=clamp((.55-humid)*4+(Math.abs(lat-.3)<.20?.1:0),0,1);
+    const vegetation=forest.map((q,i)=>mix(q,prairie[i],clamp((.60-humid)*4,0,1)));
+    color=vegetation.map((q,i)=>mix(q,dry[i],desert*.8));
+    const mountain=clamp((h-.055)*12+(.56-relief)*1.7,0,1);
+    color=color.map((q,i)=>mix(q,rock[i],mountain*.89));
+    const snowMask=clamp((lat-.75)*7+mountain*clamp((lat-.30)*1.3+.15,0,1),0,1);
+    color=color.map((q,i)=>mix(q,snow[i],snowMask));
+    const coast=clamp((.016-h)*75,0,1)*(1-mountain);
+    color=color.map((q,i)=>mix(q,[159,153,116][i],coast*.48));
+  }
+  const ice=smooth(clamp((lat-.88)*8,0,1));
+  color=color.map((q,i)=>mix(q,[218,232,239][i],ice));
+  const grain=.91+.16*detail;const j=(y*W+x)*4;
+  img.data[j]=color[0]*grain;img.data[j+1]=color[1]*grain;img.data[j+2]=color[2]*grain;img.data[j+3]=255;
+ }
+}
+tctx.putImageData(img,0,0);
+
+// Six distinct, persistent continental territories partition the EXISTING land
+// without changing the ocean/land mask. Great-circle Voronoi boundaries light
+// up only on land (with a faint outline along the coast).
+const continentNames=['Aurelia','Vespera','Caelora','Nivalis','Solara','Thalora'];
+const regionColors=['#6ef2ff','#84d9ff','#6bf1bd','#d0b1ff','#ffc18b','#b1f0e9'];
+function uvVector(u,v){const lon=u*TAU,theta=v*Math.PI;return [-Math.cos(lon)*Math.sin(theta),Math.cos(theta),Math.sin(lon)*Math.sin(theta)];}
+const regionSeeds=[];
+for(let k=0;k<6;k++){
+ // Choose a real land pixel near each evenly spaced longitude to give each
+ // territory a representative marker on actual ground.
+ let best=-Infinity, bx=0,by=0;const target=(k+.48)/6;
+ for(let y=70;y<H-70;y+=3)for(let x=0;x<W;x+=3){
+  const h=landHeight[y*W+x];if(h<=.003)continue;
+  const dx=Math.min(Math.abs(x/W-target),1-Math.abs(x/W-target));
+  const score=h*.6-dx*.52-Math.abs(y/H-(k%2?.59:.41))*.12;
+  if(score>best){best=score;bx=x;by=y}
+ }
+ const u=(bx+.5)/W,v=(by+.5)/H;regionSeeds.push({u,v,vec:uvVector(u,v),name:continentNames[k],color:regionColors[k]});
+}
+function nearestRegion(u,v){const p=uvVector(u,v);let best=-2,idx=0;for(let k=0;k<6;k++){const q=regionSeeds[k].vec,d=p[0]*q[0]+p[1]*q[1]+p[2]*q[2];if(d>best){best=d;idx=k}}return idx;}
+const regionIds=new Uint8Array(W*H);
+for(let y=0;y<H;y++)for(let x=0;x<W;x++)regionIds[y*W+x]=nearestRegion((x+.5)/W,(y+.5)/H);
+// A thin crisp rim plus wide translucent bloom are rendered on separate
+// transparent spheres, deliberately above the independently moving clouds.
+const borderCanvas=document.createElement('canvas');borderCanvas.width=W;borderCanvas.height=H;
+const bloomCanvas=document.createElement('canvas');bloomCanvas.width=W;bloomCanvas.height=H;
+const borderData=borderCanvas.getContext('2d').createImageData(W,H);
+const bloomData=bloomCanvas.getContext('2d').createImageData(W,H);
+function paintPixel(pix,idx,rgb,alpha){const j=idx*4;pix.data[j]=rgb[0];pix.data[j+1]=rgb[1];pix.data[j+2]=rgb[2];pix.data[j+3]=alpha;}
+function hexRgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+for(let y=3;y<H-3;y++)for(let x=0;x<W;x++){
+ const id=y*W+x;if(landHeight[id]<=0)continue;
+ const region=regionIds[id], col=hexRgb(regionColors[region]);
+ let nearest=99;
+ for(let oy=-4;oy<=4;oy++)for(let ox=-4;ox<=4;ox++){
+  const nx=(x+ox+W)%W,ny=y+oy,ni=ny*W+nx;
+  if(ni<0||ni>=W*H)continue;
+  if(regionIds[ni]!==region || landHeight[ni]<=0){nearest=Math.min(nearest,Math.hypot(ox,oy));}
+ }
+ if(nearest<99){
+  if(nearest<=1.5)paintPixel(borderData,id,col,226);
+  if(nearest<=4.5)paintPixel(bloomData,id,col,Math.round((1-nearest/6)*105));
+ }
+}
+borderCanvas.getContext('2d').putImageData(borderData,0,0);
+bloomCanvas.getContext('2d').putImageData(bloomData,0,0);
+
+// Separate white atmospheric texture. Wispy stratocumulus and irregular fronts
+// sampled in planet-space, never from longitude-only bands.
+const cloudCanvas=document.createElement('canvas');cloudCanvas.width=W;cloudCanvas.height=H;
+const cctx=cloudCanvas.getContext('2d');let cloudTex;
+const storms=[{u:.22,v:.34,r:.092,spin:1},{u:.69,v:.64,r:.105,spin:-1}];
+function buildClouds(coverage,stormOn){
+ const pixels=cctx.createImageData(W,H);const cover=coverage/100;
+ const cut=.63-cover*.19;
+ for(let y=0;y<H;y++){
+  const v=(y+.5)/H;
+  for(let x=0;x<W;x++){
+   const u=(x+.5)/W,[nx,ny,nz]=sphereCoords(u,v);
+   const warp=fbm3(nx*3+38,ny*3+24,nz*3+22,3);
+   const px=nx*6+(warp-.5)*.47,py=ny*6+(warp-.5)*.47,pz=nz*6+(warp-.5)*.47;
+   const broad=fbm3(px,py,pz,5);
+   const wisps=fbm3(nx*27+15,ny*27+16,nz*27+18,3);
+   const density=broad*.79+wisps*.21;
+   let alpha=smooth(clamp((density-cut)*8,0,1))*.77;
+   if(stormOn){for(const st of storms){
+    let dx=u-st.u;dx-=Math.round(dx);const dy=(v-st.v)*1.6;
+    const rr=Math.hypot(dx,dy),theta=Math.atan2(dy,dx);const r=st.r;
+    if(rr<r*1.22){
+      const phase=2*theta-st.spin*9.8*rr/r;
+      const arm=.5+.5*Math.cos(phase);
+      const patches=.55+.45*fbm3(nx*34+16,ny*34+19,nz*34+11,3);
+      const envelope=smooth(clamp((r*1.18-rr)/(r*.47),0,1));
+      const eye=smooth(clamp((rr-r*.12)/(r*.14),0,1));
+      const spiral=arm*arm*envelope*eye*patches*.68;
+      alpha=Math.max(alpha,spiral);
+    }
+   }}
+   const j=(y*W+x)*4;
+   pixels.data[j]=251;pixels.data[j+1]=253;pixels.data[j+2]=255;
+   pixels.data[j+3]=Math.round(clamp(alpha,0,.82)*255);
+  }
+ }
+ cctx.putImageData(pixels,0,0);cloudTex.needsUpdate=true;
+}
+
+cloudTex=new THREE.CanvasTexture(cloudCanvas);cloudTex.colorSpace=THREE.SRGBColorSpace;cloudTex.anisotropy=4;
+const earthTex=new THREE.CanvasTexture(terrain);earthTex.colorSpace=THREE.SRGBColorSpace;earthTex.anisotropy=4;
+const renderer=new THREE.WebGLRenderer({canvas:$('scene'),antialias:true,powerPreference:'high-performance',alpha:false});renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x020713);const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,150);camera.position.set(0,0,9.4);
+const ambient=new THREE.AmbientLight(0x7791b4,.52);scene.add(ambient);const sun=new THREE.DirectionalLight(0xfff8ec,2.2);sun.position.set(-4.5,2.7,6);scene.add(sun);
+const group=new THREE.Group();scene.add(group);group.rotation.z=.21;
+const geo=new THREE.SphereGeometry(2.2,112,72);
+const surface=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({map:earthTex,roughness:.93,metalness:0}));group.add(surface);
+const cloudMat=new THREE.MeshStandardMaterial({map:cloudTex,transparent:true,opacity:.86,depthWrite:false,roughness:1,metalness:0,alphaTest:.015});
+const cloudMesh=new THREE.Mesh(new THREE.SphereGeometry(2.232,112,72),cloudMat);group.add(cloudMesh);
+
+const borderTex=new THREE.CanvasTexture(borderCanvas),bloomTex=new THREE.CanvasTexture(bloomCanvas);
+const borderGroup=new THREE.Group();group.add(borderGroup);
+for(const [tex,radius,opacity] of [[bloomTex,2.256,.9],[borderTex,2.267,1]]){
+ const mat=new THREE.MeshBasicMaterial({map:tex,transparent:true,opacity,depthWrite:false,side:THREE.FrontSide,blending:THREE.AdditiveBlending,alphaTest:.005});
+ borderGroup.add(new THREE.Mesh(new THREE.SphereGeometry(radius,112,72),mat));
+}
+// Visible labels fixed to the planet; selectable from any orbital orientation.
+const continentMarkers=[];
+for(let k=0;k<regionSeeds.length;k++){
+ const r=regionSeeds[k];const label=document.createElement('canvas');label.width=320;label.height=80;
+ const lc=label.getContext('2d');lc.fillStyle='rgba(3,21,34,.82)';lc.beginPath();lc.roundRect(4,8,312,64,15);lc.fill();lc.strokeStyle=r.color;lc.lineWidth=3;lc.stroke();
+ lc.fillStyle='#efffff';lc.font='bold 27px system-ui';lc.textAlign='center';lc.fillText(r.name.toUpperCase(),160,49);
+ const tex=new THREE.CanvasTexture(label);
+ const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:true,depthWrite:false}));
+ const [x,y,z]=r.vec;spr.position.set(x*2.39,y*2.39,z*2.39);spr.scale.set(.72,.18,1);borderGroup.add(spr);continentMarkers.push(spr);
+}
+
+// Atmospheric Fresnel effect creates a physically-inspired limb glow around the terminator.
+const atmosphere=new THREE.Mesh(new THREE.SphereGeometry(2.35,96,64),new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.BackSide,uniforms:{glowColor:{value:new THREE.Color(0x47baff)},lightDir:{value:sun.position.clone().normalize()}},vertexShader:`varying vec3 vNormal; varying vec3 vEye; varying vec3 vWorld; void main(){vec4 p=modelViewMatrix*vec4(position,1.);vNormal=normalize(normalMatrix*normal);vEye=normalize(-p.xyz);vWorld=normalize((modelMatrix*vec4(normal,0.)).xyz);gl_Position=projectionMatrix*p;}`,fragmentShader:`varying vec3 vNormal; varying vec3 vEye; varying vec3 vWorld;uniform vec3 glowColor;uniform vec3 lightDir;void main(){float rim=pow(1.-abs(dot(normalize(vNormal),normalize(vEye))),3.);float lit=.36+.64*max(dot(normalize(vWorld),normalize(lightDir)),0.);gl_FragColor=vec4(glowColor,rim*.53*lit);}`}));group.add(atmosphere);
+// Thin auroral ribbons near magnetic poles (subtle until dark side rotates into view).
+const auroras=new THREE.Group();group.add(auroras);for(const pole of [-1,1]){for(let k=0;k<5;k++){const verts=[];const n=100;for(let i=0;i<n;i++){const a=i/(n-1)*TAU;let theta=(pole===1?.24:Math.PI-.24)+.037*Math.sin(a*5+k*1.7);let rad=2.27+.018*Math.sin(a*8+k);verts.push(new THREE.Vector3(rad*Math.sin(theta)*Math.cos(a),rad*Math.cos(theta),rad*Math.sin(theta)*Math.sin(a)));}const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(verts),new THREE.LineBasicMaterial({color:k%2?0x48dcb6:0x8fe7f3,transparent:true,opacity:.11}));auroras.add(line)}}
+const starsGeo=new THREE.BufferGeometry(),points=[];for(let i=0;i<2400;i++){const th=rng()*TAU,zz=rng()*2-1,rad=36+rng()*68;points.push(rad*Math.sqrt(1-zz*zz)*Math.cos(th),rad*zz,rad*Math.sqrt(1-zz*zz)*Math.sin(th))}starsGeo.setAttribute('position',new THREE.Float32BufferAttribute(points,3));const stars=new THREE.Points(starsGeo,new THREE.PointsMaterial({color:0xc5d8ff,size:.12,sizeAttenuation:true,transparent:true,opacity:.9}));scene.add(stars);
+
+// Separate terrain scene tied to selected territory's exact source pixels.
+const terrainUI=$('terrainView'),terrainCanvas=$('terrainScene');
+const terrainRenderer=new THREE.WebGLRenderer({canvas:terrainCanvas,antialias:true,powerPreference:'high-performance'});
+terrainRenderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));terrainRenderer.outputColorSpace=THREE.SRGBColorSpace;
+terrainRenderer.toneMapping=THREE.ACESFilmicToneMapping;terrainRenderer.toneMappingExposure=1.13;
+const terrainScene=new THREE.Scene();terrainScene.background=new THREE.Color(0x071525);
+terrainScene.fog=new THREE.FogExp2(0x92b6c7,.022);
+const terrainCamera=new THREE.PerspectiveCamera(55,1,.1,300);
+const terrainSun=new THREE.DirectionalLight(0xffefc6,2.35);terrainSun.position.set(-18,34,12);terrainScene.add(terrainSun,new THREE.HemisphereLight(0x9bdaff,0x384b32,1.1));
+const terrainRoot=new THREE.Group();terrainScene.add(terrainRoot);
+let currentRegion=-1,terrainYaw=.55,terrainPitch=.68,terrainDist=27,terrainDrag=null,terrainPinch=0;
+const terrainRaycaster=new THREE.Raycaster(),orbitRaycaster=new THREE.Raycaster(),ndc=new THREE.Vector2();
+function resizeTerrain(){const w=innerWidth,h=innerHeight;terrainRenderer.setSize(w,h);terrainCamera.aspect=w/h;terrainCamera.updateProjectionMatrix();}
+function positionTerrainCamera(){const r=terrainDist,cp=Math.cos(terrainPitch);terrainCamera.position.set(r*Math.sin(terrainYaw)*cp,r*Math.sin(terrainPitch),r*Math.cos(terrainYaw)*cp);terrainCamera.lookAt(0,1,0);}
+function textureSample(u,v){const x=Math.round(((u%1+1)%1)*(W-1)),y=Math.round(clamp(v,0,1)*(H-1));return {x,y,index:y*W+x};}
+function buildTerrainForRegion(k){
+ while(terrainRoot.children.length){const o=terrainRoot.children[0];terrainRoot.remove(o);o.geometry?.dispose?.();o.material?.map?.dispose?.();o.material?.dispose?.();}
+ const seed=regionSeeds[k],grid=128,size=55,extent=.18,geo2=new THREE.PlaneGeometry(size,size,grid,grid),arr=geo2.attributes.position;
+ const canvas2=document.createElement('canvas');canvas2.width=512;canvas2.height=512;const ctx2=canvas2.getContext('2d');let pix=ctx2.createImageData(512,512);
+ for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+  const du=(x/511-.5)*extent,dv=(y/511-.5)*extent;
+  const p=textureSample(seed.u+du,seed.v+dv),idx=p.index;
+  const j=(y*512+x)*4,q=idx*4;pix.data[j]=img.data[q];pix.data[j+1]=img.data[q+1];pix.data[j+2]=img.data[q+2];pix.data[j+3]=255;
+ }
+ ctx2.putImageData(pix,0,0);
+ const tex=new THREE.CanvasTexture(canvas2);tex.colorSpace=THREE.SRGBColorSpace;tex.anisotropy=4;
+ const positions=geo2.attributes.position;
+ for(let i=0;i<positions.count;i++){
+  const x=positions.getX(i),v=positions.getY(i),su=seed.u+x/size*extent,sv=seed.v-v/size*extent;
+  const h=landHeight[textureSample(su,sv).index];
+  const height=h<0?-1.8:Math.min(8,h*45+1.2);
+  positions.setZ(i,height);
+ }
+ geo2.computeVertexNormals();geo2.rotateX(-Math.PI/2);
+ const mesh=new THREE.Mesh(geo2,new THREE.MeshStandardMaterial({map:tex,roughness:.94,metalness:0,side:THREE.DoubleSide}));terrainRoot.add(mesh);
+ // Ocean surface is a single transparent plane only in depressions.
+ const water=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshStandardMaterial({color:0x0b789e,transparent:true,opacity:.55,metalness:.13,roughness:.4,depthWrite:false,side:THREE.DoubleSide}));water.rotation.x=-Math.PI/2;water.position.y=-.35;terrainRoot.add(water);
+}
+function openContinent(k){currentRegion=k;buildTerrainForRegion(k);$('terrainName').textContent=continentNames[k];$('terrainClimate').textContent='ASTRA-01 · Continent '+(k+1)+' / 6 · Terrain exploration';terrainUI.classList.add('open');controlsSide.classList.add('closed');terrainYaw=.55;terrainPitch=.70;terrainDist=27;resizeTerrain();positionTerrainCamera();}
+$('backToOrbit').onclick=()=>{terrainUI.classList.remove('open');currentRegion=-1};
+$('terrainReset').onclick=()=>{terrainYaw=.55;terrainPitch=.70;terrainDist=27;positionTerrainCamera()};
+const terrainTouches=new Map();terrainCanvas.addEventListener('pointerdown',e=>{terrainCanvas.setPointerCapture(e.pointerId);terrainTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+terrainCanvas.addEventListener('pointermove',e=>{const last=terrainTouches.get(e.pointerId);if(!last)return;terrainTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(terrainTouches.size>1){const p=[...terrainTouches.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(terrainPinch)terrainDist=clamp(terrainDist*terrainPinch/d,10,70);terrainPinch=d;}else{terrainYaw+=(e.clientX-last.x)*.006;terrainPitch=clamp(terrainPitch+(e.clientY-last.y)*.004,.17,1.35)}positionTerrainCamera();});
+for(const event of ['pointerup','pointercancel'])terrainCanvas.addEventListener(event,e=>{terrainTouches.delete(e.pointerId);terrainPinch=0});
+terrainCanvas.addEventListener('wheel',e=>{e.preventDefault();terrainDist=clamp(terrainDist*Math.exp(e.deltaY*.001),10,70);positionTerrainCamera()},{passive:false});
+
+const state={yaw:.45,pitch:.1,zoom:.78,drag:false,rotating:true,season:0};let pointers=new Map(),lastDist=0,lastPt=null;
+const continentButtons=$('continentButtons');
+continentNames.forEach((name,k)=>{
+ const button=document.createElement('button');
+ button.type='button';button.className='continent-choice';
+ button.innerHTML='<span class="continent-number">'+(k+1)+'</span><span>'+name+'</span>';
+ button.onclick=()=>openContinent(k);
+ continentButtons.append(button);
+});
+$('worldZoomOut').onclick=()=>setZoom(state.zoom/1.2);
+$('worldZoomIn').onclick=()=>setZoom(state.zoom*1.2);
+
+const controlsSide=$('controlsSide'),controlTab=$('controlTab');
+controlTab.onclick=()=>{const isClosed=controlsSide.classList.toggle('closed');controlTab.setAttribute('aria-expanded',String(!isClosed));controlTab.textContent=isClosed?'☷ CONTINENTS':'✕ CLOSE CONTINENTS';};
+function fitCamera(){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));}
+window.addEventListener('resize',fitCamera);
+function updateZoom(){const base=innerWidth<700?11.4:8.2;camera.position.z=base/state.zoom;$('continentZoomLabel').textContent=state.zoom.toFixed(1)+'×';$('zoom').value=Math.round(state.zoom*100);$('zoomValue').textContent=state.zoom.toFixed(1)+'×'}
+function setZoom(v){state.zoom=clamp(v,.55,1.7);updateZoom()}
+$('zoom').addEventListener('input',e=>setZoom(+e.target.value/100));
+$('coverage').addEventListener('change',e=>{$('coverageValue').textContent=e.target.value+'%';buildClouds(+e.target.value,$('storms').checked)});
+$('storms').onchange=e=>{buildClouds(+$('coverage').value,e.target.checked);$('stormCount').textContent=e.target.checked?'2 ACTIVE':'NONE'};
+$('clouds').onchange=e=>cloudMesh.visible=e.target.checked;
+$('rotate').onchange=e=>state.rotating=e.target.checked;
+$('aurora').onchange=e=>auroras.visible=e.target.checked;
+$('season').onclick=()=>{state.season=(state.season+1)%4;$('seasonLabel').textContent=['NORTHERN SUMMER','NORTHERN AUTUMN','NORTHERN WINTER','NORTHERN SPRING'][state.season];group.rotation.z=[.21,.08,-.21,.06][state.season]};
+$('reset').onclick=()=>{state.yaw=.45;state.pitch=.1;state.season=0;group.rotation.z=.21;setZoom(.78);$('seasonLabel').textContent='NORTHERN SUMMER'};
+const canvas=$('scene');let clickStart=null;canvas.addEventListener('pointerdown',e=>{clickStart={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});lastPt={x:e.clientX,y:e.clientY};if(pointers.size===2){const p=[...pointers.values()];lastDist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)}});
+canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2){const p=[...pointers.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(lastDist)setZoom(state.zoom*d/lastDist);lastDist=d;return;}if(lastPt){state.yaw+=(e.clientX-lastPt.x)*.005;state.pitch=clamp(state.pitch+(e.clientY-lastPt.y)*.004,-1.18,1.18)}lastPt={x:e.clientX,y:e.clientY}});
+
+canvas.addEventListener('pointerup',e=>{
+ if(!clickStart||Math.hypot(e.clientX-clickStart.x,e.clientY-clickStart.y)>12||pointers.size>1){clickStart=null;return;}
+ clickStart=null;const rect=canvas.getBoundingClientRect();ndc.set((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1));
+ orbitRaycaster.setFromCamera(ndc,camera);
+ // Use the real surface mesh, not clouds or atmosphere, for precise land hits.
+ const hits=orbitRaycaster.intersectObject(surface,false);if(!hits.length)return;
+ const uv=hits[0].uv;if(!uv)return;
+ const p=textureSample(uv.x,1-uv.y);
+ if(landHeight[p.index]<=0){$('regionBadge').textContent='OCEAN · SELECT A GLOWING LAND REGION';return;}
+ openContinent(regionIds[p.index]);
+});
+
+function release(e){pointers.delete(e.pointerId);lastPt=null;lastDist=0}canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);
+canvas.addEventListener('wheel',e=>{e.preventDefault();setZoom(state.zoom*Math.exp(-e.deltaY*.001))},{passive:false});
+let then=performance.now();function animate(now){requestAnimationFrame(animate);if(!cosmicWorldActive||document.hidden){then=now;return;}const dt=Math.min(.055,(now-then)/1000);then=now;if(state.rotating){state.yaw+=dt*.045;cloudMesh.rotation.y+=dt*.09;}surface.rotation.y=state.yaw;borderGroup.rotation.y=state.yaw;cloudMesh.rotation.y+=(state.yaw-cloudMesh.rotation.y)*.003;group.rotation.x=state.pitch;auroras.rotation.y=state.yaw;stars.rotation.y+=dt*.0005;for(let i=0;i<continentMarkers.length;i++){
+ const marker=continentMarkers[i],pos=marker.getWorldPosition(new THREE.Vector3());
+ const facing=pos.clone().normalize().dot(camera.position.clone().sub(pos).normalize());
+ marker.visible=facing>.05;
+ }
+ if(terrainUI.classList.contains('open')){terrainRenderer.render(terrainScene,terrainCamera)}else{renderer.render(scene,camera)}
+}
+try{refreshHomeLifeStatus();buildClouds(35,true);updateZoom();requestAnimationFrame(animate);$('loader').classList.add('hide');setTimeout(()=>$('loader').remove(),800)}catch(e){$('loader').innerHTML='<div>Unable to initialise the orbit view. Try an updated browser with WebGL support.</div>';console.error(e)}
+</script></body></html>

@@ -22,6 +22,7 @@
 .avatarFoot{text-align:center;font-size:11px;color:#84b2c7;margin:8px 0 1px}
 .avatarEmpty{padding:22px 12px;text-align:center;color:#9fbace;border:1px dashed #456d80;border-radius:12px;background:#091d2c}
 .avatarArrow:focus-visible,.avatarDot:focus-visible{outline:2px solid #8deaff;outline-offset:3px}
+.avatarDot[hidden]{display:none!important}
 </style></head><body><div class="wrap" id="app">
 <header class="topbar"><div class="brand"><div class="brandmark"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="4" fill="#8fecff"/><ellipse cx="20" cy="20" rx="17" ry="8" stroke="#8fecff" stroke-width="1.5" transform="rotate(-31 20 20)"/><ellipse cx="20" cy="20" rx="9" ry="16" stroke="#57aebf" stroke-width="1.5" transform="rotate(24 20 20)"/></svg></div><div class="brandtext"><b>COSMIC</b><small>THE SPACE GAME</small></div></div><div class="version">CEA · PERSONNEL DIVISION<br/>REGISTRATION TERMINAL // V02</div></header>
 <div class="heading"><div class="micro" id="eyebrow">AUTHORISED PERSONNEL INTAKE</div><h1 id="pageTitle">Become an Explorer.</h1><p id="subtitle">Complete your official identity record before entering the COSMIC universe. Your submitted profile is permanent. Choose your explorer portrait before registering.</p></div>
@@ -65,8 +66,8 @@ function chooseAvatar(i){
  if(!locked)setPhoto(src);
 }
 for(let i=0;i<MALE_PORTRAITS.length;i++){const b=document.createElement('button');b.type='button';b.className='avatarDot';b.setAttribute('aria-label','Select portrait '+(i+1));b.onclick=()=>chooseAvatar(i);$('avatarDots').append(b)}
-$('prevAvatar').onclick=()=>chooseAvatar(avatarIndex-1);$('nextAvatar').onclick=()=>chooseAvatar(avatarIndex+1);
-let avatarStartX=null;const avatarPicture=$('tinyAvatar');avatarPicture.style.touchAction='pan-y';avatarPicture.addEventListener('touchstart',e=>{avatarStartX=e.changedTouches[0].clientX},{passive:true});avatarPicture.addEventListener('touchend',e=>{if(avatarStartX===null)return;const delta=e.changedTouches[0].clientX-avatarStartX;avatarStartX=null;if(Math.abs(delta)>35)chooseAvatar(avatarIndex+(delta<0?1:-1))},{passive:true});
+$('prevAvatar').onclick=()=>chooseAvatar((gender==='Male'?avatarIndex:femaleAvatarIndex)-1);$('nextAvatar').onclick=()=>chooseAvatar((gender==='Male'?avatarIndex:femaleAvatarIndex)+1);
+let avatarStartX=null;const avatarPicture=$('tinyAvatar');avatarPicture.style.touchAction='pan-y';avatarPicture.addEventListener('touchstart',e=>{avatarStartX=e.changedTouches[0].clientX},{passive:true});avatarPicture.addEventListener('touchend',e=>{if(avatarStartX===null)return;const delta=e.changedTouches[0].clientX-avatarStartX;avatarStartX=null;if(Math.abs(delta)>35)chooseAvatar((gender==='Male'?avatarIndex:femaleAvatarIndex)+(delta<0?1:-1))},{passive:true});
 function showGender(g){
  gender=g;
  $('male').classList.toggle('active',g==='Male');

@@ -135,11 +135,34 @@ function showScene({id,eyebrow,title,body,buttons}){
  }
  return true;
 }
+function playPrologue(){
+ const p=profile();
+ if(!p?.id||dialogOpen||!isGameplayVisible())return;
+ const chapters=[
+  {eyebrow:'COSMIC // PROLOGUE 01 / 03',title:'THE SILENCE',body:'For generations, humanity has searched the stars. A thousand possible worlds. Countless distant signals.\n\nAnd still, no confirmed living voice has answered.'},
+  {eyebrow:'COSMIC // PROLOGUE 02 / 03',title:'THE ASSIGNMENT',body:'Explorer '+p.name+', your identification has been verified by the COSMIC Exploration Authority.\n\nYou are assigned to ASTRA-01. Its oceans, continents and atmosphere offer the conditions for life. But the world is sterile.'},
+  {eyebrow:'COSMIC // PROLOGUE 03 / 03',title:'GENESIS',body:'The building blocks of life lie scattered across the galaxy.\n\nFind them. Bring them to your Laboratory. Learn what can emerge from a single microscopic culture.\n\nYou came searching for life. Now you may have to create it.'}
+ ];
+ const finish=()=>{
+  if(!story.scenes.intro){
+    story.scenes.intro=Date.now();
+    insertLog('TRANSMISSION','Genesis Assignment','Explorer assigned to ASTRA-01.','scene:intro');
+    persist();
+  }
+ };
+ function slide(i){
+  if(i>=chapters.length){finish();return}
+  const scene=chapters[i];
+  showScene({...scene,buttons:[
+   {label:'SKIP PROLOGUE',secondary:true,action:finish},
+   {label:i===chapters.length-1?'BEGIN EXPEDITION':'NEXT TRANSMISSION',action:()=>{if(i===chapters.length-1)finish();else slide(i+1)}}
+  ]});
+ }
+ slide(0);
+}
 function maybeIntro(d,p){
  if(isDev||story.scenes.intro||dialogOpen||!isGameplayVisible()||!p?.id)return;
- if(showScene({title:'YOUR ASSIGNMENT',eyebrow:'CEA / GENESIS PROGRAMME',body:
-  'Explorer '+p.name+', your orders are confirmed.\n\nYou have been assigned to ASTRA-01: an ocean-bearing world with no established biological life.\n\nTravel the nearby star systems. Recover the ingredients of creation. Return to the Laboratory.\n\nWe came searching for life. Perhaps it is time we created it.',
-  buttons:[{label:'BEGIN EXPEDITION',action:()=>{story.scenes.intro=Date.now();insertLog('TRANSMISSION','Genesis Assignment','Explorer assigned to ASTRA-01.','scene:intro');persist()}}]}))return;
+ playPrologue();
 }
 function maybeDirective(d){
  if(isDev||story.decisions.genesis||!story.completed.m6||dialogOpen||!isGameplayVisible())return;
@@ -164,6 +187,10 @@ function journal(container){
  const p=document.createElement('p');p.className='vx-journal-note';
  p.textContent='Your scientific discoveries, completed objectives and long-term decisions are recorded in this Explorer save.';
  sec.append(h,p);
+ const replay=document.createElement('button');replay.type='button';replay.className='vx-mission-btn';
+ replay.textContent='▶ REPLAY OPENING PROLOGUE';replay.onclick=()=>playPrologue();
+ sec.append(replay);
+ 
  const list=document.createElement('div');list.className='vx-journal-list';
  const history=[...story.log].sort((a,b)=>b.at-a.at).slice(0,60);
  if(!history.length){const n=document.createElement('p');n.className='vx-journal-note';n.textContent='No expedition events recorded yet.';sec.append(n)}

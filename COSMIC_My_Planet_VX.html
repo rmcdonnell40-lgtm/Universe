@@ -142,7 +142,7 @@ function refreshHomeLifeStatus(){
   if(!mature)$('lifePage').classList.remove('open');
  }catch(e){}
 }
-$('openLifePage').addEventListener('click',()=>{refreshHomeLifeStatus();if(!$('openLifePage').hidden)$('lifePage').classList.add('open')});
+$('openLifePage').addEventListener('click',()=>{refreshHomeLifeStatus();if(!$('openLifePage').hidden){$('lifePage').classList.add('open');window.parent.postMessage({type:'COSMIC_VX_LIFE_VIEWED'},location.origin)}});
 $('closeLifePage').addEventListener('click',()=>$('lifePage').classList.remove('open'));
 window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==$('lifeSpeciesFrame').contentWindow)return;if(event.data?.type==='COSMIC_LIFE_CLOSE')$('lifePage').classList.remove('open');});
 window.setInterval(()=>{if(cosmicWorldActive)refreshHomeLifeStatus();},1500);

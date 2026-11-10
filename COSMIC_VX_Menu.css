@@ -1,0 +1,48 @@
+/* COSMIC VX: cinematic desktop-first menu and developer instrumentation */
+#vxOverlay{position:fixed;inset:0;z-index:80000;display:none;align-items:center;justify-content:center;overflow:auto;padding:40px;background:
+ radial-gradient(ellipse at 18% 14%,rgba(38,99,157,.29),transparent 44%),
+ radial-gradient(ellipse at 87% 80%,rgba(73,43,109,.23),transparent 52%),
+ linear-gradient(126deg,rgba(1,7,18,.97),rgba(3,14,32,.97));font:14px/1.48 'Segoe UI',system-ui,sans-serif;color:#ebf9ff}
+#vxOverlay.on{display:flex}
+#vxOverlay::before{content:"";pointer-events:none;position:fixed;inset:0;opacity:.32;background-image:radial-gradient(#8ce5ff7c .65px,transparent 1.1px);background-size:57px 59px}
+#vxOverlay *{box-sizing:border-box}
+.vx-screen{position:relative;width:min(1130px,94vw);margin:auto;display:grid;grid-template-columns:1fr 395px;gap:30px;min-height:570px}
+.vx-hero{display:flex;flex-direction:column;justify-content:space-between;padding:28px 20px 30px 0}
+.vx-eyebrow{color:#86c9e4;font-size:11px;letter-spacing:.32em;font-weight:800}
+.vx-logo{font:900 clamp(70px,8vw,137px)/.95 'Segoe UI',system-ui;letter-spacing:-.09em;color:#e6faff;text-shadow:0 0 40px #52b8fb40;margin:30px 0 5px}
+.vx-tagline{font-weight:800;font-size:16px;letter-spacing:.33em;color:#9bd4ed;margin-bottom:30px}
+.vx-hero p{color:#a1b9ca;font-size:17px;max-width:570px;line-height:1.75}
+.vx-deco{width:min(550px,100%);height:155px;border:1px solid #46778a40;border-radius:18px;background:
+ radial-gradient(ellipse at 70% 45%,rgba(73,194,243,.22),transparent 48%),
+ repeating-linear-gradient(90deg,transparent 0 54px,#7dbbd50b 55px),
+ repeating-linear-gradient(0deg,transparent 0 31px,#7dbbd50b 32px),#051325;position:relative;overflow:hidden}
+.vx-deco::before{content:"";position:absolute;width:255px;height:255px;border:2px solid #68bce354;border-radius:50%;left:44%;top:-48px;box-shadow:0 0 0 22px #7ddcff0c,0 0 0 45px #7ddcff07,0 0 80px #55ccff22}
+.vx-deco::after{content:"VX / GENESIS INITIATIVE · DEEP SPACE EXPLORATION";position:absolute;bottom:14px;left:20px;color:#83c9e9;font-size:10px;letter-spacing:.16em;font-weight:800}
+.vx-menu-panel{background:linear-gradient(160deg,#0c2436f2,#06101eea);border:1px solid #638dab78;border-radius:19px;padding:25px;box-shadow:0 28px 90px #000b,0 0 65px #3ac7ff0a;backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:14px}
+.vx-panel-title{color:#85dbf5;font-size:11px;letter-spacing:.2em;font-weight:800;margin-bottom:4px}
+.vx-menu-button{display:flex;align-items:center;gap:14px;min-height:72px;border-radius:13px;border:1px solid #4d789365;background:#0d2437;color:#e5f7ff;padding:15px;text-align:left;font:inherit;cursor:pointer;transition:background .15s,transform .15s,border-color .15s}
+.vx-menu-button:hover{background:#153b50;border-color:#8ad7ec;transform:translateY(-1px)}
+.vx-menu-button.primary{background:linear-gradient(115deg,#155470,#1c537b);border-color:#5abfe0}
+.vx-menu-button .symbol{font-size:24px;min-width:30px;color:#8fdfff}
+.vx-menu-button b{font-size:14px;letter-spacing:.09em}
+.vx-menu-button small{display:block;color:#8cbbd1;font-size:11px;margin-top:4px}
+.vx-foot{font-size:10px;color:#7699ad;letter-spacing:.1em;margin-top:auto}
+.vx-view{display:none;flex-direction:column;gap:12px;flex:1}.vx-view.on{display:flex}
+.vx-save-list{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow-y:auto;min-height:170px}
+.vx-save-card{border:1px solid #42708b;background:#0b1b2d;border-radius:12px;display:flex;justify-content:space-between;gap:10px;padding:12px;align-items:center}
+.vx-save-card strong{font-size:13px;color:#e6faff}.vx-save-card small{display:block;font-size:11px;color:#8aabbf;margin-top:4px}
+.vx-save-card button,.vx-back,.vx-small{background:#14445d;border:1px solid #548aa2;color:#e0f9ff;border-radius:8px;padding:9px 11px;cursor:pointer;font-weight:750}
+.vx-back{align-self:start;background:#0c263b}
+.vx-empty{border:1px dashed #487084;padding:24px;color:#96b8c9;text-align:center;border-radius:12px}
+#vxMenuQuick{position:fixed;z-index:55000;right:24px;top:64px;border:1px solid #60b8d0;border-radius:12px;padding:10px 15px;background:#061829ed;color:#c0effe;font:800 11px system-ui;letter-spacing:.13em;cursor:pointer;box-shadow:0 5px 24px #000b}
+#vxDevQuick{position:fixed;z-index:55000;right:24px;top:114px;display:none;border:1px solid #e7bc68;border-radius:12px;padding:10px 15px;background:#332608ed;color:#ffe2a1;font:800 11px system-ui;letter-spacing:.1em;cursor:pointer}
+#vxDevTools{position:fixed;z-index:57000;right:24px;top:160px;width:370px;max-height:75vh;overflow-y:auto;background:#081d2df5;border:1px solid #d3a56677;border-radius:14px;padding:19px;box-shadow:0 24px 70px #000c;color:#e6f5ff;font:13px system-ui;display:none}
+#vxDevTools.on{display:block}
+#vxDevTools h3{font-size:16px;margin:0 0 9px;color:#e4c786}
+#vxDevTools p{color:#93b2c1;line-height:1.55}
+.vx-dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.vx-dev-grid button{padding:11px 8px;background:#13394a;border:1px solid #4c8d9b;border-radius:9px;color:#daeff8;cursor:pointer;font:700 11px system-ui}
+.vx-dev-grid button:hover{background:#195169}
+.vx-dev-status{margin-top:15px;background:#06121d;border:1px solid #395669;border-radius:9px;padding:12px;line-height:1.8;color:#98c6d9;font-size:11px}
+.vx-header-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+@media(max-width:790px){.vx-screen{grid-template-columns:1fr;gap:14px}.vx-hero{padding:0}.vx-logo{font-size:74px}.vx-deco{display:none}.vx-menu-panel{max-width:560px;width:100%}#vxOverlay{padding:22px}.vx-hero p{font-size:14px}#vxDevTools{right:12px;width:min(370px,94vw)}}

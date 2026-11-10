@@ -121,7 +121,17 @@ function renderSaves(){
   const name=document.createElement('strong');name.textContent=slot.name||'Unregistered Explorer';
   const p=getFor(slot.id,PROFILE),lab=getFor(slot.id,LAB);
   const small=document.createElement('small');small.textContent='ASTRA-01 · '+(lab?.seeded?'Life seeding / microbial stage':'Sterile planet')+' · '+fmtTime(slot.lastOpened||slot.created);
-  left.append(name,small);card.append(left);
+  left.append(name,small);
+  const avatar=p?.photo;
+  if(avatar&&typeof avatar==='string'&&avatar.startsWith('data:image/')){
+    const picture=document.createElement('img');
+    picture.src=avatar;picture.alt='Explorer portrait';
+    picture.style.cssText='width:46px;height:58px;object-fit:cover;border:1px solid #5a9cb7;border-radius:8px;flex:none';
+    card.append(picture);
+  }
+  const loc=getFor(slot.id,'cosmic:vx:location:v1')?.view;
+  if(loc&&loc!=='galaxy')small.textContent+=' · Last: '+loc;
+  card.append(left);
   const actions=document.createElement('div');actions.style.cssText='display:flex;gap:5px;flex-wrap:wrap;justify-content:end';
   const load=document.createElement('button');load.textContent='LOAD';load.onclick=()=>startGame(slot.id);
   const exp=document.createElement('button');exp.textContent='↓';exp.title='Export save';exp.onclick=()=>exportSave(slot.id);

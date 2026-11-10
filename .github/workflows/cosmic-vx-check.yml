@@ -1,0 +1,23 @@
+name: COSMIC VX Validation
+on:
+  pull_request:
+    paths:
+      - 'COSMIC_VX_*'
+      - 'COSMIC_*_VX.html'
+      - 'Universe_Masterclass_VX.html'
+      - 'Galaxy_VX.html'
+      - 'ClaimYourPlanet_*_VX.js'
+      - '.github/workflows/cosmic-vx-check.yml'
+  workflow_dispatch:
+jobs:
+  static-vx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate VX scripts, file references, and critical gameplay features
+        run: node COSMIC_VX_SelfTest.mjs

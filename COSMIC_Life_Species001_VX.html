@@ -11,9 +11,15 @@
  const directive=d.decisions?.genesis||d.decision||'undecided';
  const divisionHours=directive==='guided'?6.5:8;
  $('vxLifeDirective').textContent=directive==='guided'?'Directed research':directive==='natural'?'Natural evolution':'Awaiting directive';
- $('vxLifeStability').textContent=directive==='guided'?'78% · experimental':'93% · favourable';
+ const baseline=directive==='guided'?.78:.92;
+ const environmentalCycle=Math.sin(hours/24*2*Math.PI)*.045;
+ const stability=Math.max(.5,Math.min(.99,baseline+environmentalCycle));
+ const capacity=Math.round(8000000*stability);
+ $('vxLifeStability').textContent=Math.round(stability*100)+'% · '+(directive==='guided'?'research stress':'habitat suitability');
  const breeding=document.querySelectorAll('.stat strong')[3];if(breeding)breeding.textContent=divisionHours+' hours (estimated)';
- const population=Math.min(8000000,Math.floor(1200*Math.pow(2,hours/divisionHours)));
+ // Fictional exponential cell-division model limited by habitat carrying capacity.
+ const theoretical=1200*Math.pow(2,Math.min(60,hours/divisionHours));
+ const population=Math.min(capacity,Math.floor(theoretical*stability));
  $('vxMicrobePopulation').textContent=population.toLocaleString()+' est. cells';
  }catch(e){console.warn('Biosphere display update failed',e)}
  }update();setInterval(update,30000);

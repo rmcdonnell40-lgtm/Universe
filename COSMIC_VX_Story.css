@@ -1,0 +1,32 @@
+/* COSMIC VX — mission control, scientific journal and narrative layers; desktop-first */
+#vxMissionDock{position:fixed;right:20px;bottom:20px;width:330px;z-index:3200;background:linear-gradient(155deg,#0a2639e8,#071725f5);border:1px solid #5f9ebc7a;border-radius:15px;box-shadow:0 14px 55px #000b;font:12px/1.5 'Segoe UI',system-ui;color:#e9f6ff;backdrop-filter:blur(13px);overflow:hidden}
+#vxMissionDock *{box-sizing:border-box}
+#vxMissionDock .vx-mission-head{border:0;width:100%;text-align:left;background:#12364b;color:#d8f6ff;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;cursor:pointer;font:800 10px system-ui;letter-spacing:.14em}
+#vxMissionDock .vx-mission-content{padding:15px 17px}
+#vxMissionDock.collapsed .vx-mission-content{display:none}
+.vx-mission-kicker{color:#80d4ed;font-size:10px;font-weight:800;letter-spacing:.2em}
+.vx-mission-title{font-size:18px;font-weight:850;letter-spacing:-.03em;margin:8px 0;color:#f0fbff}
+.vx-mission-details{font-size:12px;color:#abc6d6;line-height:1.7;margin-bottom:12px}
+.vx-progress-track{height:6px;background:#183747;border-radius:9px;overflow:hidden}
+.vx-progress-fill{height:100%;background:linear-gradient(90deg,#3798c7,#6be4c2);width:0;transition:width .4s ease}
+.vx-mission-footer{display:flex;justify-content:space-between;align-items:center;margin-top:9px;color:#a2becc;font-size:10px}
+.vx-mission-btn{border:1px solid #5e9fba;border-radius:8px;background:#12405a;color:#d8f6fc;padding:8px 12px;font:800 11px system-ui;cursor:pointer;margin-top:11px}
+#vxNarrativeOverlay{display:none;position:fixed;inset:0;z-index:12500;background:#010912e9;align-items:center;justify-content:center;padding:35px;backdrop-filter:blur(9px);color:#eaf8ff;font:14px/1.7 'Segoe UI',system-ui}
+#vxNarrativeOverlay.open{display:flex}
+.vx-narrative-card{width:min(800px,96vw);min-height:460px;padding:48px 58px;border:1px solid #4a94b389;border-radius:21px;background:radial-gradient(ellipse at 76% 25%,#17394d99,transparent 60%),linear-gradient(135deg,#07172e,#04111b);box-shadow:0 35px 130px #000c;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.vx-narrative-card:after{content:"";position:absolute;width:420px;height:420px;border:1px solid #5cbadb33;top:-240px;right:-170px;border-radius:50%;box-shadow:0 0 0 50px #4aa9e00c,0 0 0 100px #4aa9e00b;pointer-events:none}
+.vx-narrative-overline{color:#7ed8ef;font-size:11px;font-weight:900;letter-spacing:.27em}
+.vx-narrative-title{font-size:clamp(33px,4vw,58px);line-height:1.1;font-weight:900;letter-spacing:-.055em;margin:15px 0 23px}
+.vx-narrative-body{color:#bad2df;font-size:17px;line-height:1.85;max-width:625px;white-space:pre-line}
+.vx-narrative-actions{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-top:38px}
+.vx-narrative-actions button{border:1px solid #70adca;background:#144360;color:#e8faff;padding:12px 24px;border-radius:10px;font:800 12px system-ui;cursor:pointer}
+.vx-narrative-actions button.muted{background:transparent;color:#9cbbce;border-color:#43647a}
+#vxToast{position:fixed;z-index:12000;top:69px;left:50%;transform:translate(-50%,-15px);padding:14px 24px;background:#0d3e4ae8;border:1px solid #6fe2d1;color:#dffaf8;border-radius:11px;font:800 12px system-ui;letter-spacing:.08em;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;box-shadow:0 10px 35px #0008}
+#vxToast.on{opacity:1;transform:translate(-50%,0)}
+.vx-journal-section{margin:27px 0 18px;border-top:1px solid #5f8fa34a;padding-top:19px;font-family:system-ui}
+.vx-journal-section h3{font-size:20px;color:#bdebf8}
+.vx-journal-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.vx-journal-entry{background:#0c2940;border:1px solid #5e90ab52;border-radius:12px;padding:14px;color:#c4e0eb;font-size:12px}
+.vx-journal-entry b{color:#f1fcff;display:block;margin-bottom:5px}
+.vx-journal-entry small{color:#87b2c4}
+.vx-journal-note{color:#91b8cd;font-size:12px;line-height:1.7}

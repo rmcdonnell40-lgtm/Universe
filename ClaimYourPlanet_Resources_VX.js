@@ -118,6 +118,8 @@ function init(api){
   ['profile','◉ Profile']
  ];
  const tabButtons=new Map();
+ const VX_VIEW_KEY='cosmic:vx:location:v1';
+ function rememberView(view){window.COSMIC_VX_STORAGE.setItem(VX_VIEW_KEY,JSON.stringify({view,at:Date.now()}));}
  tabs.forEach(([id,label])=>{const b=node('button','rt-tab',label);b.type='button';nav.append(b);tabButtons.set(id,b);});
  document.body.append(nav);
  const scanBtn=node('button','rt-explore-btn','⌁ Scan Planet');scanBtn.type='button';toolbar.prepend(scanBtn);
@@ -170,7 +172,7 @@ function init(api){
   if(which!=='home')setWorldVisible(false);
   closeSheets();
   const sheet=sheets[which];if(!sheet)return;
-  sheet.outer.hidden=false;highlightTab(which);
+  sheet.outer.hidden=false;highlightTab(which);rememberView(which);
   const inner=sheet.inner;inner.replaceChildren();
   const header=node('div','rt-head');const left=node('div');
   left.append(node('small','rt-eyebrow','CLAIM YOUR PLANET · RESOURCE TESTER'));
@@ -248,7 +250,7 @@ function init(api){
     }
   }
  }
- function navigateGalaxy(){setLabVisible(false);setWorldVisible(false);closeSheets();if(api.isTerrainOpen())api.closeTerrain();api.backToGalaxy();highlightTab('galaxy');}
+ function navigateGalaxy(){setLabVisible(false);setWorldVisible(false);closeSheets();if(api.isTerrainOpen())api.closeTerrain();api.backToGalaxy();highlightTab('galaxy');rememberView('galaxy');}
  function setHome(p,owner){
   if(!p||!owner)return;
   state.home={id:p.id,galaxySeed:api.getSeed(),name:p.name,system:api.getSystem(),owner:String(owner).slice(0,80)};persist();updateNavigation();
@@ -380,7 +382,7 @@ function init(api){
       old?.contentWindow?.postMessage({type:'COSMIC_LAB_REFRESH'},location.origin);
    }
    setLabVisible(true);
-   highlightTab('home');
+   highlightTab('home');rememberView('laboratory');
  }
 
  function setWorldVisible(visible){
@@ -411,7 +413,7 @@ function init(api){
      document.body.append(homeWorldOverlay);
    }
    setWorldVisible(true);
-   highlightTab('home');
+   highlightTab('home');rememberView('home');
  }
  window.addEventListener('message',event=>{
    if(event.origin!==window.location.origin)return;
@@ -469,6 +471,19 @@ function init(api){
   else if(Object.values(sheets).some(sheet=>!sheet.outer.hidden)){closeSheets();highlightTab('galaxy');e.stopPropagation();}
  },true);
  highlightTab('galaxy');sync();
+ // Returning Explorer: restore the last main screen after the galaxy initialises.
+ try{
+   const prior=JSON.parse(window.COSMIC_VX_STORAGE.getItem(VX_VIEW_KEY)||'null');
+   const view=prior?.view;
+   if(['home','journal','resources','laboratory'].includes(view)){
+      setTimeout(()=>{
+        if(view==='home')openMyWorld();
+        else if(view==='laboratory')openLaboratory();
+        else showSheet(view);
+      },240);
+   }
+ }catch(e){console.warn('VX location restore unavailable',e)}
+
  function getSurvey(p){if(!p)return null;const rec=state.worlds[api.getSeed()+'|'+p.seed+'|'+p.id];return rec?.surveyed?rec:null;}
  function getProgress(){const records=Object.values(state.worlds).filter(r=>r?.surveyed);
   return {surveyed:records.length,extinct:records.filter(r=>r.history).length,

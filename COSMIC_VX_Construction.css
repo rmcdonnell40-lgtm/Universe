@@ -1,0 +1,43 @@
+/* COSMIC VX / construction interface */
+.cosmic-build-shell{position:fixed;inset:0;z-index:11000;background:#020813;color:#e7f3ff;font:13px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif;overflow:auto}
+.cosmic-build-shell[hidden]{display:none!important}
+.cosmic-build-shell *{box-sizing:border-box}
+.cb-shell{max-width:1450px;margin:auto;padding:30px clamp(14px,3vw,44px) 55px}
+.cb-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.cb-kicker{font-size:10px;font-weight:800;letter-spacing:.25em;color:#62c6e3}.cb-header h1{font-size:clamp(26px,4vw,50px);letter-spacing:.1em;margin:5px 0 1px;font-weight:800}
+.cb-header p{margin:0;color:#93abc4;font-size:13px}.cb-close,.cb-category,.cb-blueprint,.cb-action{cursor:pointer;color:#e7f3ff}
+.cb-close{border:1px solid #5685ac;background:#11283d;border-radius:10px;padding:10px 18px;white-space:nowrap}
+.cb-ribbon{display:flex;flex-wrap:wrap;gap:18px;margin:22px 0 16px;padding:11px 15px;border:1px solid #34516d;border-radius:10px;color:#95cce5;background:#0a1a2d;font-size:11px;font-weight:700;letter-spacing:.06em}
+.cb-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,375px);gap:22px}
+.cb-categories{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.cb-category{padding:12px 15px;border:1px solid #456582;border-radius:9px;background:#0a1b30;font-weight:800;font-size:11px;letter-spacing:.08em}
+.cb-category.active{background:#1a526a;border-color:#6fd6ee}
+.cb-section-title{font-weight:800;color:#73c5df;letter-spacing:.16em;font-size:10px;margin:14px 0 11px}
+.cb-bank{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.cb-resource{background:#0c1a2e;border:1px solid #29425c;border-radius:9px;padding:12px 10px;min-width:0}
+.cb-resource span{display:block;font-size:10px;color:#afc0d6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cb-resource strong{font:800 21px/1.4 system-ui;color:#f3faff;display:block;margin-top:3px}
+.cb-cardgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.cb-blueprint{display:flex;text-align:left;flex-direction:column;gap:5px;min-height:115px;border-radius:12px;padding:15px;background:#0d2035;border:1px solid #39516c}
+.cb-blueprint.selected{background:#143c50;border-color:#6ad6e9;box-shadow:0 0 0 1px #5dcae722}
+.cb-icon{font-size:24px;color:#80d3e9}
+.cb-blueprint strong{font-size:13px;line-height:1.2}
+.cb-blueprint small{color:#84a7bd;font-size:10px}
+.cb-aside{display:flex;flex-direction:column;gap:12px}
+.cb-details{padding:20px;border-radius:14px;background:linear-gradient(150deg,#12243b,#081525);border:1px solid #385778}
+.cb-details h2{margin:0 0 10px;font-size:19px}
+.cb-details h3{color:#8ad3e6;font-size:10px;letter-spacing:.15em;margin:20px 0 8px}
+.cb-details p{color:#a3b9ca;margin:0 0 15px}
+.cb-label{display:flex;flex-direction:column;gap:6px;color:#85bcd1;font-size:10px;font-weight:800;letter-spacing:.1em;margin:13px 0}
+.cb-label select{font:600 12px system-ui;color:#e7f6ff;background:#081a2f;border:1px solid #527590;border-radius:8px;padding:10px;width:100%;max-width:100%}
+.cb-bill{display:flex;flex-direction:column;gap:7px;color:#98e0c8}
+.cb-bill>div{border-bottom:1px solid #29405a;padding-bottom:5px;white-space:pre-wrap}
+.cb-bill .cb-short{color:#f1a388}
+.cb-action{display:block;margin-top:17px;width:100%;border:1px solid #5ecddc;border-radius:10px;padding:13px 9px;background:linear-gradient(120deg,#1c667c,#135075);font-weight:800;font-size:11px;letter-spacing:.06em}
+.cb-action:disabled{opacity:.35;cursor:not-allowed}
+.cb-note{color:#f1c08f!important}
+.cb-footnote{display:block;color:#8ca9c3;margin-top:10px}
+.cb-mission{display:flex;flex-direction:column;border-bottom:1px solid #2b4860;gap:3px;padding:11px 0}
+.cb-mission strong{font-size:12px}.cb-mission small{color:#a1c1d4}.cb-track{height:5px;border-radius:10px;overflow:hidden;background:#0a2337;margin-top:6px}.cb-fill{height:100%;background:#6ad6e9}
+@media(max-width:920px){.cb-body{grid-template-columns:1fr}.cb-bank{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.cb-shell{padding:18px 12px 35px}.cb-bank{grid-template-columns:repeat(2,minmax(0,1fr))}.cb-cardgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.cb-blueprint{min-height:105px}.cb-header p{font-size:11px}.cb-ribbon{margin:14px 0 10px}.cb-category{padding:10px 11px}}

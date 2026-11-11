@@ -156,7 +156,22 @@ function mutateDev(kind){
   for(const k of Array.from({length:raw.length},(_,i)=>raw.key(i)))if(k?.startsWith(slotPrefix('developer'))&&!k.endsWith(':'+PROFILE))raw.removeItem(k);
   lab=grantLab();putFor('developer',RESOURCE,{worlds:{},home:null});
  }
- if(kind!=='reload')putFor('developer',LAB,lab);
+ if(kind!=='reload'){
+  // Developer commands adjust the SAME finite balances used by the Laboratory,
+  // building economy and probes. Regular Explorer saves are never changed.
+  const bankKey='cosmic:vx:inventory:v1';
+  const oldBank=getFor('developer',bankKey);
+  if(oldBank?.balances&&kind!=='grant'&&kind!=='resetlab'&&kind!=='sterile'&&kind!=='resetworld'){
+    for(const id of Object.keys(blankLab().stock))lab.stock[id]=Number(oldBank.balances[id])||0;
+  }
+  putFor('developer',LAB,lab);
+  const bank=kind==='resetworld'?{version:1,balances:{},receipts:[]}:(oldBank||{version:1,balances:{},receipts:[]});
+  if(['grant','resetlab','sterile','resetworld'].includes(kind)){
+    for(const id of Object.keys(blankLab().stock))bank.balances[id]=Number(lab.stock[id])||0;
+    if(kind==='resetworld')bank.receipts=[];
+    putFor('developer',bankKey,bank);
+  }
+ }
  reloadGalaxy();renderDevState();
 }
 function renderDevState(){

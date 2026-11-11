@@ -85,7 +85,7 @@
 @media(max-width:720px){.home-seeding-progress{bottom:86px;left:10px;width:min(290px,calc(100vw - 20px));padding:11px 13px;font-size:11px}}
 @media(prefers-reduced-motion:reduce){.my-planet-activity.active{animation:none}}
 </style></head><body>
-<nav class="myworld-nav" aria-label="COSMIC navigation"><button type="button" data-cosmic-tab="home" class="active">⌂ My Planet<span id="myPlanetActivity" class="my-planet-activity" aria-hidden="true"></span></button><button type="button" data-cosmic-tab="galaxy">✧ Galaxy</button><button type="button" data-cosmic-tab="journal">▣ Journal</button><button type="button" data-cosmic-tab="resources">◈ Resources</button></nav>
+<nav class="myworld-nav" aria-label="COSMIC navigation"><button type="button" data-cosmic-tab="home" class="active">⌂ My Planet<span id="myPlanetActivity" class="my-planet-activity" aria-hidden="true"></span></button><button type="button" data-cosmic-tab="galaxy">✧ Galaxy</button><button type="button" data-cosmic-tab="journal">▣ Journal</button><button type="button" data-cosmic-tab="resources">◈ Inventory</button><button type="button" data-cosmic-tab="construction">▤ Construction</button></nav>
 <canvas id="scene" aria-label="Interactive rotating 3D homeworld with white clouds and storm spirals"></canvas><div class="shade"></div>
 <div class="ui"><header class="header"><div><div class="eyebrow">COSMIC / MY PLANET · HOMEWORLD</div><h1>Your Homeworld</h1><div class="desc" id="homeLifeDescription">A living world waiting for its first microbes.</div><button class="lab-entry" type="button" data-cosmic-tab="laboratory">⚗ Laboratory</button><button id="openLifePage" type="button" class="life-entry" hidden>🧬 Life</button></div></header>
 <button id="controlTab" class="control-tab" type="button" aria-expanded="false">☷ CONTINENTS</button><div class="side closed" id="controlsSide"><div class="panel"><h2>PLANET STATUS</h2><div class="stat"><span>Designation</span><strong>ASTRA-01</strong></div><div class="stat"><span>Life stage</span><strong id="homeLifeStage">Sterile</strong></div><div class="stat"><span>Atmosphere</span><strong>N₂ / O₂</strong></div><div class="stat"><span>Axial tilt</span><strong>23.5°</strong></div><div class="divider"></div><div class="stat"><span>Storm systems</span><strong id="stormCount">2 ACTIVE</strong></div><div class="stat"><span>Season</span><strong id="seasonLabel">NORTHERN SUMMER</strong></div></div>
@@ -145,7 +145,7 @@ function refreshHomeLifeStatus(){
 $('openLifePage').addEventListener('click',()=>{refreshHomeLifeStatus();if(!$('openLifePage').hidden){$('lifePage').classList.add('open');window.parent.postMessage({type:'COSMIC_VX_LIFE_VIEWED'},location.origin)}});
 $('closeLifePage').addEventListener('click',()=>$('lifePage').classList.remove('open'));
 window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==$('lifeSpeciesFrame').contentWindow)return;if(event.data?.type==='COSMIC_LIFE_CLOSE')$('lifePage').classList.remove('open');});
-window.setInterval(()=>{if(cosmicWorldActive)refreshHomeLifeStatus();},1500);
+window.setInterval(()=>{if(cosmicWorldActive){refreshHomeLifeStatus();window.dispatchEvent(new Event("cosmic-world-resume"));}},1500);
 window.addEventListener('focus',refreshHomeLifeStatus);
 
 let cosmicWorldActive=true;
@@ -362,9 +362,92 @@ const terrainRaycaster=new THREE.Raycaster(),orbitRaycaster=new THREE.Raycaster(
 function resizeTerrain(){const w=innerWidth,h=innerHeight;terrainRenderer.setSize(w,h);terrainCamera.aspect=w/h;terrainCamera.updateProjectionMatrix();}
 function positionTerrainCamera(){const r=terrainDist,cp=Math.cos(terrainPitch);terrainCamera.position.set(r*Math.sin(terrainYaw)*cp,r*Math.sin(terrainPitch),r*Math.cos(terrainYaw)*cp);terrainCamera.lookAt(0,1,0);}
 function textureSample(u,v){const x=Math.round(((u%1+1)%1)*(W-1)),y=Math.round(clamp(v,0,1)*(H-1));return {x,y,index:y*W+x};}
+
+// Construction is a persisted overlay on the existing continent. The coastlines,
+// original height map and six regional territories are never regenerated.
+const BUILD_KEY='cosmic:vx:construction:v1';
+function constructionRecords(region){
+ try{const data=JSON.parse(window.COSMIC_VX_STORAGE.getItem(BUILD_KEY)||'null');
+  return (data?.buildings||[]).filter(b=>b.kind==='planet'&&Number(b.continent)===region).slice(0,45);
+ }catch(e){return []}
+}
+function terrainAltitude(region,x,z){
+ const origin=regionSeeds[region],su=origin.u+x/55*.18,sv=origin.v+z/55*.18;
+ const h=landHeight[textureSample(su,sv).index];
+ return h<0?-1.8:Math.min(8,h*45+1.2);
+}
+function constructionPads(region){
+ const records=constructionRecords(region),pads=[];
+ for(let i=0;i<records.length;i++){
+  // Fixed saved slots make placements stable between sessions and terrain redraws.
+  let x=-17+(i%5)*8.5,z=-15+Math.floor(i/5)*8.5;
+  let altitude=terrainAltitude(region,x,z);
+  if(altitude<-.3){
+   for(let attempt=0;attempt<20&&altitude<-.3;attempt++){
+    const a=attempt*2.39996,r=3+attempt*.75;
+    const tx=x+Math.cos(a)*r,tz=z+Math.sin(a)*r;
+    if(Math.abs(tx)>24||Math.abs(tz)>24)continue;
+    const candidate=terrainAltitude(region,tx,tz);
+    if(candidate>-.3){x=tx;z=tz;altitude=candidate;}
+   }
+  }
+  if(altitude<-.3)continue;
+  pads.push({record:records[i],x,z,y:altitude});
+ }
+ return pads;
+}
+function constructionMesh(type,pad){
+ const g=new THREE.Group();g.position.set(pad.x,pad.y+.18,pad.z);
+ const metal=new THREE.MeshStandardMaterial({color:0x627889,metalness:.76,roughness:.42});
+ const dark=new THREE.MeshStandardMaterial({color:0x182b37,metalness:.66,roughness:.48});
+ const panel=new THREE.MeshStandardMaterial({color:0x276f97,metalness:.5,roughness:.27,emissive:0x0b293a});
+ const lamp=new THREE.MeshBasicMaterial({color:0xa4e9ff});
+ function box(w,h,d,x,y,z,mat=metal){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);o.position.set(x,y,z);o.castShadow=false;g.add(o);return o}
+ function cylinder(r1,r2,h,x,y,z,mat=metal){const o=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,10),mat);o.position.set(x,y,z);g.add(o);return o}
+ box(5.9,.42,5.9,0,-.2,0,dark);box(5.2,.09,.13,0,.055,-2.65,lamp);
+ if(type==='solar'){
+  for(let i=0;i<3;i++){cylinder(.06,.09,.9,-1.6+i*1.6,.5,0);const p=box(1.65,.09,2.4,-1.6+i*1.6,1.1,0,panel);p.rotation.x=-.27;}
+ }else if(type==='launch'){
+  cylinder(1.45,1.5,.35,0,.2,0,dark);cylinder(.43,.56,5.0,0,2.9,0,metal);
+  const tip=new THREE.Mesh(new THREE.ConeGeometry(.43,1.05,12),metal);tip.position.set(0,5.9,0);g.add(tip);
+  for(let j=0;j<2;j++){box(.22,6,.22,-1.6+j*3.2,3,0);for(let y=1;y<6;y+=1)box(3.2,.11,.13,0,y,0,dark)}
+  cylinder(.65,.65,2.2,2,.95,1.65,dark);
+ }else if(type==='extractor'){
+  cylinder(.9,1.3,2.2,0,1.1,0,dark);cylinder(.35,.35,3.2,0,3.5,0,metal);
+  box(3,.3,1.1,0,3.4,0,metal);box(1.6,1.5,1.4,1.8,.8,1.7,panel);
+ }else if(type==='base'){
+  for(let j=0;j<7;j++){
+   const x=-2+(j%3)*1.8,z=-1.7+Math.floor(j/3)*1.7,h=1.1+(j%4)*.58;
+   box(1.35,h,1.4,x,h/2,z,j%2?panel:metal);box(1.48,.16,1.48,x,h,z,dark);
+  }
+  cylinder(1.4,1.6,1.1,2,.55,1.8,metal);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(1.3,14,9,0,Math.PI*2,0,Math.PI/2),panel);dome.position.set(2,1.1,1.8);g.add(dome);
+ }else{
+  box(3.8,1.9,3.6,0,1,0,type==='science'?panel:metal);box(4.1,.18,4,0,2,0,dark);
+  box(1.5,1.2,.08,0,1,.01+1.81,panel);
+  cylinder(.09,.1,2,1.35,2.9,-1.3,metal);cylinder(.35,.35,.2,1.35,3.9,-1.3,lamp);
+  if(type==='science')cylinder(.9,.9,1.5,-2,1,.5,dark);
+ }
+ return g;
+}
+function addConstructionTerrain(region,pads){
+ for(const p of pads)terrainRoot.add(constructionMesh(p.record.blueprint,p));
+ // Service access paths connect adjacent built sites, transforming the empty
+ // green terrain into a clearly occupied surface as a colony grows.
+ const pathMat=new THREE.MeshStandardMaterial({color:0x313e46,metalness:.2,roughness:1});
+ for(let i=1;i<pads.length;i++){
+  const a=pads[i-1],b=pads[i];if(Math.hypot(a.x-b.x,a.z-b.z)>15)continue;
+  const length=Math.hypot(a.x-b.x,a.z-b.z);
+  const road=new THREE.Mesh(new THREE.BoxGeometry(1.35,.13,length),pathMat);
+  road.position.set((a.x+b.x)/2,(a.y+b.y)/2+.11,(a.z+b.z)/2);
+  road.rotation.y=Math.atan2(b.x-a.x,b.z-a.z);terrainRoot.add(road);
+ }
+}
+
 function buildTerrainForRegion(k){
  while(terrainRoot.children.length){const o=terrainRoot.children[0];terrainRoot.remove(o);o.geometry?.dispose?.();o.material?.map?.dispose?.();o.material?.dispose?.();}
  const seed=regionSeeds[k],grid=128,size=55,extent=.18,geo2=new THREE.PlaneGeometry(size,size,grid,grid),arr=geo2.attributes.position;
+ const construction=constructionPads(k);
  const canvas2=document.createElement('canvas');canvas2.width=512;canvas2.height=512;const ctx2=canvas2.getContext('2d');let pix=ctx2.createImageData(512,512);
  for(let y=0;y<512;y++)for(let x=0;x<512;x++){
   const du=(x/511-.5)*extent,dv=(y/511-.5)*extent;
@@ -377,16 +460,50 @@ function buildTerrainForRegion(k){
  for(let i=0;i<positions.count;i++){
   const x=positions.getX(i),v=positions.getY(i),su=seed.u+x/size*extent,sv=seed.v-v/size*extent;
   const h=landHeight[textureSample(su,sv).index];
-  const height=h<0?-1.8:Math.min(8,h*45+1.2);
+  let height=h<0?-1.8:Math.min(8,h*45+1.2);
+  // Grade only the immediate foundation pads, never the continent geography.
+  for(const pad of construction){const dz=-positions.getY(i)-pad.z,dx=x-pad.x,d=Math.hypot(dx,dz);
+    if(d<3.6){const t=clamp((3.6-d)/1.1,0,1);height=height*(1-t)+pad.y*t;}
+  }
   positions.setZ(i,height);
  }
  geo2.computeVertexNormals();geo2.rotateX(-Math.PI/2);
  const mesh=new THREE.Mesh(geo2,new THREE.MeshStandardMaterial({map:tex,roughness:.94,metalness:0,side:THREE.DoubleSide}));terrainRoot.add(mesh);
  // Ocean surface is a single transparent plane only in depressions.
  const water=new THREE.Mesh(new THREE.PlaneGeometry(size,size),new THREE.MeshStandardMaterial({color:0x0b789e,transparent:true,opacity:.55,metalness:.13,roughness:.4,depthWrite:false,side:THREE.DoubleSide}));water.rotation.x=-Math.PI/2;water.position.y=-.35;terrainRoot.add(water);
+ addConstructionTerrain(k,construction);
 }
 function openContinent(k){currentRegion=k;buildTerrainForRegion(k);$('terrainName').textContent=continentNames[k];$('terrainClimate').textContent='ASTRA-01 · Continent '+(k+1)+' / 6 · Terrain exploration';terrainUI.classList.add('open');controlsSide.classList.add('closed');terrainYaw=.55;terrainPitch=.70;terrainDist=27;resizeTerrain();positionTerrainCamera();}
 $('backToOrbit').onclick=()=>{terrainUI.classList.remove('open');currentRegion=-1};
+// Refresh saved building overlays after construction without remaking coastlines.
+let constructionSignature='';
+function refreshConstruction(){
+ const raw=window.COSMIC_VX_STORAGE.getItem(BUILD_KEY)||'';
+ if(raw===constructionSignature)return;
+ constructionSignature=raw;
+ if(currentRegion>=0&&terrainUI.classList.contains('open'))buildTerrainForRegion(currentRegion);
+ refreshOrbitalInstallations();
+}
+const orbitalBuildMarkers=new THREE.Group();borderGroup.add(orbitalBuildMarkers);
+function refreshOrbitalInstallations(){
+ while(orbitalBuildMarkers.children.length){
+  const obj=orbitalBuildMarkers.children[0];orbitalBuildMarkers.remove(obj);obj.material?.map?.dispose?.();obj.material?.dispose?.();
+ }
+ for(let k=0;k<6;k++){
+  const count=constructionRecords(k).length;if(!count)continue;
+  const c=document.createElement('canvas');c.width=256;c.height=94;const ctx=c.getContext('2d');
+  ctx.fillStyle='#09263cdd';ctx.fillRect(0,5,256,85);
+  ctx.strokeStyle='#6cd8ee';ctx.lineWidth=4;ctx.strokeRect(2,7,252,81);
+  ctx.fillStyle='#e1faff';ctx.font='bold 26px sans-serif';ctx.textAlign='center';ctx.fillText('◫ '+count+' INSTALLATION'+(count===1?'':'S'),128,55);
+  const tex=new THREE.CanvasTexture(c);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:true,depthWrite:false}));
+  const v=regionSeeds[k].vec;sp.position.set(v[0]*2.55,v[1]*2.55,v[2]*2.55);sp.scale.set(.79,.24,1);orbitalBuildMarkers.add(sp);
+ }
+}
+window.addEventListener('storage',e=>{if(e.key?.includes(BUILD_KEY))refreshConstruction()});
+window.addEventListener('cosmic-world-resume',refreshConstruction);
+setInterval(()=>{if(cosmicWorldActive)refreshConstruction()},2500);
+refreshConstruction();
 $('terrainReset').onclick=()=>{terrainYaw=.55;terrainPitch=.70;terrainDist=27;positionTerrainCamera()};
 const terrainTouches=new Map();terrainCanvas.addEventListener('pointerdown',e=>{terrainCanvas.setPointerCapture(e.pointerId);terrainTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 terrainCanvas.addEventListener('pointermove',e=>{const last=terrainTouches.get(e.pointerId);if(!last)return;terrainTouches.set(e.pointerId,{x:e.clientX,y:e.clientY});if(terrainTouches.size>1){const p=[...terrainTouches.values()];const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(terrainPinch)terrainDist=clamp(terrainDist*terrainPinch/d,10,70);terrainPinch=d;}else{terrainYaw+=(e.clientX-last.x)*.006;terrainPitch=clamp(terrainPitch+(e.clientY-last.y)*.004,.17,1.35)}positionTerrainCamera();});

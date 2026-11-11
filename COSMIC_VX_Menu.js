@@ -45,7 +45,7 @@ devButton.id='vxDevQuick';devButton.textContent='⚙ DEV TOOLS';document.body.ap
 const devPanel=document.createElement('section');
 devPanel.id='vxDevTools';devPanel.innerHTML=`<div class="vx-header-row"><h3>⚙ GENESIS WORKBENCH</h3><button id="vxDevClose" class="vx-small">✕</button></div><p>A dedicated developer save. These controls do not modify New Game or V20 progress.</p>
 <div class="vx-dev-grid">
-<button data-dev="grant">GRANT 7 INGREDIENTS</button><button data-dev="resetlab">RESET LABORATORY</button>
+<button data-dev="grant">GRANT TEST RESOURCES</button><button data-dev="resetlab">RESET LABORATORY</button>
 <button data-dev="culture">CREATE LIFE CULTURE</button><button data-dev="seed">START SEEDING</button>
 <button data-dev="complete">COMPLETE SEEDING</button><button data-dev="sterile">STERILE PLANET</button>
 <button data-dev="resetworld">RESET DEV WORLD</button><button data-dev="reload">RELOAD SCENE</button>
@@ -99,6 +99,9 @@ function ensureDeveloper(){
  const id='developer';
  if(!index().slots.some(s=>s.id===id))updateIndex(s=>s.slots.push({id,name:'Developer',created:Date.now(),lastOpened:Date.now(),type:'developer'}));
  if(!getFor(id,LAB))putFor(id,LAB,grantLab());
+ if(!getFor(id,'cosmic:vx:inventory:v1')){
+   putFor(id,'cosmic:vx:inventory:v1',{version:1,balances:{...((getFor(id,LAB)||grantLab()).stock),iron:45,minerals:45,technology:3},receipts:[]});
+ }
  if(!getFor(id,PROFILE))putFor(id,PROFILE,{version:1,name:'Developer',gender:'Male',age:30,nationality:'Not specified',countryCode:'',assignment:'ASTRA-01',rank:'Developer',id:'CEA-VX-DEV',portraitId:'dev-1',photo:null,issuedAt:new Date().toISOString()});
  if(!getFor(id,RESOURCE))putFor(id,RESOURCE,{worlds:{},home:null});
  startGame(id);
@@ -156,7 +159,27 @@ function mutateDev(kind){
   for(const k of Array.from({length:raw.length},(_,i)=>raw.key(i)))if(k?.startsWith(slotPrefix('developer'))&&!k.endsWith(':'+PROFILE))raw.removeItem(k);
   lab=grantLab();putFor('developer',RESOURCE,{worlds:{},home:null});
  }
- if(kind!=='reload')putFor('developer',LAB,lab);
+ if(kind!=='reload'){
+  // Developer commands adjust the SAME finite balances used by the Laboratory,
+  // building economy and probes. Regular Explorer saves are never changed.
+  const bankKey='cosmic:vx:inventory:v1';
+  const oldBank=getFor('developer',bankKey);
+  if(oldBank?.balances&&kind!=='grant'&&kind!=='resetlab'&&kind!=='sterile'&&kind!=='resetworld'){
+    for(const id of Object.keys(blankLab().stock))lab.stock[id]=Number(oldBank.balances[id])||0;
+  }
+  putFor('developer',LAB,lab);
+  const bank=kind==='resetworld'?{version:1,balances:{},receipts:[]}:(oldBank||{version:1,balances:{},receipts:[]});
+  if(['grant','resetlab','sterile','resetworld'].includes(kind)){
+    for(const id of Object.keys(blankLab().stock))bank.balances[id]=Number(lab.stock[id])||0;
+    if(kind==='resetworld')bank.receipts=[];
+    if(kind==='grant'||kind==='resetworld'){
+      bank.balances.iron=Math.max(45,Number(bank.balances.iron)||0);
+      bank.balances.minerals=Math.max(45,Number(bank.balances.minerals)||0);
+      bank.balances.technology=Math.max(3,Number(bank.balances.technology)||0);
+    }
+    putFor('developer',bankKey,bank);
+  }
+ }
  reloadGalaxy();renderDevState();
 }
 function renderDevState(){

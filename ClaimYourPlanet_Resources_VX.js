@@ -81,9 +81,10 @@ function planetaryIngredients(p,seed){
    resource:{item:s.label,amount:1,id:s.id},cosmicIngredientId:s.id};
  });
 }
-function awardLaboratoryDeposit(f){
- const id=f?.cosmicIngredientId;if(!Object.prototype.hasOwnProperty.call({water:1,carbon:1,phosphorus:1,sulfur:1,metals:1,energy:1,culture:1},id))return;
- const lab=readCosmicLab();lab.stock[id]=(Math.max(0,Number(lab.stock[id])||0)+1);saveCosmicLab(lab);
+function awardLaboratoryDeposit(f,receipt){
+ const resource=f?.resource, id=window.COSMIC_VX_INVENTORY?.toId(resource?.id||resource?.item);
+ if(!resource||!id)return {ok:true};
+ return window.COSMIC_VX_INVENTORY.grant({[id]:Number(resource.amount)||0},receipt);
 }
 
 function normalFindings(p,seed){
@@ -114,7 +115,8 @@ function init(api){
   ['home','⌂ My Planet'],
   ['galaxy','✧ Galaxy'],
   ['journal','▣ Journal'],
-  ['resources','◈ Resources'],
+  ['resources','◈ Inventory'],
+  ['construction','▤ Construction'],
   ['profile','◉ Profile']
  ];
  const tabButtons=new Map();
@@ -146,11 +148,11 @@ function init(api){
   if(!rec.collected||typeof rec.collected!=='object')rec.collected={};
   return rec;
  }
- function closeSheets(){Object.values(sheets).forEach(s=>s.outer.hidden=true);}
+ function closeSheets(){Object.values(sheets).forEach(s=>s.outer.hidden=true);window.COSMIC_VX_CONSTRUCTION?.close();}
  function highlightTab(which){tabButtons.forEach((button,name)=>button.classList.toggle('active',name===which));}
  function updateNavigation(){
-  const totals=aggregate().totals,units=Object.values(totals).reduce((n,x)=>n+x,0);
-  const btn=tabButtons.get('resources');btn.textContent='◈ Resources'+(units?' ('+units.toFixed(1)+')':'');
+  const bank=window.COSMIC_VX_INVENTORY.read().balances,units=Object.values(bank).reduce((n,x)=>n+x,0);
+  const btn=tabButtons.get('resources');btn.textContent='◈ Inventory'+(units?' ('+units.toFixed(1)+')':'');
  }
  function recordFinding(c){
   const rec=ensureRecord(c);rec.surveyed=true;rec.name=c.p.name;rec.system=api.getSystem();rec.type=c.p.type;rec.findings=c.findings;rec.history=c.p.life?.pastLife||null;state.worlds[c.key]=rec;persist();api.onSurvey?.();
@@ -159,12 +161,13 @@ function init(api){
   const c=current();if(!c||!c.record?.surveyed)return;
   const item=c.findings[i];
   if(!item?.resource||c.record.collected[i])return;
-  c.record.collected[i]=true;persist();awardLaboratoryDeposit(item);renderMarkers();renderSelected(i);updateNavigation();
+  const payment=awardLaboratoryDeposit(item,'cosmic:survey:'+c.key+':'+i);if(!payment.ok)return;
+  c.record.collected[i]=true;persist();renderMarkers();renderSelected(i);updateNavigation();
  }
  function uncollected(c){return c.findings.filter((f,i)=>f.resource&&!c.record?.collected?.[i]).length;}
  function collectAll(){
   const c=current();if(!c||!c.record?.surveyed)return;
-  c.findings.forEach((f,i)=>{if(f.resource&&!c.record.collected[i]){c.record.collected[i]=true;awardLaboratoryDeposit(f);}});
+  c.findings.forEach((f,i)=>{if(f.resource&&!c.record.collected[i]){const payment=awardLaboratoryDeposit(f,'cosmic:survey:'+c.key+':'+i);if(payment.ok)c.record.collected[i]=true;}});
   persist();renderMarkers();selectedCard.hidden=true;updateNavigation();
  }
  function showSheet(which){
@@ -179,18 +182,18 @@ function init(api){
   left.append(node('h2','',which==='resources'?'Resources Inventory':which==='journal'?'Explorer Journal':'My Planet'));
   const exit=node('button','rt-btn','✕ Close');exit.onclick=()=>{closeSheets();highlightTab('galaxy');};header.append(left,exit);inner.append(header);
   if(which==='resources'){
-    inner.append(node('p','','Resources are earned only once from relevant scanned discoveries. They are stored for future colonisation, building and research mechanics, which are not enabled yet.'));
-    const inv=aggregate().totals,grid=node('div','rt-grid');const entries=Object.entries(inv).sort((a,b)=>a[0].localeCompare(b[0]));
-    for(const [label,amount] of entries){
-      const card=node('article','rt-card');card.append(node('strong','',iconMap[label]+' '+label),node('div','rt-amount',amount.toFixed(1)+' units'),node('small','', 'Collected from planetary anomalies'));grid.append(card);
+    inner.append(node('p','','A single shared inventory funds both life cultivation and construction. Every ingredient spent in the Laboratory or on a rocket is removed from these same balances.'));
+    const inv=window.COSMIC_VX_INVENTORY.read().balances,grid=node('div','rt-grid');
+    for(const [id,label,icon] of window.COSMIC_VX_INVENTORY.defs){
+      const card=node('article','rt-card');
+      card.append(node('strong','',icon+' '+label),node('div','rt-amount',String(inv[id]||0)+' units'),
+        node('small','',id==='culture'?'Rare biological sample':id==='technology'?'Recovered ancient material':'Available for eligible construction or life recipes'));
+      grid.append(card);
     }
-    if(!entries.length)grid.append(node('div','rt-empty','No resources yet. Explore a planet, scan it and collect a resource-bearing finding.'));
-    inner.append(grid,node('div','rt-ribbon','Resource amounts are fictional game units. This is a single-player browser save, not an online trading wallet.'));
+    inner.append(grid,node('div','rt-ribbon','Collected deposits are finite. Construction, probe launches and Laboratory mixtures all use this one save-slot inventory.'));
     const lab=readCosmicLab();
-    inner.append(node('h3','','Laboratory · Collected Ingredients'));
-    const labGrid=node('div','rt-grid');
-    for(const [id,label] of COSMIC_TEST_INGREDIENTS){const card=node('article','rt-card');card.append(node('strong','',label),node('p','',String(Math.max(0,Number(lab.stock?.[id])||0))+' available'));labGrid.append(card);}
-    const cultureCard=node('article','rt-card');cultureCard.append(node('strong','','🧫 First Life Culture'),node('p','',String(Math.max(0,Number(lab.cultures)||0))+' ready for seeding'));
+    const cultureCard=node('article','rt-card');
+    cultureCard.append(node('strong','','🧫 First Life Culture'),node('p','',String(Math.max(0,Number(lab.cultures)||0))+' cultivated culture(s) ready for seeding'));
     const seedBtn=node('button','rt-btn primary','Seed ASTRA-01');
     seedBtn.disabled=!(lab.cultures>0)||!!lab.seeded;
     if(lab.seeded){const phase=seedingState();cultureCard.append(node('p','',phase.status==='microbes'?'✓ First microbial life established on ASTRA-01':'◷ Seeding in progress — '+Math.ceil(phase.remaining/60000)+' minutes or less remaining'));}
@@ -200,15 +203,15 @@ function init(api){
         if(next.seeded||!(next.cultures>0))return showSheet('resources');
         if(!confirm('Use one First Life Culture to initiate microbial seeding on ASTRA-01?'))return;
         next.cultures-=1;next.seeded=true;next.seedStartedAt=Date.now();
-        if(saveCosmicLab(next)){showSheet('resources');}else alert('Unable to save seeding progress. Please check browser storage.');
+        if(saveCosmicLab(next))showSheet('resources');else alert('Unable to save seeding progress.');
       };
       cultureCard.append(seedBtn);
     }
-    labGrid.append(cultureCard);inner.append(labGrid);
-    const labOpen=node('button','rt-btn','⚗ Open Laboratory');
-    labOpen.onclick=openLaboratory;
-    inner.append(labOpen);
-
+    inner.append(cultureCard);
+    const actions=node('div','rt-actions');
+    const labOpen=node('button','rt-btn','⚗ Open Laboratory');labOpen.onclick=openLaboratory;
+    const buildOpen=node('button','rt-btn primary','▤ Construction');buildOpen.onclick=openConstruction;
+    actions.append(labOpen,buildOpen);inner.append(actions);
   }
   if(which==='journal'){
     const all=Object.values(state.worlds).filter(r=>r?.surveyed);
@@ -251,6 +254,19 @@ function init(api){
   }
  }
  function navigateGalaxy(){setLabVisible(false);setWorldVisible(false);closeSheets();if(api.isTerrainOpen())api.closeTerrain();api.backToGalaxy();highlightTab('galaxy');rememberView('galaxy');}
+ function openConstruction(){
+   setLabVisible(false);setWorldVisible(false);closeSheets();
+   window.COSMIC_VX_CONSTRUCTION.open({
+     onClose:navigateGalaxy,
+     onNavigate:dest=>{
+       if(dest==='home')openMyWorld();
+       else if(dest==='galaxy')navigateGalaxy();
+       else if(dest==='journal'||dest==='resources')showSheet(dest);
+       else if(dest==='profile'){navigateGalaxy();window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}
+     }
+   });
+   highlightTab('construction');rememberView('construction');
+ }
  function setHome(p,owner){
   if(!p||!owner)return;
   state.home={id:p.id,galaxySeed:api.getSeed(),name:p.name,system:api.getSystem(),owner:String(owner).slice(0,80)};persist();updateNavigation();
@@ -423,6 +439,7 @@ function init(api){
    const dest=message.destination;
    if(dest==='home'){openMyWorld();return;}
    if(dest==='laboratory'){openLaboratory();return;}
+   if(dest==='construction'){openConstruction();return;}
    if(dest==='galaxy'){setWorldVisible(false);navigateGalaxy();return;}
    if(dest==='journal'||dest==='resources'){
       setWorldVisible(false);
@@ -435,6 +452,7 @@ function init(api){
    if(event.data?.type!=='COSMIC_LAB_NAV')return;
    if(event.data.destination==='home')openMyWorld();
    else if(event.data.destination==='resources')showSheet('resources');
+   else if(event.data.destination==='construction')openConstruction();
  });
 
  // While seeding, only the My Planet tab pulses. The progress bar lives inside My Planet.
@@ -461,7 +479,7 @@ function init(api){
  refreshSeedingIndicator();
 
  for(const [key,b] of tabButtons){
-  b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else if(key==='profile'){window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}else{setWorldVisible(false);showSheet(key);}};
+  b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else if(key==='profile'){window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}else if(key==='construction')openConstruction();else{setWorldVisible(false);showSheet(key);}};
  }
  scanBtn.onclick=scan;
  const observer=new MutationObserver(onTerrainChange);observer.observe(terrain,{attributes:true,attributeFilter:['hidden']});
@@ -475,10 +493,11 @@ function init(api){
  try{
    const prior=JSON.parse(window.COSMIC_VX_STORAGE.getItem(VX_VIEW_KEY)||'null');
    const view=prior?.view;
-   if(['home','journal','resources','laboratory'].includes(view)){
+   if(['home','journal','resources','laboratory','construction'].includes(view)){
       setTimeout(()=>{
         if(view==='home')openMyWorld();
         else if(view==='laboratory')openLaboratory();
+        else if(view==='construction')openConstruction();
         else showSheet(view);
       },240);
    }

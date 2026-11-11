@@ -72,7 +72,7 @@ assert.equal(inventory.read().balances.iron,0.5,'Existing iron discoveries shoul
 assert(inventory.spend({water:2,metals:1}).ok,'Construction purchase should spend real resources');
 assert.equal(inventory.read().balances.water,2);
 assert.equal(JSON.parse(store.get('cosmic:myworld:laboratory:v21')).stock.water,2,'Laboratory mirror must be updated');
-assert(!inventory.spend({water:2}).ok,'Insufficient balance must block construction');
+assert(!inventory.spend({water:3}).ok,'Insufficient balance must block construction');
 assert.equal(inventory.read().balances.water,2,'Failed spend must not change inventory');
 assert(inventory.grant({water:1},'sample-delivery').ok);
 assert(inventory.grant({water:1},'sample-delivery').duplicate,'Expedition receipts must be idempotent');

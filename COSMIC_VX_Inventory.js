@@ -42,7 +42,9 @@ function read(){
   for(const [i,f] of (world.findings||[]).entries()){
    if(!world.collected?.[i]||!f?.resource)continue;
    const id=toId(f.resource.id||f.resource.item);
-   if(id&&!labIds.includes(id))balances[id]+=nonnegative(f.resource.amount);
+   // V20/VX previously credited explicit astrobiology samples into the Lab,
+   // but ordinary geological finds (including Water/Energy) were not.
+   if(id&&(!labIds.includes(id)||!f.cosmicIngredientId))balances[id]+=nonnegative(f.resource.amount);
   }
  }
  raw={version:1,balances:normalize(balances),receipts:[]};

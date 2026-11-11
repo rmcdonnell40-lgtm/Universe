@@ -41,3 +41,15 @@
 .cb-mission strong{font-size:12px}.cb-mission small{color:#a1c1d4}.cb-track{height:5px;border-radius:10px;overflow:hidden;background:#0a2337;margin-top:6px}.cb-fill{height:100%;background:#6ad6e9}
 @media(max-width:920px){.cb-body{grid-template-columns:1fr}.cb-bank{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){.cb-shell{padding:18px 12px 35px}.cb-bank{grid-template-columns:repeat(2,minmax(0,1fr))}.cb-cardgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.cb-blueprint{min-height:105px}.cb-header p{font-size:11px}.cb-ribbon{margin:14px 0 10px}.cb-category{padding:10px 11px}}
+/* Unified blueprint iconography. All twelve drawings use matching 24px line art. */
+.cb-icon{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid #4a7f95;background:radial-gradient(ellipse at 30% 22%,#20546a,#0b2537);border-radius:10px;flex:none;color:#84dcf2}
+.cb-icon .cb-svg{display:block;width:29px;height:29px}
+.cb-inline-icon{height:42px;width:42px}
+.cb-inline-icon .cb-svg{height:29px;width:29px}
+.cb-detail-heading{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.cb-detail-heading h2{margin:0}
+.cb-blueprint.selected .cb-icon{color:#ffe2b7;border-color:#daac6d;background:linear-gradient(140deg,#4b3d30,#1b2633)}
+.cb-topnav{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0 0 12px;padding:8px 0;border-bottom:1px solid #31526b}
+.cb-navbtn{font:800 10px/1.2 system-ui, sans-serif;color:#bcd9e7;background:#0a1e2f;border:1px solid #3e617c;border-radius:9px;padding:10px 13px;cursor:pointer;white-space:nowrap}
+.cb-navbtn.active{border-color:#85dff1;color:#fff;background:#145570}
+@media(max-width:600px){.cb-topnav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.cb-navbtn{padding:9px 11px;flex:none}.cb-icon{height:36px;width:36px}.cb-icon .cb-svg{height:25px;width:25px}}

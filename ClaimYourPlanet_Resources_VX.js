@@ -117,6 +117,7 @@ function init(api){
   ['journal','▣ Journal'],
   ['resources','◈ Inventory'],
   ['construction','▤ Construction'],
+  ['crew','◉ Crew'],
   ['profile','◉ Profile']
  ];
  const tabButtons=new Map();
@@ -148,7 +149,7 @@ function init(api){
   if(!rec.collected||typeof rec.collected!=='object')rec.collected={};
   return rec;
  }
- function closeSheets(){Object.values(sheets).forEach(s=>s.outer.hidden=true);window.COSMIC_VX_CONSTRUCTION?.close();}
+ function closeSheets(){Object.values(sheets).forEach(s=>s.outer.hidden=true);window.COSMIC_VX_CONSTRUCTION?.close();window.COSMIC_VX_CREW?.close();}
  function highlightTab(which){tabButtons.forEach((button,name)=>button.classList.toggle('active',name===which));}
  function updateNavigation(){
   const bank=window.COSMIC_VX_INVENTORY.read().balances,units=Object.values(bank).reduce((n,x)=>n+x,0);
@@ -262,10 +263,26 @@ function init(api){
        if(dest==='home')openMyWorld();
        else if(dest==='galaxy')navigateGalaxy();
        else if(dest==='journal'||dest==='resources')showSheet(dest);
+       else if(dest==='crew')openCrew();
        else if(dest==='profile'){navigateGalaxy();window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}
      }
    });
    highlightTab('construction');rememberView('construction');
+ }
+ function openCrew(){
+   setLabVisible(false);setWorldVisible(false);closeSheets();
+   if(!window.COSMIC_VX_CREW){console.warn('Crew dialogue system has not loaded');return;}
+   window.COSMIC_VX_CREW.open({
+     onClose:navigateGalaxy,
+     onNavigate:dest=>{
+       if(dest==='home')openMyWorld();
+       else if(dest==='galaxy')navigateGalaxy();
+       else if(dest==='construction')openConstruction();
+       else if(dest==='journal'||dest==='resources')showSheet(dest);
+       else if(dest==='profile'){navigateGalaxy();window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}
+     }
+   });
+   highlightTab('crew');rememberView('crew');
  }
  function setHome(p,owner){
   if(!p||!owner)return;
@@ -440,6 +457,7 @@ function init(api){
    if(dest==='home'){openMyWorld();return;}
    if(dest==='laboratory'){openLaboratory();return;}
    if(dest==='construction'){openConstruction();return;}
+   if(dest==='crew'){openCrew();return;}
    if(dest==='galaxy'){setWorldVisible(false);navigateGalaxy();return;}
    if(dest==='journal'||dest==='resources'){
       setWorldVisible(false);
@@ -479,7 +497,7 @@ function init(api){
  refreshSeedingIndicator();
 
  for(const [key,b] of tabButtons){
-  b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else if(key==='profile'){window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}else if(key==='construction')openConstruction();else{setWorldVisible(false);showSheet(key);}};
+  b.onclick=()=>{if(key==='galaxy'){setWorldVisible(false);navigateGalaxy();}else if(key==='home')openMyWorld();else if(key==='profile'){window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}else if(key==='construction')openConstruction();else if(key==='crew')openCrew();else{setWorldVisible(false);showSheet(key);}};
  }
  scanBtn.onclick=scan;
  const observer=new MutationObserver(onTerrainChange);observer.observe(terrain,{attributes:true,attributeFilter:['hidden']});
@@ -493,11 +511,12 @@ function init(api){
  try{
    const prior=JSON.parse(window.COSMIC_VX_STORAGE.getItem(VX_VIEW_KEY)||'null');
    const view=prior?.view;
-   if(['home','journal','resources','laboratory','construction'].includes(view)){
+   if(['home','journal','resources','laboratory','construction','crew'].includes(view)){
       setTimeout(()=>{
         if(view==='home')openMyWorld();
         else if(view==='laboratory')openLaboratory();
         else if(view==='construction')openConstruction();
+        else if(view==='crew')openCrew();
         else showSheet(view);
       },240);
    }

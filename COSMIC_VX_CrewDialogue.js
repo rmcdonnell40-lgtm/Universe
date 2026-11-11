@@ -237,4 +237,6 @@ document.addEventListener('keydown',e=>{
  }
 });
 window.COSMIC_VX_CREW={open,close,selectMission:chooseMission,getDemoState:()=>JSON.parse(JSON.stringify(state)),missions:Object.keys(missions)};
+// Direct playable test link bypasses the main menu while preserving the same Crew screen.
+if(new URLSearchParams(location.search).get('crewDemo')==='1')setTimeout(()=>open(),260);
 })();

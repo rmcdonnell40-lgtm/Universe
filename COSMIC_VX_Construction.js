@@ -129,7 +129,7 @@ function render(){
  identity.append(el('span','cb-kicker','COSMIC / GENESIS INITIATIVE'),el('h1','', 'CONSTRUCTION'),el('p','','Develop ASTRA-01 using the same finite resources required for life.'));
  header.append(identity,textButton('✕ Close',()=>close(true),'cb-close'));wrap.append(header);
  const topnav=el('nav','cb-topnav');topnav.setAttribute('aria-label','COSMIC navigation');
- for(const [id,label] of [['home','⌂ My Planet'],['galaxy','✧ Galaxy'],['journal','▣ Journal'],['resources','◈ Inventory'],['construction','▤ Construction'],['profile','◉ Profile']]){
+ for(const [id,label] of [['home','⌂ My Planet'],['galaxy','✧ Galaxy'],['journal','▣ Journal'],['resources','◈ Inventory'],['construction','▤ Construction'],['crew','◉ Crew'],['profile','◉ Profile']]){
   const btn=textButton(label,()=>{if(id!=='construction'){const cb=afterNavigate;close();cb?.(id);}},'cb-navbtn'+(id==='construction'?' active':''));
   topnav.append(btn);
  }

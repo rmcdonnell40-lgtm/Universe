@@ -155,7 +155,7 @@ function renderDossier(){
  text('cd-mission-type',m.category+' // '+m.risk+' RISK');text('cd-mission-title',m.title);
  text('cd-mission-brief',m.brief);text('cd-mission-rewards',m.rewards);
  const host=$('cd-objectives');host.replaceChildren();
- m.objectives.forEach((label,i)=>{const li=create('li',((i===0)||(i===1&&!!state.seen[mission+':start'])||(i===2&&!!state.decisions[mission]))?'done':'',label);host.append(li)});
+ m.objectives.forEach((label,i)=>{const li=create('li',((i===0)||(i===1&&Object.keys(state.seen).some(k=>k.startsWith(mission+':start:')))||(i===2&&!!state.decisions[mission]))?'done':'',label);host.append(li)});
  $('cd-footer-status').textContent=state.decisions[mission]?'DECISION SAVED // '+state.decisions[mission].replace(/_/g,' ').toUpperCase():'NARRATIVE PROTOTYPE // NO RESOURCES SPENT';
 }
 function renderDialog(){

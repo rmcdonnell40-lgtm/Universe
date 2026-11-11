@@ -49,7 +49,7 @@ const blank=()=>({version:1,buildings:[],missions:[],reserves:{}});
 function read(){const data=parse(KEY,null);if(!data||typeof data!=='object')return blank();return {...blank(),...data,buildings:Array.isArray(data.buildings)?data.buildings:[],missions:Array.isArray(data.missions)?data.missions:[],reserves:data.reserves&&typeof data.reserves==='object'?data.reserves:{}};}
 const save=state=>S().setItem(KEY,JSON.stringify(state));
 const uid=()=>Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);
-let root=null,tab='planet',selection='survey',continent=0,world='',chosenResource='',afterClose=null,ticker=null;
+let root=null,tab='planet',selection='survey',continent=0,world='',chosenResource='',afterClose=null,afterNavigate=null,ticker=null;
 const el=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=String(txt);return n};
 const scanned=()=>Object.entries(parse(EXP,{})?.worlds||{}).filter(([k,r])=>r?.surveyed).map(([key,r])=>({key,...r}));
 const deposits=w=>{
@@ -128,6 +128,12 @@ function render(){
  const identity=el('div','cb-identity');
  identity.append(el('span','cb-kicker','COSMIC / GENESIS INITIATIVE'),el('h1','', 'CONSTRUCTION'),el('p','','Develop ASTRA-01 using the same finite resources required for life.'));
  header.append(identity,textButton('✕ Close',()=>close(true),'cb-close'));wrap.append(header);
+ const topnav=el('nav','cb-topnav');topnav.setAttribute('aria-label','COSMIC navigation');
+ for(const [id,label] of [['home','⌂ My Planet'],['galaxy','✧ Galaxy'],['journal','▣ Journal'],['resources','◈ Inventory'],['construction','▤ Construction'],['profile','◉ Profile']]){
+  const btn=textButton(label,()=>{if(id!=='construction'){const cb=afterNavigate;close();cb?.(id);}},'cb-navbtn'+(id==='construction'?' active':''));
+  topnav.append(btn);
+ }
+ wrap.append(topnav);
  const ribbon=el('div','cb-ribbon');
  ribbon.append(el('span','','HOMEWORLD  ASTRA-01'),el('span','','One shared inventory · No second colony renderer'),el('span','',st.buildings.length+' assets constructed'));
  wrap.append(ribbon);
@@ -203,8 +209,8 @@ function render(){
  body.append(main,aside);wrap.append(body);root.append(wrap);
 }
 function open(options={}){
- ensureUI();afterClose=options.onClose||null;root.hidden=false;render();
+ ensureUI();afterClose=options.onClose||null;afterNavigate=options.onNavigate||null;root.hidden=false;render();
 }
-function close(notify=false){if(!root)return;root.hidden=true;if(notify){const cb=afterClose;afterClose=null;cb?.()}}
+function close(notify=false){if(!root)return;root.hidden=true;if(notify){const cb=afterClose;afterClose=null;afterNavigate=null;cb?.()}}
 window.COSMIC_VX_CONSTRUCTION={open,close,isOpen:()=>!!root&&!root.hidden,read,settle,blueprints};
 })();

@@ -5,6 +5,31 @@ const KEY='cosmic:vx:construction:v1', EXP='claimyourplanet:resource-expedition:
 const I=()=>window.COSMIC_VX_INVENTORY, S=()=>window.COSMIC_VX_STORAGE;
 const categories=[['planet','◫ PLANET'],['satellites','◎ SATELLITES'],['probes','⌁ PROBES']];
 const continents=['Aurelia','Vespera','Caelora','Nivalis','Solara','Thalora'];
+/* Matching technical blueprint glyphs: simple vector artwork, one per asset. */
+const iconPaths={
+ survey:'<path d="M12 17v4M8 21h8M12 17l-4-6m4 6 4-6M9 7a4 4 0 0 1 6 0M6.5 4a8 8 0 0 1 11 0"/><circle cx="12" cy="11" r="1.1"/>',
+ solar:'<circle cx="19" cy="4.5" r="1.8"/><path d="M19 1v1m0 5v1m-3.5-3.5h1m5 0h1M5 7l-3 11h18L17 7H5ZM4 12h14M10 7l-1 11m6-11 1 11M10 18v3m4-3v3M7 21h10"/>',
+ extractor:'<path d="M4 20h16M6 20V7h12v13M4 7h16M8 7V4h8v3M12 7v10m-2-2 2 3 2-3M8 10h2m4 0h2m-9 3h2m6 0h2M5 4l2-2m10 2 2-2"/>',
+ science:'<path d="M9 2h6m-5 0v7l-5.8 9.4A2.4 2.4 0 0 0 6.3 22h11.4a2.4 2.4 0 0 0 2.1-3.6L14 9V2M7 15h10M9 19h.01M14 18h.01M12 12v1"/>',
+ launch:'<path d="M12 2c-2.5 3-4.3 7-4.3 12l4.3 3 4.3-3C16.3 9 14.5 5 12 2ZM10 10h4M8 13l-3.5 4.5 3.5-.8m8-3.7 3.5 4.5-3.5-.8M10 18l-1 4m5-4 1 4M4 22h16M19 3v13M19 3h3m-3 4h2m-2 4h2"/>',
+ base:'<path d="M2 20h20M4 20v-7h6v7m4 0V9h6v11M3 13l4-5 4 5M13 9l4-6 4 6M6 16h2m8-3h2m-2 3h2M12 20v-4h2m-11 4V8m8 12V8"/>',
+ mapping:'<rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 11H2v2h7m6-2h7v2h-7M4 10v4m3-4v4m10-4v4m3-4v4M12 9V5m-2-2 2-2 2 2M9 18c2 2 4 2 6 0m-8 3c3.5 3 6.5 3 10 0"/>',
+ relay:'<path d="M4 4l10 10m-9-9a10 10 0 0 0 10 10M8 13l3 3m-1 5h8m-4-5v5m2-16a4 4 0 0 1 3 3m-3-7a8 8 0 0 1 7 7M10 10l4 4M8 8l2 2"/>',
+ scout:'<path d="M12 2 5 18l7-4 7 4-7-16ZM12 14v8M8 20h8M3 8l2-2m14 0 2 2M2 12h3m14 0h3M9 10h6"/>',
+ mining:'<path d="M4 21h16M7 21v-8l4-3h6l2 3-2 5h-5m-5-5h5v8m0-11V6l5-3m-2-1 4 2-2 4-4-2M5 7l-2 3m18 7-3 4M3 18l3 3"/>',
+ salvage:'<path d="M12 2v4m-4 0h8m-8 0-3 5 4 3m7-8 3 5-4 3M9 14l-2 3 3 3m5-6 2 3-3 3M10 20l2 2 2-2M5 3l2 2m10-2-2 2M3 13l2 2m14-2-2 2"/>',
+ scienceprobe:'<path d="M9 3h6l2 9H7L9 3ZM9 6h6m-8 6-4 7h5m9-7 4 7h-5M10 12v7m4-7v7M8 19h8M10 22h4M12 7v3m-2-2h4"/><circle cx="12" cy="5" r=".6"/>'
+};
+function iconSVG(id,compact=false){
+ const paths=iconPaths[id]||iconPaths.survey;
+ return '<svg class="cb-svg'+(compact?' cb-svg-sm':'')+'" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">'+paths+'</svg>';
+}
+function assetIcon(id,compact=false){
+ const wrap=el('span','cb-icon'+(compact?' cb-inline-icon':''));
+ wrap.innerHTML=iconSVG(id,compact);
+ return wrap;
+}
+
 const blueprints=[
  {id:'survey',kind:'planet',name:'Survey Outpost',icon:'⌖',desc:'A surface operations outpost for the first permanent scientific team.',cost:{iron:1,minerals:1,energy:1}},
  {id:'solar',kind:'planet',name:'Solar Array',icon:'☼',desc:'A field of adjustable solar panels that powers local operations.',cost:{iron:1,minerals:1,carbon:1}},
@@ -121,11 +146,11 @@ function render(){
  for(const bp of blueprints.filter(x=>x.kind===tab)){
   const b=el('button','cb-blueprint'+(selection===bp.id?' selected':''));
   b.type='button';b.onclick=()=>{selection=bp.id;render()};
-  b.append(el('span','cb-icon',bp.icon),el('strong','',bp.name),el('small','',owned(st,bp.id).length+' built'));
+  b.append(assetIcon(bp.id),el('strong','',bp.name),el('small','',owned(st,bp.id).length+' built'));
   grid.append(b);
  }main.append(grid);
  const chosen=blueprints.find(x=>x.id===selection)||blueprints.find(x=>x.kind===tab);
- const details=el('article','cb-details');details.append(el('h2','',chosen.icon+' '+chosen.name),el('p','',chosen.desc));
+ const details=el('article','cb-details');const detailHead=el('div','cb-detail-heading');detailHead.append(assetIcon(chosen.id,true),el('h2','',chosen.name));details.append(detailHead,el('p','',chosen.desc));
  if(chosen.kind==='planet'){
   const label=el('label','cb-label','BUILD ON CONTINENT');
   const select=el('select','');

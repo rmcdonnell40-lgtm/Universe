@@ -53,6 +53,7 @@ assert(myPlanet.includes('constructionRecords(region)')&&myPlanet.includes('addC
 assert(lab.includes('sharedInventory.spend({[id]:1})'),'Lab must consume shared resources');
 assert(res.includes("cosmic:survey:")&&res.includes("openConstruction()"));
 assert(construction.includes('I().spend(bp.cost')&&construction.includes('initialReserve('));
+for(const id of ['survey','solar','extractor','science','launch','base','mapping','relay','scout','mining','salvage','scienceprobe'])assert(construction.includes(id+" :'".replace(' ',''))||construction.includes(id+":'"), 'Missing custom SVG icon '+id);
 const store=new Map();
 store.set('cosmic:myworld:laboratory:v21',JSON.stringify({stock:{water:3,carbon:3,phosphorus:3,sulfur:3,metals:3,energy:3,culture:3},added:[],cultures:0}));
 store.set('claimyourplanet:resource-expedition:v18',JSON.stringify({
@@ -66,16 +67,16 @@ const fakeWindow={
 };
 vm.runInNewContext(shared,{window:fakeWindow,CustomEvent:class CustomEvent{}});
 const inventory=fakeWindow.COSMIC_VX_INVENTORY;
-assert.equal(inventory.read().balances.water,3,'Migrated water must not duplicate existing Laboratory deposit');
+assert.equal(inventory.read().balances.water,4,'Legacy geological Water must migrate, without duplicating old Laboratory ingredients');
 assert.equal(inventory.read().balances.iron,0.5,'Existing iron discoveries should migrate');
 assert(inventory.spend({water:2,metals:1}).ok,'Construction purchase should spend real resources');
-assert.equal(inventory.read().balances.water,1);
-assert.equal(JSON.parse(store.get('cosmic:myworld:laboratory:v21')).stock.water,1,'Laboratory mirror must be updated');
+assert.equal(inventory.read().balances.water,2);
+assert.equal(JSON.parse(store.get('cosmic:myworld:laboratory:v21')).stock.water,2,'Laboratory mirror must be updated');
 assert(!inventory.spend({water:2}).ok,'Insufficient balance must block construction');
-assert.equal(inventory.read().balances.water,1,'Failed spend must not change inventory');
+assert.equal(inventory.read().balances.water,2,'Failed spend must not change inventory');
 assert(inventory.grant({water:1},'sample-delivery').ok);
 assert(inventory.grant({water:1},'sample-delivery').duplicate,'Expedition receipts must be idempotent');
-assert.equal(inventory.read().balances.water,2,'Repeated delivery cannot duplicate stock');
+assert.equal(inventory.read().balances.water,3,'Repeated delivery cannot duplicate stock');
 
 console.log('COSMIC VX static checks passed: '+required.length+' files, '+count+' scripts, dependencies and key features.');
 console.log('NOTE: This is static validation only. Browser interaction, mobile rendering and live deployment are unverified.');

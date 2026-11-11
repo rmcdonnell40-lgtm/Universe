@@ -5,7 +5,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 const required=[
  'Universe_Masterclass_VX.html','Galaxy_VX.html','COSMIC_VX_SaveAdapter.js',
- 'COSMIC_VX_Menu.js','COSMIC_VX_Menu.css','COSMIC_VX_Inventory.js','COSMIC_VX_Construction.js','COSMIC_VX_Construction.css','COSMIC_VX_Story.js','COSMIC_VX_Story.css',
+ 'COSMIC_VX_Menu.js','COSMIC_VX_Menu.css','COSMIC_VX_Inventory.js','COSMIC_VX_Construction.js','COSMIC_VX_Construction.css','COSMIC_VX_CrewDialogue.js','COSMIC_VX_CrewDialogue.css','COSMIC_VX_Story.js','COSMIC_VX_Story.css',
  'ClaimYourPlanet_Resources_VX.js','ClaimYourPlanet_Discoveries_VX.js',
  'COSMIC_My_Planet_VX.html','COSMIC_My_Planet_Laboratory_VX.html',
  'COSMIC_Explorer_Profile_VX.html','COSMIC_Life_Species001_VX.html'
@@ -48,7 +48,13 @@ const galaxy=readFileSync('Galaxy_VX.html','utf8');
 const myPlanet=readFileSync('COSMIC_My_Planet_VX.html','utf8');
 const construction=readFileSync('COSMIC_VX_Construction.js','utf8');
 const shared=readFileSync('COSMIC_VX_Inventory.js','utf8');
+const crew=readFileSync('COSMIC_VX_CrewDialogue.js','utf8');
 assert(galaxy.includes('COSMIC_VX_Inventory.js')&&galaxy.includes('COSMIC_VX_Construction.js'));
+assert(galaxy.includes('COSMIC_VX_CrewDialogue.js')&&galaxy.includes('COSMIC_VX_CrewDialogue.css'),'Crew screen must load on VX Galaxy');
+assert(res.includes("['crew','◉ Crew']")&&res.includes('function openCrew()'),'Crew tab must be navigable');
+assert(crew.includes('THE FIRST SPARK')&&crew.includes('THE QUIET SIGNAL')&&crew.includes('chooseMission('),'Four mission dossiers must exist');
+assert(crew.includes('function selectChoice(')&&crew.includes('state.seen[stamp]')&&crew.includes('state.relations'),'Branching and anti-duplicate reputation');
+assert(crew.includes('getDemoState:')&&crew.includes('COSMIC_VX_STORAGE'),'Dialogue demo save is separated and inspectable');
 assert(myPlanet.includes('constructionRecords(region)')&&myPlanet.includes('addConstructionTerrain(k,construction)'));
 assert(lab.includes('sharedInventory.spend({[id]:1})'),'Lab must consume shared resources');
 assert(res.includes("cosmic:survey:")&&res.includes("openConstruction()"));

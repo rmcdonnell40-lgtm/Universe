@@ -254,7 +254,19 @@ function init(api){
   }
  }
  function navigateGalaxy(){setLabVisible(false);setWorldVisible(false);closeSheets();if(api.isTerrainOpen())api.closeTerrain();api.backToGalaxy();highlightTab('galaxy');rememberView('galaxy');}
- function openConstruction(){setLabVisible(false);setWorldVisible(false);closeSheets();window.COSMIC_VX_CONSTRUCTION.open({onClose:navigateGalaxy});highlightTab('construction');rememberView('construction');}
+ function openConstruction(){
+   setLabVisible(false);setWorldVisible(false);closeSheets();
+   window.COSMIC_VX_CONSTRUCTION.open({
+     onClose:navigateGalaxy,
+     onNavigate:dest=>{
+       if(dest==='home')openMyWorld();
+       else if(dest==='galaxy')navigateGalaxy();
+       else if(dest==='journal'||dest==='resources')showSheet(dest);
+       else if(dest==='profile'){navigateGalaxy();window.parent.postMessage({type:'COSMIC_SHOW_PROFILE'},location.origin);}
+     }
+   });
+   highlightTab('construction');rememberView('construction');
+ }
  function setHome(p,owner){
   if(!p||!owner)return;
   state.home={id:p.id,galaxySeed:api.getSeed(),name:p.name,system:api.getSystem(),owner:String(owner).slice(0,80)};persist();updateNavigation();

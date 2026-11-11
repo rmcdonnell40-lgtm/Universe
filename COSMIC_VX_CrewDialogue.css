@@ -45,7 +45,7 @@
 .cd-scene-lab:after{content:'';position:absolute;right:8%;bottom:25%;height:35%;width:35%;border:1px solid #9de9ff63;background:linear-gradient(#19486345,#0e263c6a);box-shadow:0 0 30px #45bee738}
 .cd-portrait{position:absolute;bottom:-7%;left:12%;height:109%;width:42%;max-width:380px;min-width:215px;z-index:1;filter:drop-shadow(16px 12px 32px #0008);mask-image:linear-gradient(0deg,transparent 0%,black 18%,black 100%)}
 .cd-main-face{height:100%;width:100%;display:flex;align-items:end;justify-content:center}
-.cd-main-face svg{height:100%;width:100%;object-fit:contain;object-position:center bottom;mix-blend-mode:screen}
+.cd-main-face svg{height:100%;width:100%;object-fit:contain;object-position:center bottom}
 .cd-stage-label{position:absolute;left:25px;bottom:16px;z-index:2;color:#c8e2ec;background:#051522aa;border:1px solid #6daac266;padding:8px 12px;font-size:9px;font-weight:850;letter-spacing:.14em;border-radius:7px;backdrop-filter:blur(8px);max-width:90%}
 .cd-stage-label #cd-location{color:#80b8cd;font-weight:650;margin-left:12px}
 .cd-conversation{min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#4d7b91 transparent;position:relative;padding:19px clamp(18px,3vw,45px) 30px;background:radial-gradient(ellipse at 60% -30%,#204d6382,transparent 58%),linear-gradient(#071827,#07111f)}
